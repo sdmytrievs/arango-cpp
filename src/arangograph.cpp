@@ -1,3 +1,4 @@
+#include <iostream>
 #include "arangograph.h"
 
 namespace jsonio { namespace arangodb {

@@ -32,7 +32,6 @@
 #include <cstring>
 #include <iostream>
 #include "arangodbusers.h"
-#include "jsonio/dbquerydef.h"
 #include "jsonio/io_settings.h"
 
 namespace jsonio {
@@ -77,5 +76,49 @@ void ArangoDBConnect::getFromSettings( const std::string& group, bool rootdata )
     }
 }
 
+// TArangoDBRootClient ------------------------------------------
+
+/// Default Constructor
+TArangoDBRootClient::TArangoDBRootClient()
+{
+  rootData.getFromSettings(ioSettings().defaultArangoDB(), true );
+  resetDBConnection( rootData );
+}
+
+TArangoDBRootClient::~TArangoDBRootClient()
+{ }
+
+void TArangoDBRootClient::resetDBConnection( const ArangoDBConnect& aconnectData )
+{
+    rootData = aconnectData;
+    pusers.reset( new arangodb::ArangoDBUsersAPI(rootData ) ); /// here must be root data
+}
+
+std::set<std::string> TArangoDBRootClient::getDatabaseNames()
+{
+  return pusers->getDatabaseNames();
+}
+
+void TArangoDBRootClient::CreateDatabase( const std::string& dbname, const std::vector<ArangoDBUser>& users )
+{
+   jsonioErrIf( rootData.readonlyDBAccess(), dbname, "Trying create database into read only mode.");
+   pusers->CreateDatabase( dbname, users );
+}
+
+void TArangoDBRootClient::CreateUser( const ArangoDBUser& userdata )
+{
+   jsonioErrIf( rootData.readonlyDBAccess(), userdata.name, "Trying create user into read only mode.");
+   return pusers->CreateUser( userdata );
+}
+
+std::map<std::string,std::string> TArangoDBRootClient::getDatabaseNames( const std::string&  user )
+{
+   return pusers->getDatabaseNames( user );
+}
+
+std::set<std::string> TArangoDBRootClient::getUserNames()
+{
+   return pusers->getUserNames();
+}
 
 } // namespace jsonio

@@ -1,6 +1,5 @@
 #include <sstream>
 #include "arangorequests.h"
-#include "jsonio/nservice.h"
 #include "jsonio/io_settings.h"
 
 namespace jsonio { namespace arangodb {

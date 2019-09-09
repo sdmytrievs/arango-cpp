@@ -70,6 +70,7 @@ struct ArangoDBUser
     name("root"), password(""), access("rw"), active(true), extra("")
     { }
 };
+
 bool operator!=(const ArangoDBUser& lhs, const ArangoDBUser& rhs);
 
 
@@ -107,7 +108,6 @@ struct ArangoDBConnect
 };
 
 bool operator!=(const ArangoDBConnect& lhs, const ArangoDBConnect& rhs);
-
 
 
 /// Definition of ArangoDB root API Low Level C++ Driver for ArangoDB

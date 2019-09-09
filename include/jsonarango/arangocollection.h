@@ -2,7 +2,8 @@
 #define ARANGOCOLLECTION_H
 
 #include <set>
-#include "jsonio/dbarango.h"
+//#include "jsonio/dbarango.h"
+#include "connection_data.h"
 #include "arangorequests.h"
 
 namespace jsonio { namespace arangodb {

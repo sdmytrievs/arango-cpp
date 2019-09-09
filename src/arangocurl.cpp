@@ -1,7 +1,7 @@
 #include <iostream>
 #include "arangocurl.h"
-#include "jsonio/nservice.h"
-#include "jsonio/io_settings.h"
+//#include "jsonio/nservice.h"
+//#include "jsonio/io_settings.h"
 
 namespace jsonio { namespace arangodb {
 

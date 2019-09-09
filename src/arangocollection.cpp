@@ -1,5 +1,6 @@
-#include "jsonio/dbquerydef.h"
-#include "jsonio/io_settings.h"
+//#include "jsonio/dbquerydef.h"
+//#include "jsonio/io_settings.h"
+#include <iostream>
 #include "arangocollection.h"
 #include "arangocurl.h"
 
