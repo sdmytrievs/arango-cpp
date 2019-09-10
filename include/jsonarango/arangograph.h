@@ -1,18 +1,17 @@
-#ifndef ARANGOGRAPH_H
-#define ARANGOGRAPH_H
+#pragma once
 
 #include "arangocollection.h"
 
-namespace jsonio { namespace arangodb {
+namespace arangocpp {
 
-
+/// \class  ArangoDBGraphAPI implement the API for manipulating graphs.
 class ArangoDBGraphAPI : public ArangoDBAPIBase
 {
 
 public:
 
     ///  Constructor
-    explicit ArangoDBGraphAPI( const jsonio::ArangoDBConnect& connectData ):
+    explicit ArangoDBGraphAPI( const ArangoDBConnect& connectData ):
         ArangoDBAPIBase(connectData)
     { }
 
@@ -21,44 +20,43 @@ public:
 
     // Graph commands
 
-    /// Get a graph from the graph module
-    bool ExistGraph(const std::string& graphname );
+    /// Checks whether the graph exists.
+    bool existGraph(const std::string& graphname );
 
-    /// The creation of a graph requires the name of the graph and a definition of its edges
-    void CreateGraph(const std::string& graphname, const std::string& edgeDefinitions);
+    /// Creates a graph with the given properties for this graph’s name.
+    /// The creation of a graph requires the name of the graph and a definition of its edges.
+    void createGraph(const std::string& graphname, const std::string& edgeDefinitions);
 
-    /// Lists all edge/vertex collections used in this graph
-    std::set<std::string> getGraphCollectionNames( const std::string& graphname, const std::string& colltype );
+    /// Fetches all (edges/vertexes) collections from the graph.
+    std::set<std::string> graphCollectionNames( const std::string& graphname, const std::string& colltype );
 
     /// Adds a vertex collection to the set of collections of the graph.
     /// If the collection does not exist, it will be created.
-    void AddVertexGraph(const std::string& graphname, const std::string& collname );
+    void addVertexGraph(const std::string& graphname, const std::string& collname );
 
     /// Adds an additional edge definition to the graph.
-    void AddEdgeGraph(const std::string& graphname, const std::string& edgeDefinition);
+    void addEdgeGraph(const std::string& graphname, const std::string& edgeDefinition);
 
 
-    // work with documents
+    // These functions implement the API for manipulating documents (CRUD)in an existing graph.
 
-    /// Creates an edge/vertex in an existing graph
-    std::string CreateRecord( const std::string& graphname, const std::string& colltype,
-      const std::string& collname, const std::string& jsonrec );
+    /// Creates a new vertex/edge document with the given data in an existing graph.
+    std::string createRecord( const std::string& graphname, const std::string& colltype,
+                              const std::string& collname, const std::string& jsonrec );
 
-    /// Gets an edge/vertex from the given collection to json std::string
-    bool ReadRecord( const std::string& graphname, const std::string& colltype,
-      const std::string& collname, const std::string& rid, std::string& jsonrec );
+    /// Retrieves the vertex/edge document with the given documentHandle from the collection.
+    bool readRecord( const std::string& graphname, const std::string& colltype,
+                     const std::string& collname, const std::string& documentHandle, std::string& jsonrec );
 
     /// Replaces the data of an edge/vertex in the collection
-    std::string UpdateRecord( const std::string& graphname, const std::string& colltype,
-      const std::string& collname, const std::string& rid, const std::string& jsonrec );
+    std::string updateRecord( const std::string& graphname, const std::string& colltype,
+                              const std::string& collname, const std::string& documentHandle, const std::string& jsonrec );
 
-    /// Removes an edge/vertex from the collection
-    bool DeleteRecord( const std::string& graphname, const std::string& colltype,
-      const std::string& collname, const std::string& rid );
+    /// Deletes the vertex/edge with the given documentHandle from the collection.
+    bool deleteRecord( const std::string& graphname, const std::string& colltype,
+                       const std::string& collname, const std::string& documentHandle );
 
 };
 
 
-}  }
-
-#endif // ARANGOGRAPH_H
+} // namespace arangocpp

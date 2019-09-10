@@ -2,7 +2,7 @@
 #include "arangorequests.h"
 #include "jsonio/io_settings.h"
 
-namespace jsonio { namespace arangodb {
+namespace arangocpp {
 
 std::string to_string(MessageType type);
 std::string to_string(const MessageHeader& header);
@@ -228,4 +228,4 @@ std::string to_string(HttpMessage& message)
   return ss.str();
 }
 
-} }
+} // namespace arangocpp

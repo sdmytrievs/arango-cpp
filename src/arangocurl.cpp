@@ -1,9 +1,9 @@
 #include <iostream>
 #include "arangocurl.h"
-//#include "jsonio/nservice.h"
-//#include "jsonio/io_settings.h"
+#include "jsonio/nservice.h"
+#include "jsonio/io_settings.h"
 
-namespace jsonio { namespace arangodb {
+namespace arangocpp {
 
 
 size_t RequestCurlObject::headerCallback(
@@ -195,4 +195,4 @@ std::unique_ptr<HttpMessage> RequestCurlObject::getResponse()
     return response;
 }
 
-} }
+} // namespace arangocpp

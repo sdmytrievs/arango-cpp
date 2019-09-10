@@ -34,7 +34,7 @@
 #include "arangodbusers.h"
 #include "jsonio/io_settings.h"
 
-namespace jsonio {
+namespace arangocpp {
 
 //ArangoDBConnect TArangoDBClientOne::theConnect( "https://db.thermohub.net",
 //           "adminrem",  "Administrator@Remote-ThermoHub-Server",  "hub_test"  );
@@ -121,4 +121,4 @@ std::set<std::string> TArangoDBRootClient::getUserNames()
    return pusers->getUserNames();
 }
 
-} // namespace jsonio
+} // namespace arangocpp

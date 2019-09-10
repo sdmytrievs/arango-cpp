@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 
-namespace arango {
+namespace arangocpp {
 
 
 /// @brief General exception structure into project.
@@ -67,4 +67,4 @@ inline void ARANGO_THROW_IF(bool error, const std::string& title, int id, std::s
     if(error) throw arango_exception{title, id, std::forward<std::string>(message)};
 }
 
-} // namespace arango
+} // namespace arangocpp

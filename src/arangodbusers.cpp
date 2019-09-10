@@ -1,35 +1,36 @@
 #include "arangodbusers.h"
 #include "arangocurl.h"
+#include "arangoexception.h"
 
-namespace jsonio { namespace arangodb {
+namespace arangocpp {
 
 // Send a request to the server and wait into a response it received.
-std::unique_ptr<arangodb::HttpMessage> ArangoDBUsersAPI::sendRequest(std::unique_ptr<arangodb::HttpMessage> rq )
+std::unique_ptr<HttpMessage> ArangoDBUsersAPI::sendRequest(std::unique_ptr<HttpMessage> rq )
 {
    //try{
         DEBUG_OUTPUT( "request", rq );
-        auto url = _connect_data.serverUrl+rq->header.path;
-        arangodb::RequestCurlObject mco( url, _connect_data.user.name, _connect_data.user.password, std::move(rq) );
+        auto url = connect_data.serverUrl+rq->header.path;
+        RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
         auto result = mco.getResponse();
         DEBUG_OUTPUT( "result", result );
         if( !result->isContentTypeVPack() )
             jsonioErr("DBArango002: ", "Illegal content type" );
         return result;
-   //}catch (arangodb::ErrorCondition& error )
+   //}catch (ErrorCondition& error )
    // {
-   //     cout << "Response from server: " << arangodb::to_std::string(error) << endl;
-   //     jsonioErr("DBArango001: ", "error response from server", arangodb::to_std::string(error));
+   //     cout << "Response from server: " << to_std::string(error) << endl;
+   //     jsonioErr("DBArango001: ", "error response from server", to_std::string(error));
    // }
 }
 
 
-std::set<std::string> ArangoDBUsersAPI::getDatabaseNames()
+std::set<std::string> ArangoDBUsersAPI::databaseNames()
  {
    std::set<std::string> dbnames;
-   auto request = createRequest(arangodb::RestVerb::Get, std::string("/_api/database")  );
+   auto request = createRequest(RestVerb::Get, std::string("/_api/database")  );
    auto result =  sendRequest(std::move(request));
 
-   if( result->statusCode() == arangodb::StatusOK )
+   if( result->statusCode() == StatusOK )
    {
        auto slice = result->slices().front();
        auto collst = slice.get("result");
@@ -40,14 +41,14 @@ std::set<std::string> ArangoDBUsersAPI::getDatabaseNames()
  }
 
 
-std::map<std::string,std::string> ArangoDBUsersAPI::getDatabaseNames(const std::string&  user)
+std::map<std::string,std::string> ArangoDBUsersAPI::databaseNames(const std::string&  user)
  {
    std::map<std::string,std::string> dbnames;
    std::string qpath  = std::string("/_api/user/")+user+"/database/";
-   auto request = createRequest(arangodb::RestVerb::Get, qpath  );
+   auto request = createRequest(RestVerb::Get, qpath  );
    auto result =  sendRequest(std::move(request));
 
-   if( result->statusCode() == arangodb::StatusOK )
+   if( result->statusCode() == StatusOK )
    {
        auto slice = result->slices().front();
        auto collst = slice.get("result");
@@ -59,17 +60,17 @@ std::map<std::string,std::string> ArangoDBUsersAPI::getDatabaseNames(const std::
  }
 
 // Information of the database
-bool ArangoDBUsersAPI::ExistDatabase( const std::string& dbname )
+bool ArangoDBUsersAPI::existDatabase( const std::string& dbname )
 {
     std::string qpath  = std::string("/_db/") + dbname + std::string("/_api/database/current") ;
-    auto request = createRequest(arangodb::RestVerb::Get, qpath );
+    auto request = createRequest(RestVerb::Get, qpath );
     auto result = sendRequest(std::move(request));
-    return result->statusCode() != arangodb::StatusNotFound;
+    return result->statusCode() != StatusNotFound;
 }
 
-void ArangoDBUsersAPI::CreateDatabase( const std::string& dbname, const std::vector<ArangoDBUser>&  users )
+void ArangoDBUsersAPI::createDatabase( const std::string& dbname, const std::vector<ArangoDBUser>&  users )
 {
-    if( ExistDatabase( dbname ) )
+    if( existDatabase( dbname ) )
       return;
 
     try{
@@ -96,11 +97,11 @@ void ArangoDBUsersAPI::CreateDatabase( const std::string& dbname, const std::vec
        }
        builder.close();
 
-       auto request = createRequest(arangodb::RestVerb::Post, std::string("/_api/database"));
+       auto request = createRequest(RestVerb::Post, std::string("/_api/database"));
        request->addVPack(builder.slice());
        auto result = sendRequest(std::move(request));
 
-       if( result->statusCode() != arangodb::StatusCreated )
+       if( result->statusCode() != StatusCreated )
        {
            auto errmsg = result->slices().front().get("errorMessage").copyString();
            jsonioErr( "DBArango010: ", "Error when create database: "+errmsg );
@@ -113,23 +114,23 @@ void ArangoDBUsersAPI::CreateDatabase( const std::string& dbname, const std::vec
         }
 }
 
-void ArangoDBUsersAPI::RemoveDatabase( const std::string& dbname )
+void ArangoDBUsersAPI::removeDatabase( const std::string& dbname )
 {
-    if( !ExistDatabase( dbname ) )
+    if( !existDatabase( dbname ) )
       return;
 
     std::string qpath  = std::string("/_api/database/")+dbname;
-    auto request = createRequest(arangodb::RestVerb::Delete, qpath );
+    auto request = createRequest(RestVerb::Delete, qpath );
     auto result = sendRequest(std::move(request));
 
-    if( result->statusCode() != arangodb::StatusOK )
+    if( result->statusCode() != StatusOK )
     {
         auto errmsg = result->slices().front().get("errorMessage").copyString();
         jsonioErr( "DBArango011: ", "Error when drop database: "+errmsg );
     }
 }
 
-void ArangoDBUsersAPI::CreateUser( const ArangoDBUser& userdata )
+void ArangoDBUsersAPI::createUser( const ArangoDBUser& userdata )
 {
     try{
        ::arangodb::velocypack::Builder builder;
@@ -144,11 +145,11 @@ void ArangoDBUsersAPI::CreateUser( const ArangoDBUser& userdata )
        }
        builder.close();
 
-       auto request = createRequest(arangodb::RestVerb::Post, std::string("/_api/user"));
+       auto request = createRequest(RestVerb::Post, std::string("/_api/user"));
        request->addVPack(builder.slice());
        auto result = sendRequest(std::move(request));
 
-       if( result->statusCode() != arangodb::StatusCreated )
+       if( result->statusCode() != StatusCreated )
        {
            auto errmsg = result->slices().front().get("errorMessage").copyString();
            jsonioErr( "DBArango012: ", "Error when create user: "+errmsg );
@@ -161,7 +162,7 @@ void ArangoDBUsersAPI::CreateUser( const ArangoDBUser& userdata )
         }
 }
 
-void ArangoDBUsersAPI::UpdateUser( const ArangoDBUser& userdata )
+void ArangoDBUsersAPI::updateUser( const ArangoDBUser& userdata )
 {
     try{
        ::arangodb::velocypack::Builder builder;
@@ -175,11 +176,11 @@ void ArangoDBUsersAPI::UpdateUser( const ArangoDBUser& userdata )
        }
        builder.close();
 
-       auto request = createRequest(arangodb::RestVerb::Patch, std::string("/_api/user/")+userdata.name);
+       auto request = createRequest(RestVerb::Patch, std::string("/_api/user/")+userdata.name);
        request->addVPack(builder.slice());
        auto result = sendRequest(std::move(request));
 
-       if( result->statusCode() != arangodb::StatusOK )
+       if( result->statusCode() != StatusOK )
        {
            auto errmsg = result->slices().front().get("errorMessage").copyString();
            jsonioErr( "DBArango013: ", "Error when update user data: "+errmsg );
@@ -192,20 +193,20 @@ void ArangoDBUsersAPI::UpdateUser( const ArangoDBUser& userdata )
         }
 }
 
-void ArangoDBUsersAPI::RemoveUser( const std::string& username )
+void ArangoDBUsersAPI::removeUser( const std::string& username )
 {
     std::string qpath  = std::string("/_api/user/")+username;
-    auto request = createRequest(arangodb::RestVerb::Delete, qpath );
+    auto request = createRequest(RestVerb::Delete, qpath );
     auto result = sendRequest(std::move(request));
 
-    if( result->statusCode() != arangodb::StatusAccepted )
+    if( result->statusCode() != StatusAccepted )
     {
         auto errmsg = result->slices().front().get("errorMessage").copyString();
         jsonioErr( "DBArango014: ", "Error when drop user: "+errmsg );
     }
 }
 
-void ArangoDBUsersAPI::GrantUserToDataBase(const std::string& dbname, const std::string& username, const std::string& grant )
+void ArangoDBUsersAPI::grantUserToDataBase(const std::string& dbname, const std::string& username, const std::string& grant )
 {
     ::arangodb::velocypack::Builder builder;
     builder.openObject();
@@ -213,11 +214,11 @@ void ArangoDBUsersAPI::GrantUserToDataBase(const std::string& dbname, const std:
     builder.close();
 
     std::string qpath  = std::string("/_api/user/")+ username + "/database/"+ dbname;
-    auto request = createRequest(arangodb::RestVerb::Put, qpath );
+    auto request = createRequest(RestVerb::Put, qpath );
     request->addVPack(builder.slice());
     auto result = sendRequest(std::move(request));
 
-    if( result->statusCode() != arangodb::StatusOK )
+    if( result->statusCode() != StatusOK )
     {
         auto errmsg = result->slices().front().get("errorMessage").copyString();
         jsonioErr( "DBArango015: ", "Error when grant user: "+errmsg );
@@ -225,13 +226,13 @@ void ArangoDBUsersAPI::GrantUserToDataBase(const std::string& dbname, const std:
 }
 
 
-std::set<std::string> ArangoDBUsersAPI::getUserNames()
+std::set<std::string> ArangoDBUsersAPI::userNames()
  {
    std::set<std::string> usernames;
-   auto request = createRequest(arangodb::RestVerb::Get, std::string("/_api/user/")  );
+   auto request = createRequest(RestVerb::Get, std::string("/_api/user/")  );
    auto result =  sendRequest(std::move(request));
 
-   if( result->statusCode() == arangodb::StatusOK )
+   if( result->statusCode() == StatusOK )
    {
        auto slice = result->slices().front();
        auto collst = slice.get("result");
@@ -242,4 +243,4 @@ std::set<std::string> ArangoDBUsersAPI::getUserNames()
  }
 
 
-}  }
+} // namespace arangocpp

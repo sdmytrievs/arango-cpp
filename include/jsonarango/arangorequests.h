@@ -1,12 +1,11 @@
-#ifndef ARREQUESTS_H
-#define ARREQUESTS_H
+#pragma once
 
 #include <boost/asio/buffer.hpp>
 #include <velocypack/Parser.h>
 #include <string>
 #include <map>
 
-namespace jsonio { namespace arangodb {
+namespace arangocpp {
 
 const std::string fu_content_type_key("content-type");
 const std::string fu_accept_key("accept");
@@ -140,6 +139,6 @@ std::unique_ptr<HttpMessage> createResponse( );
 std::string to_string(RestVerb type);
 std::string to_string(HttpMessage& message);
 
-} }
+} // namespace arangocpp
 
-#endif // ARREQUESTS_H
+

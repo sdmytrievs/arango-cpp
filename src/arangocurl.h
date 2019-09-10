@@ -1,10 +1,9 @@
-#ifndef ARANGOCURL_H
-#define ARANGOCURL_H
+#pragma once
 
 #include <curl/curl.h>
 #include "arangorequests.h"
 
-namespace jsonio { namespace arangodb {
+namespace arangocpp {
 
 class RequestCurlObject {
 
@@ -56,7 +55,7 @@ class RequestCurlObject {
 };
 
 
-} }
+} // arangocpp
 
 
 /*
@@ -76,4 +75,3 @@ curl -u adminrem:"Administrator@Remote-ThermoHub-Server" https://db.thermohub.ne
 */
 
 
-#endif // ARANGOCURL_H
