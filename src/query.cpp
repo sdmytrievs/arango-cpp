@@ -10,8 +10,8 @@ bool operator !=( const ArangoDBQuery& iEl,  const ArangoDBQuery& iEr)
     return (iEl.query_type != iEr.query_type) || (iEl.find_condition != iEr.find_condition);
 }
 
-ArangoDBQuery::ArangoDBQuery(std::string &&condition, ArangoDBQuery::QueryType atype):
-    query_type{atype}, find_condition{std::forward<std::string>(condition)}, bind_vars{}, query_fields{}
+ArangoDBQuery::ArangoDBQuery( const std::string &condition, ArangoDBQuery::QueryType atype):
+    query_type{atype}, find_condition{condition}, bind_vars{}, query_fields{}
 {
     if( find_condition.empty() )
         query_type = All;

@@ -54,9 +54,9 @@ protected:
     ::arangodb::velocypack::Options dump_options;
     ::arangodb::velocypack::Options parse_options;
 
-    virtual std::unique_ptr<HttpMessage> createRequest( RestVerb verb, std::string const& path,
+    virtual std::unique_ptr<HttpMessage> createREQUEST( RestVerb verb, std::string const& path,
                                                         StringMap const& parameter = StringMap() );
-    virtual std::unique_ptr<HttpMessage> sendRequest( std::unique_ptr<HttpMessage> rq );
+    virtual std::unique_ptr<HttpMessage> sendREQUEST( std::unique_ptr<HttpMessage> rq );
 
     // Genetrate _id from _key
     std::string getId( const std::string& collname, const std::string& key )
@@ -79,6 +79,15 @@ protected:
         return rkey;
     }
 
+    /// Copy constructor
+    ArangoDBAPIBase( const ArangoDBAPIBase& data) = default;
+    /// Move constructor
+    ArangoDBAPIBase( ArangoDBAPIBase&& data) = default;
+    /// Copy assignment
+    ArangoDBAPIBase &operator =( const ArangoDBAPIBase &other) = default;
+    /// Move assignment
+    ArangoDBAPIBase &operator =( ArangoDBAPIBase &&other)= default;
+
 };
 
 /// \class  ArangoDBCollectionAPI the API for manipulating collections and documents into.
@@ -94,7 +103,6 @@ public:
         ArangoDBAPIBase(connectData)
     { }
 
-    ///  Destructor
     ~ArangoDBCollectionAPI();
 
     // These functions implement the API for modifying collections.
@@ -107,7 +115,7 @@ public:
     /// Drops the collection identified by collection-name.
     void dropCollection(const std::string& collname );
     /// Collect collection names in current database ( or only Edges/Vertex collections ).
-    std::set<std::string> getCollectionNames( CollectionTypes ctype );
+    std::set<std::string> collectionNames( CollectionTypes ctype );
 
     // These functions implement the API for manipulating documents (CRUD)
 
@@ -127,17 +135,15 @@ public:
 
     // Selections
 
+    /// Generate  query to outgoing or/and incoming edges ( query is a special format  EdgesX ).
+    ArangoDBQuery queryEdgesToFrom( ArangoDBQuery::QueryType atype, const std::string& startVertex,
+                                    const std::string& edgeCollections );
+
     /// Execute function to multiple documents by their keys.
     void lookupByKeys( const std::string& collname,  const std::vector<std::string>& keys,  SetReadedFunction setfnc );
 
     /// Execute function to selected records by condition ( query is simple, query by-example or AQL ).
     void selectQuery( const std::string& collname,  const ArangoDBQuery& query,  SetReadedFunction setfnc );
-
-    /// Execute function to outgoing or/and incoming edges ( query is a special format  EdgesX ).
-    void searchEdgesToFrom(const std::string& collname, const ArangoDBQuery& query,  SetReadedFunction setfnc);
-
-    /// Execute function to outgoing or incoming edges ( query is query by-example - old EJDB format ).
-    void searchEdgesToFromOld(const std::string& collname, const ArangoDBQuery& query,  SetReadedFunction setfnc);
 
     /// Execute function to all records into collection, if isComlexFields false  extracts only Query Fields.
     void selectAll( const std::string& collname, const QueryFields& queryFields, SetReadedFunctionKey setfnc );
@@ -162,12 +168,13 @@ protected:
     std::unique_ptr<HttpMessage> createSimpleAllRequest( const std::string& collname );
 
     /// Generate simple query by-example to return all documents of a collection matching a given example
-    std::unique_ptr<HttpMessage> createByExampleRequest
-    ( const std::string& collname,  const std::string& jsontempl  );
+    std::unique_ptr<HttpMessage> createByExampleRequest( const std::string& collname,  const std::string& jsontempl  );
 
     /// Generate request to AQL query cursor
-    std::unique_ptr<HttpMessage> createAQLRequest
-    ( const std::string& collname,  const ArangoDBQuery& query  );
+    std::unique_ptr<HttpMessage> createAQLRequest( const std::string& collname,  const ArangoDBQuery& query  );
+
+    /// Generate request to Edges query cursor
+    std::unique_ptr<HttpMessage> createEdgeRequest( const std::string& collname,  const ArangoDBQuery& query  );
 
     /// Execute user function to all records data
     void extractData( const ::arangodb::velocypack::Slice& sresult,  SetReadedFunction setfnc );

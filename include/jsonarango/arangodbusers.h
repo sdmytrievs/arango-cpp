@@ -18,10 +18,6 @@ public:
         ArangoDBAPIBase(rootData)
     { }
 
-    ///  Destructor
-    virtual ~ArangoDBUsersAPI()
-    { }
-
     // Data base functions
 
     /// Retrieves the list of all existing Databases.
@@ -64,7 +60,7 @@ public:
 
 protected:
 
-    virtual std::unique_ptr<HttpMessage> sendRequest(std::unique_ptr<HttpMessage> rq );
+    std::unique_ptr<HttpMessage> sendREQUEST(std::unique_ptr<HttpMessage> rq ) override;
 
 };
 

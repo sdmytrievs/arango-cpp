@@ -8,12 +8,14 @@
 namespace arangocpp {
 
 /// Types of collection to select.
-enum class CollectionTypes {
+enum class CollectionTypes  {
     Vertex  = 0x0001,        ///< Document collection ( also referred to as vertex collections in the context of graphs)
     Edge    = 0x0002,        ///< Edge collections  ( used to create relations between documents )
     All = Vertex|Edge        ///< All Vertexes&Edges
 };
 
+inline bool operator&(const CollectionTypes& lhs, const CollectionTypes& rhs)
+{ return static_cast<int>(lhs)&static_cast<int>(rhs); }
 
 /// Callback function fetching document from a collection that match the specified condition
 using  SetReadedFunction = std::function<void( const std::string& jsondata )>;
@@ -55,7 +57,7 @@ public:
     { }
 
     /// An AQL query text or json template constructor.
-    ArangoDBQuery( std::string&& condition, QueryType atype );
+    ArangoDBQuery( const std::string& condition, QueryType atype );
 
 
     virtual ~ArangoDBQuery()
@@ -78,7 +80,7 @@ public:
     }
 
     /// Get query type.
-    int type() const
+    QueryType type() const
     {
         return query_type;
     }

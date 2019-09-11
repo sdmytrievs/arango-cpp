@@ -1,6 +1,7 @@
 #include <sstream>
 #include "arangorequests.h"
-#include "jsonio/io_settings.h"
+#include "arangoexception.h"
+//#include "jsonio/io_settings.h"
 
 namespace arangocpp {
 
@@ -71,7 +72,7 @@ std::vector<::arangodb::velocypack::Slice>const & HttpMessage::slices()
       _slices.emplace_back(cursor);
       auto sliceSize = _slices.back().byteSize();
       if (length < sliceSize){
-        ::jsonio::jsonioErr( "logic_error", "Invalid buffer" );
+        ARANGO_THROW( "HttpMessage", 1, "Invalid buffer" );
       }
       cursor += sliceSize;
       length -= sliceSize;

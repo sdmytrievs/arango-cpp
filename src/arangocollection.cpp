@@ -1,15 +1,16 @@
 #include <iostream>
-#include <velocypack/Parser.h>
+//#include <velocypack/Parser.h>
 #include "arangocollection.h"
 #include "arangocurl.h"
-#include "jsonio/io_settings.h"
+#include "arangoexception.h"
+//#include "jsonio/io_settings.h"
 
 
 namespace arangocpp {
 
 void ArangoDBAPIBase::resetDBConnection( const ArangoDBConnect& connectData )
 {
-    if( !( connect_data != connectData) )
+    if( !(connect_data != connectData) )
         return;
     connect_data = connectData;
 
@@ -24,7 +25,7 @@ void ArangoDBAPIBase::resetDBConnection( const ArangoDBConnect& connectData )
 }
 
 
-std::unique_ptr<HttpMessage> ArangoDBAPIBase::createRequest(
+std::unique_ptr<HttpMessage> ArangoDBAPIBase::createREQUEST(
         RestVerb verb, std::string const& path, StringMap const& parameter )
 
 {
@@ -34,18 +35,18 @@ std::unique_ptr<HttpMessage> ArangoDBAPIBase::createRequest(
 
 
 // Send a request to the server and wait into a response it received.
-std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendRequest(std::unique_ptr<HttpMessage> rq )
+std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendREQUEST(std::unique_ptr<HttpMessage> rq )
 {
     //try{
-    DEBUG_OUTPUT( "request", rq );
+    DEBUG_OUTPUT( "request", rq )
     auto url = connect_data.fullURL(rq->header.path);
     RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
     auto result = mco.getResponse();
-    DEBUG_OUTPUT( "result", result );
+    DEBUG_OUTPUT( "result", result )
     if( !result->isContentTypeVPack() )
-        jsonioErr("DBArango002: ", "Illegal content type" );
+        ARANGO_THROW( "ArangoDBAPIBase", 3, "Illegal content type" );
     if( result->statusCode() == 0 )
-        jsonioErr("DBArango005: ", "Server connections error" );
+        ARANGO_THROW( "ArangoDBAPIBase", 2, "Server connections error" );
     return result;
     //}catch (ErrorCondition& error )
     // {
@@ -56,8 +57,8 @@ std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendRequest(std::unique_ptr<HttpMe
 
 void ArangoDBAPIBase::testConnection()
 {
-    auto request = createRequest(RestVerb::Get, "/_api/version");
-    auto result = sendRequest(std::move(request));
+    auto request = createREQUEST(RestVerb::Get, "/_api/version");
+    auto result = sendREQUEST(std::move(request));
 
     auto slice = result->slices().front();
     auto version = slice.get("version").copyString();
@@ -72,20 +73,20 @@ ArangoDBCollectionAPI::~ArangoDBCollectionAPI()
 { }
 
 // Test exist collection
-bool ArangoDBCollectionAPI::ExistCollection(const std::string& collname )
+bool ArangoDBCollectionAPI::existCollection(const std::string& collname )
 {
     std::string qpath  = std::string("/_api/collection/")+collname+"/properties";
-    auto request = createRequest(RestVerb::Get, qpath );
-    auto result = sendRequest(std::move(request));
+    auto request = createREQUEST(RestVerb::Get, qpath );
+    auto result = sendREQUEST(std::move(request));
 
     return result->statusCode() != StatusNotFound;
 }
 
 // Create collection if no exist
-void ArangoDBCollectionAPI::CreateCollection(const std::string& collname, const std::string& ctype)
+void ArangoDBCollectionAPI::createCollection(const std::string& collname, const std::string& ctype)
 {
     // test exist collection
-    if( ExistCollection( collname ) )
+    if( existCollection( collname ) )
         return;
 
     ::arangodb::velocypack::Builder builder;
@@ -95,34 +96,44 @@ void ArangoDBCollectionAPI::CreateCollection(const std::string& collname, const 
         builder.add("type" , ::arangodb::velocypack::Value(3));
     builder.close();
 
-    auto request1 = createRequest(RestVerb::Post, std::string("/_api/collection") );
+    auto request1 = createREQUEST(RestVerb::Post, std::string("/_api/collection") );
     request1->addVPack(builder.slice());
-    auto result1 = sendRequest(std::move(request1));
+    auto result1 = sendREQUEST(std::move(request1));
 
     if( result1->statusCode() != StatusOK )
-        jsonioErr( "DBArango003: ", "Error when create collection" );
+    {
+        auto slice = result1->slices().front();
+        auto errmsg = slice.get("errorMessage").copyString();
+        JSONIO_LOG << "Error :" << errmsg << std::endl;
+        ARANGO_THROW( "ArangoDBCollectionAPI", 12, std::string("Error when create collection: ") + errmsg );
+    }
 }
 
 // Drops the collection identified by collection-name
-void ArangoDBCollectionAPI::DropCollection(const std::string& collname )
+void ArangoDBCollectionAPI::dropCollection(const std::string& collname )
 {
     // test exist collection
-    if( !ExistCollection( collname ) )
+    if( !existCollection( collname ) )
         return;
 
     std::string qpath  = std::string("/_api/collection/")+collname;
-    auto request = createRequest(RestVerb::Delete, qpath );
-    auto result = sendRequest(std::move(request));
+    auto request = createREQUEST(RestVerb::Delete, qpath );
+    auto result = sendREQUEST(std::move(request));
 
     if( result->statusCode() != StatusOK )
-        jsonioErr( "DBArango010: ", "Error when drop collection" );
+    {
+        auto slice = result->slices().front();
+        auto errmsg = slice.get("errorMessage").copyString();
+        JSONIO_LOG << "Error :" << errmsg << std::endl;
+        ARANGO_THROW( "ArangoDBCollectionAPI", 13, std::string("Error when try drop collection: ") + errmsg );
+    }
 }
 
-std::set<std::string> ArangoDBCollectionAPI::getCollectionNames( TAbstractDBDriver::CollectionTypes ctype )
+std::set<std::string> ArangoDBCollectionAPI::collectionNames( CollectionTypes ctype )
 {
     std::set<std::string> collnames;
-    auto request = createRequest(RestVerb::Get, "/_api/collection"  );
-    auto result =  sendRequest(std::move(request));
+    auto request = createREQUEST(RestVerb::Get, "/_api/collection"  );
+    auto result =  sendREQUEST(std::move(request));
 
     if( result->statusCode() == StatusOK )
     {
@@ -134,10 +145,10 @@ std::set<std::string> ArangoDBCollectionAPI::getCollectionNames( TAbstractDBDriv
         {
             if( collst[ii].get("isSystem").getBool() )
                 continue;
-            if(  ctype&TAbstractDBDriver::clVertex && collst[ii].get("type").getInt() == 2 )  // 2: document collection (normal case)
+            if(  ctype&CollectionTypes::Vertex && collst[ii].get("type").getInt() == 2 )  // 2: document collection (normal case)
                 collnames.insert(collst[ii].get("name").copyString());
             else
-                if( ctype&TAbstractDBDriver::clEdge && collst[ii].get("type").getInt() == 3 )   // 3: edges collection
+                if( ctype&CollectionTypes::Edge && collst[ii].get("type").getInt() == 3 )   // 3: edges collection
                     collnames.insert(collst[ii].get("name").copyString());
         }
     }
@@ -145,50 +156,50 @@ std::set<std::string> ArangoDBCollectionAPI::getCollectionNames( TAbstractDBDriv
     return collnames;
 }
 
-bool ArangoDBCollectionAPI::ReadRecord( const std::string& collname,
+bool ArangoDBCollectionAPI::readRecord( const std::string& collname,
                                         const std::string& key, std::string& jsonrec )
 {
     std::string rid = getId( collname, key );
 
     std::string rqstr = "/_api/document/"+rid;
-    auto request = createRequest(RestVerb::Get, rqstr  );
-    auto result =  sendRequest(std::move(request));
+    auto request = createREQUEST(RestVerb::Get, rqstr  );
+    auto result =  sendREQUEST(std::move(request));
     auto slice = result->slices().front();
 
     if( result->statusCode() != StatusOK )
     {
         auto errmsg = slice.get("errorMessage").copyString();
         JSONIO_LOG << "Error :" << errmsg << std::endl;
-        jsonioErr( "DBArango010: ", std::string("Error when try load record: ") + errmsg);
+        ARANGO_THROW( "ArangoDBCollectionAPI", 14, std::string("Error when try load record: ") + errmsg);
     }
     else
     {
-        jsonrec =  slice.toJson(&_dumpoptions);
+        jsonrec =  slice.toJson(&dump_options);
         JSONIO_LOG << "readRecord :" << jsonrec << std::endl;
         return true;
     }
     //return false;
 }
 
-std::string ArangoDBCollectionAPI::CreateRecord( const std::string& collname, const std::string& jsonrec )
+std::string ArangoDBCollectionAPI::createRecord( const std::string& collname, const std::string& jsonrec )
 {
     std::string newId = "";
 
     try{
-        auto data = ::arangodb::velocypack::Parser::fromJson( jsonrec, &_parseoptions);
+        auto data = ::arangodb::velocypack::Parser::fromJson( jsonrec, &parse_options);
 
         std::string rqstr = std::string("/_api/document/")+collname;
-        auto request = createRequest(RestVerb::Post, rqstr  );
+        auto request = createREQUEST(RestVerb::Post, rqstr  );
         request->addVPack(data->slice());
         request->header.meta.erase("accept");
-        auto result =  sendRequest(std::move(request));
+        auto result =  sendREQUEST(std::move(request));
         auto slice1 = result->slices().front();
 
         if( result->statusCode() >=  StatusBadRequest )
         {
             auto errmsg = slice1.get("errorMessage").copyString();
             JSONIO_LOG << "Error :" << errmsg << std::endl;
-            jsonioErr( "DBArango010: ", std::string("Error when try create record: ") + errmsg);
+            ARANGO_THROW( "ArangoDBCollectionAPI", 15, std::string("Error when try create record: ") + errmsg);
         }
         else
         {
@@ -197,34 +208,34 @@ std::string ArangoDBCollectionAPI::CreateRecord( const std::string& collname, co
         }
     } catch (::arangodb::velocypack::Exception& error )
     {
-        std::cout << "Velocypack error: " << error.what() << std::endl;
-        jsonioErr("DBArango004: ", "Velocypack error: ", error.what());
+        JSONIO_LOG << "Velocypack error: " << error.what() << std::endl;
+        ARANGO_THROW( "ArangoDBCollectionAPI", 11, std::string("Velocypack error: ")+error.what());
     }
 
     return newId;
 }
 
-std::string ArangoDBCollectionAPI::UpdateRecord( const std::string& collname,
+std::string ArangoDBCollectionAPI::updateRecord( const std::string& collname,
                                                  const std::string& key, const std::string& jsonrec )
 {
     std::string newId = "";
     std::string rid = getId( collname, key );
 
     try{
-        auto data = ::arangodb::velocypack::Parser::fromJson(jsonrec);
+        auto data = ::arangodb::velocypack::Parser::fromJson(jsonrec, &parse_options);
 
         std::string rqstr = std::string("/_api/document/")+rid;
-        auto request = createRequest(RestVerb::Put, rqstr  );
+        auto request = createREQUEST(RestVerb::Put, rqstr  );
         request->addVPack(data->slice());
         request->header.meta.erase("accept");
-        auto result =  sendRequest(std::move(request));
+        auto result =  sendREQUEST(std::move(request));
         auto slice1 = result->slices().front();
 
         if( result->statusCode() >=  StatusBadRequest )
         {
             auto errmsg = slice1.get("errorMessage").copyString();
             JSONIO_LOG << "Error :" << errmsg << std::endl;
-            jsonioErr( "DBArango010: ", std::string("Error when try save record: ") + errmsg);
+            ARANGO_THROW( "ArangoDBCollectionAPI", 16, std::string("Error when try save record: ") + errmsg);
         }
         else
         {
@@ -233,40 +244,40 @@ std::string ArangoDBCollectionAPI::UpdateRecord( const std::string& collname,
         }
     } catch (::arangodb::velocypack::Exception& error )
     {
-        std::cout << "Velocypack error: " << error.what() << std::endl;
-        jsonioErr("DBArango004: ", "Velocypack error: ", error.what());
+        JSONIO_LOG << "Velocypack error: " << error.what() << std::endl;
+        ARANGO_THROW( "ArangoDBCollectionAPI", 11, std::string("Velocypack error: ")+error.what());
     }
     return newId;
 }
 
-bool ArangoDBCollectionAPI::DeleteRecord( const std::string& collname, const std::string& key )
+bool ArangoDBCollectionAPI::deleteRecord( const std::string& collname, const std::string& key )
 {
     std::string rid = getId( collname, key );
 
     std::string rqstr = "/_api/document/"+rid;
-    auto request = createRequest(RestVerb::Delete, rqstr  );
+    auto request = createREQUEST(RestVerb::Delete, rqstr  );
     request->header.meta.erase("accept");
-    auto result =  sendRequest(std::move(request));
+    auto result =  sendREQUEST(std::move(request));
 
     if( result->statusCode() >=  StatusBadRequest )
     {
         auto slice = result->slices().front();
         auto errmsg = slice.get("errorMessage").copyString();
         JSONIO_LOG << "Error :" << errmsg << std::endl;
-        jsonioErr( "DBArango010: ", std::string("Error when try remove record: ") + errmsg);
+        ARANGO_THROW( "ArangoDBCollectionAPI", 17, std::string("Error when try remove record: ") + errmsg);
         //return false;
     }
     return true;
 }
 
-bool ArangoDBCollectionAPI::ExistsRecord( const std::string& collname,
+bool ArangoDBCollectionAPI::existsRecord( const std::string& collname,
                                           const std::string& key )
 {
     std::string rid = getId( collname, key );
 
     std::string rqstr = "/_api/document/"+rid;
-    auto request = createRequest(RestVerb::Head, rqstr  );
-    auto result =  sendRequest(std::move(request));
+    auto request = createREQUEST(RestVerb::Head, rqstr  );
+    auto result =  sendREQUEST(std::move(request));
 
     if( result->statusCode() == StatusOK )
         return true;
@@ -281,187 +292,76 @@ std::unique_ptr<HttpMessage> ArangoDBCollectionAPI::createSimpleAllRequest( cons
     ::arangodb::velocypack::Builder builder;
     builder.openObject();
     builder.add("collection" , ::arangodb::velocypack::Value(collname));
-    builder.add("batchSize" , ::arangodb::velocypack::Value(_batchSize));
+    builder.add("batchSize" , ::arangodb::velocypack::Value(batch_size));
     builder.close();
 
-    auto request = createRequest(RestVerb::Put, std::string("/_api/simple/all"));
+    auto request = createREQUEST(RestVerb::Put, std::string("/_api/simple/all"));
     request->addVPack(builder.slice());
     return request;
 }
 
 
-std::unique_ptr<HttpMessage> ArangoDBCollectionAPI::createByExampleRequest
-( const std::string& collname,  const std::string& jsontempl  )
-
+std::unique_ptr<HttpMessage> ArangoDBCollectionAPI::createByExampleRequest(
+        const std::string& collname,  const std::string& jsontempl  )
 {
     try{
-        auto data = ::arangodb::velocypack::Parser::fromJson(jsontempl);
+        auto data = ::arangodb::velocypack::Parser::fromJson(jsontempl, &parse_options);
 
         ::arangodb::velocypack::Builder builder;
         builder.openObject();
         builder.add("collection" , ::arangodb::velocypack::Value(collname) );
         builder.add("example" , data->slice() );
-        builder.add("batchSize" , ::arangodb::velocypack::Value(_batchSize));
+        builder.add("batchSize" , ::arangodb::velocypack::Value(batch_size));
         builder.close();
 
-        auto request = createRequest(RestVerb::Put, std::string("/_api/simple/by-example"));
+        auto request = createREQUEST(RestVerb::Put, std::string("/_api/simple/by-example"));
         request->addVPack(builder.slice());
         request->header.meta.erase("accept");
         return request;
     }
     catch (::arangodb::velocypack::Exception& error )
     {
-        std::cout << "Velocypack error: " << error.what() << std::endl;
-        jsonioErr("DBArango004: ", "Velocypack error: ", error.what());
+        JSONIO_LOG << "Velocypack error: " << error.what() << std::endl;
+        ARANGO_THROW( "ArangoDBCollectionAPI", 11, std::string("Velocypack error: ")+error.what());
     }
 }
 
 
-std::unique_ptr<HttpMessage> ArangoDBCollectionAPI::createAQLRequest
-( const std::string&,  const DBQueryData& query  )
-
+std::unique_ptr<HttpMessage> ArangoDBCollectionAPI::createAQLRequest(
+        const std::string&,  const ArangoDBQuery& query  )
 {
     try{
 
-        auto aqlQuery = query.getQueryString();
+        auto aqlQuery = query.queryString();
         if( aqlQuery.find("RETURN") == std::string::npos )
-            aqlQuery += query.generateReturn();            // only with "u"
+            aqlQuery += query.generateRETURN( false );            // only with "u"
 
         ::arangodb::velocypack::Builder builder;
         builder.openObject();
         //builder.add("collection" , VPackValue(collname) );
         builder.add("query" , ::arangodb::velocypack::Value( aqlQuery) );
         builder.add("count" , ::arangodb::velocypack::Value(true));
-        if( !query.getBindVars().empty() )
+        if( !query.bindVars().empty() )
         {
-            auto data = ::arangodb::velocypack::Parser::fromJson(query.getBindVars());
+            auto data = ::arangodb::velocypack::Parser::fromJson(query.bindVars(), &parse_options);
             builder.add("bindVars" , data->slice() );
-            builder.add("batchSize" , ::arangodb::velocypack::Value(_batchSize*2));
+            builder.add("batchSize" , ::arangodb::velocypack::Value(batch_size*2));
         } else
-            builder.add("batchSize" , ::arangodb::velocypack::Value(_batchSize));
+            builder.add("batchSize" , ::arangodb::velocypack::Value(batch_size));
         builder.close();
 
-        auto request = createRequest(RestVerb::Post, std::string("/_api/cursor"));
+        auto request = createREQUEST(RestVerb::Post, std::string("/_api/cursor"));
         request->addVPack(builder.slice());
         return request;
     }
     catch (::arangodb::velocypack::Exception& error )
     {
-        std::cout << "Velocypack error: " << error.what() << std::endl;
-        jsonioErr("DBArango004: ", "Velocypack error: ", error.what());
+        JSONIO_LOG << "Velocypack error: " << error.what() << std::endl;
+        ARANGO_THROW( "ArangoDBCollectionAPI", 11, std::string("Velocypack error: ")+error.what());
     }
 }
 
-void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sresult,  jsonio::SetReadedFunction setfnc )
-{
-    auto numb = sresult.length();
-    for( uint ii=0; ii<numb; ii++ )
-        setfnc( sresult[ii].toJson(&_dumpoptions) );
-}
-
-void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sresult,  jsonio::SetReadedFunctionKey setfnc )
-{
-    auto numb = sresult.length();
-    for( uint ii=0; ii<numb; ii++ )
-    {
-        auto Id=sresult[ii].get("_id").copyString();
-        setfnc( sresult[ii].toJson(&_dumpoptions), Id );
-    }
-}
-
-void ArangoDBCollectionAPI::SelectQuery( const std::string& collname,
-                                         const jsonio::DBQueryData& query,  jsonio::SetReadedFunction setfnc )
-{
-    std::unique_ptr<HttpMessage> request;
-    bool usejson = true;
-
-    switch( query.getType() )
-    {
-    case DBQueryData::qTemplate:
-        request = createByExampleRequest( collname,  query.getQueryString()  );
-        usejson = true;
-        break;
-    case DBQueryData::qUndef:
-    case DBQueryData::qAll:
-        request = createSimpleAllRequest( collname );
-        break;
-    case DBQueryData::qEdgesAll:
-    case DBQueryData::qEdgesFrom:
-    case DBQueryData::qEdgesTo:
-    case DBQueryData::qAQL:
-        request = createAQLRequest( collname,  query  );
-        break;
-    default:
-        jsonioErr("DBArango006: ", "Illegal query type ");
-        //break;
-    }
-
-    auto result = sendRequest(std::move(request));
-    if( result->statusCode() >=  StatusBadRequest )
-        return;
-
-    auto slice = result->slices().front();
-    auto hasMore = slice.get("hasMore").getBool();
-    auto query_result = slice.get("result");
-    extractData( query_result, setfnc );
-
-    // Read data from cursor
-    while( hasMore )
-    {
-        std::string id=slice.get("id").copyString();
-        request = createRequest(RestVerb::Put, std::string("/_api/cursor/")+id);
-        if( usejson )
-            request->header.meta.erase("accept");
-        result = sendRequest(std::move(request));
-        if( result->statusCode() >=  StatusBadRequest )
-            return;  //need close cursor???
-        slice = result->slices().front();
-        hasMore = slice.get("hasMore").getBool();
-        query_result = slice.get("result");
-        extractData( query_result, setfnc );
-    }
-}
-
-void ArangoDBCollectionAPI::AllQueryFields( bool isComlexFields, const std::string& collname,
-                                            const std::set<std::string>& queryFields,  jsonio::SetReadedFunctionKey setfnc )
-{
-    std::unique_ptr<HttpMessage> request;
-    if( isComlexFields )
-        request = createSimpleAllRequest( collname );
-    else
-    {    std::string AQLquery = "FOR u IN ";
-        AQLquery += collname;
-        DBQueryData query( AQLquery, DBQueryData::qAQL);
-        query.setQueryFields(queryFields);
-
-        request = createAQLRequest( collname,  query  );
-    }
-    auto result = sendRequest(std::move(request));
-    if( result->statusCode() >=  StatusBadRequest )
-        return;
-
-    auto slice = result->slices().front();
-    auto hasMore = slice.get("hasMore").getBool();
-    auto query_result = slice.get("result");
-    extractData( query_result, setfnc );
-
-    // Read data from cursor
-    while( hasMore )
-    {
-        std::string id=slice.get("id").copyString();
-        request = createRequest(RestVerb::Put, std::string("/_api/cursor/")+id);
-        result = sendRequest(std::move(request));
-        if( result->statusCode() >=  StatusBadRequest )
-            return;  //need close cursor???
-        slice = result->slices().front();
-        hasMore = slice.get("hasMore").getBool();
-        query_result = slice.get("result");
-        extractData( query_result, setfnc );
-    }
-}
-
-void ArangoDBCollectionAPI::SearchEdgesToFrom(const std::string& ,
-                                              const jsonio::DBQueryData& query,  jsonio::SetReadedFunction setfnc)
+std::unique_ptr<HttpMessage> ArangoDBCollectionAPI::createEdgeRequest(const std::string &collname, const ArangoDBQuery& query)
 {
     std::string startVertex;
     std::string edgeCollections;
@@ -469,7 +369,7 @@ void ArangoDBCollectionAPI::SearchEdgesToFrom(const std::string& ,
     // get id from query
     try{
         // might be jsonio extract field !!!
-        auto data = ::arangodb::velocypack::Parser::fromJson(query.getQueryString());
+        auto data = ::arangodb::velocypack::Parser::fromJson(query.queryString(), &parse_options);
         auto slice = data->slice();
         auto slicelabel = slice.get("edgeCollections");
         if( !slicelabel.isNone() )
@@ -478,14 +378,41 @@ void ArangoDBCollectionAPI::SearchEdgesToFrom(const std::string& ,
     }
     catch (::arangodb::velocypack::Exception& error )
     {
-        std::cout << "Velocypack error: " << error.what() << std::endl;
-        jsonioErr("DBArango004: ", "Velocypack error: ", error.what());
+        JSONIO_LOG << "Velocypack error: " << error.what() << std::endl;
+        ARANGO_THROW( "ArangoDBCollectionAPI", 11, std::string("Velocypack error: ")+error.what());
     }
+
+  auto querytofrom =  queryEdgesToFrom( query.type(), startVertex, edgeCollections );
+  return createAQLRequest( collname,  querytofrom  );
+}
+
+void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sresult,  SetReadedFunction setfnc )
+{
+    auto numb = sresult.length();
+    for( uint ii=0; ii<numb; ii++ )
+        setfnc( sresult[ii].toJson(&dump_options) );
+}
+
+void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sresult,  SetReadedFunctionKey setfnc )
+{
+    auto numb = sresult.length();
+    for( uint ii=0; ii<numb; ii++ )
+    {
+        auto Id=sresult[ii].get("_id").copyString();
+        setfnc( sresult[ii].toJson(&dump_options), Id );
+    }
+}
+
+// Create select edges from data
+ArangoDBQuery ArangoDBCollectionAPI::queryEdgesToFrom( ArangoDBQuery::QueryType atype, const std::string& startVertex,
+                                                       const std::string& edgeCollectionsdefault )
+{
+    std::string edgeCollections{edgeCollectionsdefault};
 
     // build all edges collections
     if( edgeCollections.empty() )
     {
-        auto edgesexist = getCollectionNames( TAbstractDBDriver::clEdge );
+        auto edgesexist = collectionNames( CollectionTypes::Edge );
         auto edgesdefined = ioSettings().Schema()->getEdgesAllDefined();
         auto edges = getSubset( edgesdefined, edgesexist );
         for( auto edgecoll: edges)
@@ -497,112 +424,146 @@ void ArangoDBCollectionAPI::SearchEdgesToFrom(const std::string& ,
     }
 
     std::string AQLquery = "FOR v,e IN 1..1 ";
-    switch( query.getType() )
+    switch( atype )
     {
-    case DBQueryData::qEdgesAll:
+    case ArangoDBQuery::EdgesAll:
         AQLquery += "ANY '"; break;
-    case DBQueryData::qEdgesFrom:
+    case ArangoDBQuery::EdgesFrom:
         AQLquery += "OUTBOUND '"; break;
-    case DBQueryData::qEdgesTo:
+    case ArangoDBQuery::EdgesTo:
         AQLquery += "INBOUND '"; break;
+    default:
+        ARANGO_THROW( "ArangoDBCollectionAPI", 19, std::string("Illegal query type"));
     }
     AQLquery +=  startVertex +"' \n";
-    AQLquery +=  edgeCollections + query.generateReturn("e"); //" \nRETURN e";
-    SelectQuery( edgeCollections, DBQueryData( AQLquery, DBQueryData::qAQL),  setfnc );
+    AQLquery +=  edgeCollections + ArangoDBQuery::generateRETURN( true, {}, "e"); //" \nRETURN e";
+    return ArangoDBQuery( AQLquery, ArangoDBQuery::AQL);
 }
 
 
-void ArangoDBCollectionAPI::SearchEdgesToFromOld(const std::string& ,
-                                                 const jsonio::DBQueryData& query,  jsonio::SetReadedFunction setfnc)
+// Possible work with cursor
+void ArangoDBCollectionAPI::selectQuery( const std::string& collname,
+                                         const ArangoDBQuery& query,  SetReadedFunction setfnc )
 {
-    std::string edjecollname;
-    try{ // might be jsonio extract field !!!
-        auto data = ::arangodb::velocypack::Parser::fromJson(query.getQueryString());
-        auto slice = data->slice();
-        auto slicelabel = slice.get("_label");
-        if( !slicelabel.isNone() )
-            edjecollname = slicelabel.copyString();
-    }
-    catch (::arangodb::velocypack::Exception& error )
+    std::unique_ptr<HttpMessage> request;
+    bool usejson = true;
+
+    switch( query.type() )
     {
-        std::cout << "Velocypack error: " << error.what() << std::endl;
-        jsonioErr("DBArango004: ", "Velocypack error: ", error.what());
+    case ArangoDBQuery::Template:
+        request = createByExampleRequest( collname,  query.queryString()  );
+        usejson = true;
+        break;
+    case ArangoDBQuery::Undef:
+    case ArangoDBQuery::All:
+        request = createSimpleAllRequest( collname );
+        break;
+    case ArangoDBQuery::EdgesAll:
+    case ArangoDBQuery::EdgesFrom:
+    case ArangoDBQuery::EdgesTo:
+        request = createEdgeRequest( collname,  query  );
+        break;
+    case ArangoDBQuery::AQL:
+        request = createAQLRequest( collname,  query  );
+        break;
+    default:
+        ARANGO_THROW( "ArangoDBCollectionAPI", 18, "Illegal query type ");
+        //break;
     }
 
-    if( !edjecollname.empty() )
+    auto result = sendREQUEST(std::move(request));
+    if( result->statusCode() >=  StatusBadRequest )
+        return;
+
+    auto slice = result->slices().front();
+    auto hasMore = slice.get("hasMore").getBool();
+    auto query_result = slice.get("result");
+    extractData( query_result, setfnc );
+
+    // Read data from cursor
+    while( hasMore )
     {
-        SelectQuery( edjecollname, query,  setfnc );
-    }
-    else
-    { // get edjes collections names
-        auto edges = getCollectionNames( TAbstractDBDriver::clEdge );
-        for( auto edgecoll: edges)
-            SelectQuery( edgecoll, query,  setfnc );
-    }
-}
-
-void ArangoDBCollectionAPI::RemoveByExample( const std::string& collname,  const std::string& jsontempl  )
-{
-    try{
-        auto data = ::arangodb::velocypack::Parser::fromJson(jsontempl);
-
-        ::arangodb::velocypack::Builder builder;
-        builder.openObject();
-        builder.add("collection" , ::arangodb::velocypack::Value(collname) );
-        builder.add("example" , data->slice() );
-        builder.close();
-
-        auto request = createRequest(RestVerb::Put, std::string("/_api/simple/remove-by-example"));
-        request->addVPack(builder.slice());
-        auto result =  sendRequest(std::move(request));
-        auto slice1 = result->slices().front();
-
+        std::string id=slice.get("id").copyString();
+        request = createREQUEST(RestVerb::Put, std::string("/_api/cursor/")+id);
+        if( usejson )
+            request->header.meta.erase("accept");
+        result = sendREQUEST(std::move(request));
         if( result->statusCode() >=  StatusBadRequest )
-        {
-            auto errmsg = slice1.get("errorMessage").copyString();
-            JSONIO_LOG << "Error removeByExampleRequest:" << errmsg << std::endl;
-        }
-        else
-        {
-            JSONIO_LOG <<  collname << " - deleted :" << slice1.get("deleted").getInt() << std::endl;
-        }
-    }
-    catch (::arangodb::velocypack::Exception& error )
-    {
-        std::cout << "Velocypack error: " << error.what() << std::endl;
-        jsonioErr("DBArango004: ", "Velocypack error: ", error.what());
+            return;  //need close cursor???
+        slice = result->slices().front();
+        hasMore = slice.get("hasMore").getBool();
+        query_result = slice.get("result");
+        extractData( query_result, setfnc );
     }
 }
 
-
-void ArangoDBCollectionAPI::RemoveEdges(const std::string& collname, const std::string& vertexkey )
+// Possible work with cursor
+void ArangoDBCollectionAPI::selectAll( const std::string& collname,
+                                       const QueryFields& queryFields,  SetReadedFunctionKey setfnc )
 {
-    std::string vertexid= getId( collname, vertexkey );
-    std::string to_templ = std::string("{\"_to\": \"")+ vertexid + "\" }";
-    std::string from_templ = std::string("{\"_from\": \"")+ vertexid + "\" }";
-
-    // get edges collections names
-    auto edges = getCollectionNames( TAbstractDBDriver::clEdge );
-    for( auto edgecoll: edges)
+    std::unique_ptr<HttpMessage> request;
+    if( queryFields.empty() )
+        request = createSimpleAllRequest( collname );
+    else
     {
-        RemoveByExample( edgecoll,  to_templ  );
-        RemoveByExample( edgecoll,  from_templ  );
+        std::string AQLquery = "FOR u IN ";
+        AQLquery += collname;
+        ArangoDBQuery query{ AQLquery, ArangoDBQuery::AQL };
+        query.setQueryFields(queryFields);
+
+        request = createAQLRequest( collname,  query  );
     }
+    auto result = sendREQUEST(std::move(request));
+    if( result->statusCode() >=  StatusBadRequest )
+        return;
 
-    /*
+    auto slice = result->slices().front();
+    auto hasMore = slice.get("hasMore").getBool();
+    auto query_result = slice.get("result");
+    extractData( query_result, setfnc );
 
-   db._query(aql`
-     FOR s IN ${subtitlesEdges}
-       FILTER s._to == ${_id}
-       REMOVE s IN ${subtitlesEdges}
-   `)
-
-   subtitlesCollection.remove({ _key })
-   */
-
+    // Read data from cursor
+    while( hasMore )
+    {
+        std::string id=slice.get("id").copyString();
+        request = createREQUEST(RestVerb::Put, std::string("/_api/cursor/")+id);
+        result = sendREQUEST(std::move(request));
+        if( result->statusCode() >=  StatusBadRequest )
+            return;  //need close cursor???
+        slice = result->slices().front();
+        hasMore = slice.get("hasMore").getBool();
+        query_result = slice.get("result");
+        extractData( query_result, setfnc );
+    }
 }
 
-void ArangoDBCollectionAPI::CollectQuery( const std::string& collname,
+// Fetches multiple documents by their keys
+void ArangoDBCollectionAPI::lookupByKeys( const std::string& collname,
+                                          const std::vector<std::string>& keys,  SetReadedFunction setfnc )
+{
+    ::arangodb::velocypack::Builder builder;
+    builder.openObject();
+    builder.add("collection" , ::arangodb::velocypack::Value(collname) );
+    builder.add("keys" ,  ::arangodb::velocypack::Value(::arangodb::velocypack::ValueType::Array) );
+    for( auto key: keys )
+        builder.add( ::arangodb::velocypack::Value(key));
+    builder.close();
+    builder.close();
+
+    auto request = createREQUEST(RestVerb::Put, std::string("/_api/simple/lookup-by-keys"));
+    request->addVPack(builder.slice());
+    //request->header.meta.erase("accept");
+
+    auto result = sendREQUEST(std::move(request));
+    if( result->statusCode() >=  StatusBadRequest )
+        return;
+
+    auto slice = result->slices().front();
+    auto query_result = slice.get("documents");
+    extractData( query_result, setfnc );
+}
+
+void ArangoDBCollectionAPI::collectQuery( const std::string& collname,
                                           const std::string& fpath, std::vector<std::string>& values )
 {
     /* other
@@ -621,38 +582,74 @@ void ArangoDBCollectionAPI::CollectQuery( const std::string& collname,
             values.push_back(jsondata);
         JSONIO_LOG << jsondata << std::endl;
     };
-    DBQueryData query(aqlQuery,DBQueryData::qAQL );
-    SelectQuery( collname, query,  setfnc );
+    ArangoDBQuery query{aqlQuery,ArangoDBQuery::AQL };
+    selectQuery( collname, query,  setfnc );
 }
 
-// Fetches multiple documents by their keys
-void ArangoDBCollectionAPI::LookupByKeys( const std::string& collname,
-                                          const std::vector<std::string>& keys,  SetReadedFunction setfnc )
+
+void ArangoDBCollectionAPI::removeByExample( const std::string& collname,  const std::string& jsontempl  )
 {
-    ::arangodb::velocypack::Builder builder;
-    builder.openObject();
-    builder.add("collection" , ::arangodb::velocypack::Value(collname) );
-    builder.add("keys" ,  ::arangodb::velocypack::Value(::arangodb::velocypack::ValueType::Array) );
-    for( auto key: keys )
-        builder.add( ::arangodb::velocypack::Value(key));
-    builder.close();
-    builder.close();
+    try{
+        auto data = ::arangodb::velocypack::Parser::fromJson(jsontempl, &parse_options);
 
-    auto request = createRequest(RestVerb::Put, std::string("/_api/simple/lookup-by-keys"));
-    request->addVPack(builder.slice());
-    //request->header.meta.erase("accept");
+        ::arangodb::velocypack::Builder builder;
+        builder.openObject();
+        builder.add("collection" , ::arangodb::velocypack::Value(collname) );
+        builder.add("example" , data->slice() );
+        builder.close();
 
-    auto result = sendRequest(std::move(request));
-    if( result->statusCode() >=  StatusBadRequest )
-        return;
+        auto request = createREQUEST(RestVerb::Put, std::string("/_api/simple/remove-by-example"));
+        request->addVPack(builder.slice());
+        auto result =  sendREQUEST(std::move(request));
+        auto slice1 = result->slices().front();
 
-    auto slice = result->slices().front();
-    auto query_result = slice.get("documents");
-    extractData( query_result, setfnc );
+        if( result->statusCode() >=  StatusBadRequest )
+        {
+            auto errmsg = slice1.get("errorMessage").copyString();
+            JSONIO_LOG << "Error removeByExampleRequest:" << errmsg << std::endl;
+        }
+        else
+        {
+            JSONIO_LOG <<  collname << " - deleted :" << slice1.get("deleted").getInt() << std::endl;
+        }
+    }
+    catch (::arangodb::velocypack::Exception& error )
+    {
+        JSONIO_LOG << "Velocypack error: " << error.what() << std::endl;
+        ARANGO_THROW( "ArangoDBCollectionAPI", 11, std::string("Velocypack error: ")+error.what());
+    }
+}
+
+
+void ArangoDBCollectionAPI::removeEdges(const std::string& collname, const std::string& vertexkey )
+{
+    std::string vertexid= getId( collname, vertexkey );
+    std::string to_templ = std::string("{\"_to\": \"")+ vertexid + "\" }";
+    std::string from_templ = std::string("{\"_from\": \"")+ vertexid + "\" }";
+
+    // get edges collections names
+    auto edges = collectionNames( CollectionTypes::Edge );
+    for( auto edgecoll: edges)
+    {
+        removeByExample( edgecoll,  to_templ  );
+        removeByExample( edgecoll,  from_templ  );
+    }
+
+    /*
+
+   db._query(aql`
+     FOR s IN ${subtitlesEdges}
+       FILTER s._to == ${_id}
+       REMOVE s IN ${subtitlesEdges}
+   `)
+
+   subtitlesCollection.remove({ _key })
+   */
+
 }
 
 // Removes multiple documents by their keys
-void ArangoDBCollectionAPI::RemoveByKeys( const std::string& collname,  const std::vector<std::string>& ids  )
+void ArangoDBCollectionAPI::removeByKeys( const std::string& collname,  const std::vector<std::string>& ids  )
 {
     std::vector<std::string> keys;
     // ids to keys
@@ -668,9 +665,9 @@ void ArangoDBCollectionAPI::RemoveByKeys( const std::string& collname,  const st
     builder.close();
     builder.close();
 
-    auto request = createRequest(RestVerb::Put, std::string("/_api/simple/remove-by-keys"));
+    auto request = createREQUEST(RestVerb::Put, std::string("/_api/simple/remove-by-keys"));
     request->addVPack(builder.slice());
-    auto result =  sendRequest(std::move(request));
+    auto result =  sendREQUEST(std::move(request));
     auto slice1 = result->slices().front();
 
     if( result->statusCode() >=  StatusBadRequest )
