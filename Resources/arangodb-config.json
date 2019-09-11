@@ -1,0 +1,29 @@
+{
+     "arangodb" :   {
+          "UseArangoDBInstance" :   "ArangoDBLocal",
+          "UseVelocypackPut" :   true,
+          "UseVelocypackGet" :   true,
+          "ArangoDBLocal" :   {
+               "DBName" :   "slop16_test",
+               "DBCreate" :   true,
+               "DB_URL" :   "http://localhost:8529",
+               "DBUser" :   "root",
+               "DBUserPassword" :   "",
+               "DBAccess" :   "rw",
+               "DBRootName" :   "_system",
+               "DBRootUser" :   "root",
+               "DBRootPassword" :   ""
+          },
+          "ArangoDBRemote" :   {
+               "DBName" :   "test_thereda2",
+               "DBCreate" :   false,
+               "DB_URL" :   "https://db.thermohub.net",
+               "DBUser" :   "adminrem",
+               "DBUserPassword" :   "Administrator@Remote-ThermoHub-Server",
+               "DBAccess" :   "rw",
+               "DBRootName" :   "_system",
+               "DBRootUser" :   "",
+               "DBRootPassword" :   ""
+          }
+     }
+}

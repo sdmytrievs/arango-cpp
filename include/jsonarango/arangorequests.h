@@ -31,49 +31,49 @@ StatusCode const StatusConflict = 409;
 ///  HTTP method ( CURLOPT_CUSTOMREQUEST)
 enum class RestVerb
 {
-  Illegal = -1,
-  Delete = 0,
-  Get = 1,
-  Post = 2,
-  Put = 3,
-  Head = 4,
-  Patch = 5,
-  Options = 6
+    Illegal = -1,
+    Delete = 0,
+    Get = 1,
+    Post = 2,
+    Put = 3,
+    Head = 4,
+    Patch = 5,
+    Options = 6
 };
 
 
 enum class MessageType
 {
-  Undefined = 0,
-  Request = 1,
-  Response = 2
+    Undefined = 0,
+    Request = 1,
+    Response = 2
 };
 
 
 /// Message Data
 struct MessageHeader
 {
-  int version;
-  MessageType type;        // Type of message
-  StatusCode responseCode; // Response code (response only)
-  RestVerb restVerb;       // HTTP method        (GET POST ...)
-  std::string path;        // Local path of the request ( equivalent of http path)
-  StringMap parameters;    // Query parameters   (equivalent of http parametes ?foo=bar)
-  StringMap meta;          // Header meta data   (equivalent of http headers)
+    int version;
+    MessageType type;        // Type of message
+    StatusCode responseCode; // Response code (response only)
+    RestVerb restVerb;       // HTTP method        (GET POST ...)
+    std::string path;        // Local path of the request ( equivalent of http path)
+    StringMap parameters;    // Query parameters   (equivalent of http parametes ?foo=bar)
+    StringMap meta;          // Header meta data   (equivalent of http headers)
 
-  std::string contentTypeString() const;
-  // query parameter helpers
-  void addParameter(std::string const& key, std::string const& value)
-  {
-      parameters[key] = value;
-  }
-  // Header metadata helpers
-  void addMeta(std::string const& key, std::string const& value)
-  {
-    meta[key] = value;
-  }
-  // Get value for header metadata key, returns empty std::string if not found.
-  std::string metaByKey( std::string const& key) const;
+    std::string contentTypeString() const;
+    // query parameter helpers
+    void addParameter(std::string const& key, std::string const& value)
+    {
+        parameters[key] = value;
+    }
+    // Header metadata helpers
+    void addMeta(std::string const& key, std::string const& value)
+    {
+        meta[key] = value;
+    }
+    // Get value for header metadata key, returns empty std::string if not found.
+    std::string metaByKey( std::string const& key) const;
 };
 
 // Request or Response Message a server.
@@ -81,53 +81,53 @@ class HttpMessage {
 
 protected:
 
-  HttpMessage(MessageHeader&& messageHeader = MessageHeader(), StringMap&& headerStrings = StringMap())
-    : header(std::move(messageHeader)), _payloadLength(0)
-         {
-            header.meta = std::move(headerStrings);
-            header.type = MessageType::Undefined;
-            setContentType();
-         }
+    HttpMessage(MessageHeader&& messageHeader = MessageHeader(), StringMap&& headerStrings = StringMap())
+        : header(std::move(messageHeader)), _payloadLength(0)
+    {
+        header.meta = std::move(headerStrings);
+        header.type = MessageType::Undefined;
+        setContentType();
+    }
 
-  HttpMessage(MessageHeader const& messageHeader, StringMap const& headerStrings)
-    : header(messageHeader), _payloadLength(0)
-         {
-            header.meta = std::move(headerStrings);
-            header.type = MessageType::Undefined;
-            setContentType();
-         }
+    HttpMessage(MessageHeader const& messageHeader, StringMap const& headerStrings)
+        : header(messageHeader), _payloadLength(0)
+    {
+        header.meta = std::move(headerStrings);
+        header.type = MessageType::Undefined;
+        setContentType();
+    }
 
-  /// Use default x-velocypack protocol
-  void setContentType();
+    /// Use default x-velocypack protocol
+    void setContentType();
 
 public:
 
-  MessageHeader header;
+    MessageHeader header;
 
-  void addVPack(::arangodb::velocypack::Buffer<uint8_t>&& buffer);  // bilder.steal()
-  void addVPack(::arangodb::velocypack::Slice const& slice);
+    void addVPack(::arangodb::velocypack::Buffer<uint8_t>&& buffer);  // bilder.steal()
+    void addVPack(::arangodb::velocypack::Slice const& slice);
 
-  std::vector<::arangodb::velocypack::Slice>const & slices();
-  boost::asio::const_buffer payload() const
-  {
-     return boost::asio::const_buffer(_payload.data(), _payloadLength);
-  }
+    std::vector<::arangodb::velocypack::Slice>const & slices();
+    boost::asio::const_buffer payload() const
+    {
+        return boost::asio::const_buffer(_payload.data(), _payloadLength);
+    }
 
-  std::string payloadAsString();
+    std::string payloadAsString();
 
-  bool isContentTypeVPack() const;
-  bool isContentTypeJson() const;
-  StatusCode statusCode() { return header.responseCode; }
+    bool isContentTypeVPack() const;
+    bool isContentTypeJson() const;
+    StatusCode statusCode() { return header.responseCode; }
 
-  friend std::unique_ptr<HttpMessage> createRequest( MessageHeader&& messageHeader,
-                 StringMap&& headerStrings,  RestVerb const& verb   );
-  friend std::unique_ptr<HttpMessage> createResponse(  MessageHeader&& messageHeader,
-                 StringMap&& headerStrings );
+    friend std::unique_ptr<HttpMessage> createRequest( MessageHeader&& messageHeader,
+                                                       StringMap&& headerStrings,  RestVerb const& verb   );
+    friend std::unique_ptr<HttpMessage> createResponse(  MessageHeader&& messageHeader,
+                                                         StringMap&& headerStrings );
 private:
 
-  ::arangodb::velocypack::Buffer<uint8_t> _payload;
-  std::size_t _payloadLength;
-  std::vector<::arangodb::velocypack::Slice> _slices;
+    ::arangodb::velocypack::Buffer<uint8_t> _payload;
+    std::size_t _payloadLength;
+    std::vector<::arangodb::velocypack::Slice> _slices;
 
 };
 

@@ -1,12 +1,12 @@
 #include <iostream>
-//#include <velocypack/Parser.h>
 #include "arangocollection.h"
 #include "arangocurl.h"
 #include "arangoexception.h"
-//#include "jsonio/io_settings.h"
+#include "arangodetail.h"
 
 
 namespace arangocpp {
+
 
 void ArangoDBAPIBase::resetDBConnection( const ArangoDBConnect& connectData )
 {
@@ -39,12 +39,12 @@ std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendREQUEST(std::unique_ptr<HttpMe
 {
     //try{
     DEBUG_OUTPUT( "request", rq )
-    auto url = connect_data.fullURL(rq->header.path);
+            auto url = connect_data.fullURL(rq->header.path);
     RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
     auto result = mco.getResponse();
     DEBUG_OUTPUT( "result", result )
-    if( !result->isContentTypeVPack() )
-        ARANGO_THROW( "ArangoDBAPIBase", 3, "Illegal content type" );
+            if( !result->isContentTypeVPack() )
+            ARANGO_THROW( "ArangoDBAPIBase", 3, "Illegal content type" );
     if( result->statusCode() == 0 )
         ARANGO_THROW( "ArangoDBAPIBase", 2, "Server connections error" );
     return result;
@@ -382,8 +382,8 @@ std::unique_ptr<HttpMessage> ArangoDBCollectionAPI::createEdgeRequest(const std:
         ARANGO_THROW( "ArangoDBCollectionAPI", 11, std::string("Velocypack error: ")+error.what());
     }
 
-  auto querytofrom =  queryEdgesToFrom( query.type(), startVertex, edgeCollections );
-  return createAQLRequest( collname,  querytofrom  );
+    auto querytofrom =  queryEdgesToFrom( query.type(), startVertex, edgeCollections );
+    return createAQLRequest( collname,  querytofrom  );
 }
 
 void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sresult,  SetReadedFunction setfnc )
@@ -413,8 +413,7 @@ ArangoDBQuery ArangoDBCollectionAPI::queryEdgesToFrom( ArangoDBQuery::QueryType 
     if( edgeCollections.empty() )
     {
         auto edgesexist = collectionNames( CollectionTypes::Edge );
-        auto edgesdefined = ioSettings().Schema()->getEdgesAllDefined();
-        auto edges = getSubset( edgesdefined, edgesexist );
+        auto edges = detail::getSubset( ArangoDBConnect::full_list_of_edges, edgesexist );
         for( auto edgecoll: edges)
         {
             if( !edgeCollections.empty())
@@ -454,7 +453,6 @@ void ArangoDBCollectionAPI::selectQuery( const std::string& collname,
         request = createByExampleRequest( collname,  query.queryString()  );
         usejson = true;
         break;
-    case ArangoDBQuery::Undef:
     case ArangoDBQuery::All:
         request = createSimpleAllRequest( collname );
         break;

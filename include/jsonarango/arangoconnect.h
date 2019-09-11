@@ -12,7 +12,6 @@ namespace arangocpp {
 class ArangoDBCollectionAPI;
 class ArangoDBUsersAPI;
 
-
 /// HTTP Interface for User Management
 struct ArangoDBUser
 {
@@ -31,11 +30,11 @@ struct ArangoDBUser
     ArangoDBUser( const std::string& theUser, const std::string& thePasswd,
                   const std::string& theAccess = "rw",
                   bool isactive = true, const std::string&  jsonextra=""):
-       name(theUser), password(thePasswd), access(theAccess), active(isactive), extra(jsonextra)
+        name(theUser), password(thePasswd), access(theAccess), active(isactive), extra(jsonextra)
     { }
 
     ArangoDBUser():
-    name("root"), password(""), access("rw"), active(true), extra("")
+        name("root"), password(""), access("rw"), active(true), extra("")
     { }
 };
 
@@ -53,26 +52,34 @@ struct ArangoDBConnect
     ArangoDBUser user;
 
     ArangoDBConnect( const std::string& theURL, const std::string& theUser,
-               const std::string& thePasswd, const std::string& theDBname):
-       serverUrl(theURL),  databaseName(theDBname), user(theUser, thePasswd) { }
+                     const std::string& thePasswd, const std::string& theDBname):
+        serverUrl(theURL),  databaseName(theDBname), user(theUser, thePasswd)
+    {}
 
-    ArangoDBConnect():
-    serverUrl("http://localhost:8529"), databaseName("_system")  {}
+    ArangoDBConnect():  serverUrl("http://localhost:8529"), databaseName("_system")
+    {}
 
     std::string fullHost() const
     {  return serverUrl+"/_db/"+databaseName; }
 
     std::string fullURL( const std::string& localpath ) const
     {
-       return  fullHost()+localpath;
+        return  fullHost()+localpath;
     }
 
     bool readonlyDBAccess() const
     {
-      return( user.access=="ro");
+        return( user.access=="ro");
     }
 
     void getFromSettings(const std::string& group, bool rootdata = false );
+    /// Full list of edges used in connection query.
+    static std::vector<std::string> full_list_of_edges;
+    /// Use content type Velocypack on sending requests (fu_content_type_vpack)
+    static bool use_velocypack_put;
+    /// Use content type Velocypack on getting results
+    static bool use_velocypack_get;
+
 };
 
 bool operator!=(const ArangoDBConnect& lhs, const ArangoDBConnect& rhs);
@@ -93,14 +100,8 @@ public:
     /// Constructor
     ArangoDBRootClient( const ArangoDBConnect& rootconnectData )
     {
-      resetDBConnection( rootconnectData );
+        resetDBConnection( rootconnectData );
     }
-
-    /// Default Constructor.
-    ArangoDBRootClient();
-
-    ///  Destructor
-    virtual ~ArangoDBRootClient();
 
     /// Reset connections to ArangoDB server
     void resetDBConnection( const ArangoDBConnect& connectData );
@@ -108,7 +109,7 @@ public:
     // Database API
 
     /// Retrieves the list of all existing databases.
-    std::set<std::string> getDatabaseNames();
+    std::set<std::string> databaseNames();
 
     /// Create Data base dbname with list of existing users if no exist
     /// \param users: Login Names of the users to be accessed.
@@ -120,11 +121,16 @@ public:
     void createUser( const ArangoDBUser& userdata );
     /// Retrieves a map contains the databases names as object keys, and the associated privileges
     /// for the database as values of all databases the current user can access.
-    std::map<std::string,std::string> getDatabaseNames( const std::string&  user );
+    std::map<std::string,std::string> databaseNames( const std::string&  user );
     /// Fetches data about all users.
-    std::set<std::string> getUserNames();
+    std::set<std::string> userNames();
 
 };
+
+/// ArangoDB connections data from config file.
+ArangoDBConnect connectFromConfig( const std::string& cfgfile );
+/// ArangoDB root connections data from config file.
+ArangoDBRootClient rootClientFromConfig( const std::string& cfgfile );
 
 } // namespace arangocpp
 

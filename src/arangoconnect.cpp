@@ -1,40 +1,17 @@
-//  This is JSONIO library+API (https://bitbucket.org/gems4/jsonio)
-//
-/// \file dbarango.cpp
-/// Implementation of class
-/// TArangoDBClient - DB driver for working with ArangoDB
-//
-// JSONIO is a C++ library and API aimed at implementing the interfaces
-// for exchanging the structured data between NoSQL database backends,
-// JSON/YAML/XML files, and client-server RPC (remote procedure calls).
-//
-// Copyright (c) 2015-2016 Svetlana Dmytriieva (svd@ciklum.com) and
-//   Dmitrii Kulik (dmitrii.kulik@psi.ch)
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU (Lesser) General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see <http://www.gnu.org/licenses/>.
-//
-// JSONIO depends on the following open-source software products:
-// Apache Thrift (https://thrift.apache.org); Pugixml (http://pugixml.org);
-// YAML-CPP (https://github.com/jbeder/yaml-cpp); EJDB (http://ejdb.org).
-//
-
-#include <cstring>
-#include <iostream>
+#include <fstream>
+#include <sstream>
 #include "arangodbusers.h"
-#include "jsonio/io_settings.h"
+#include "arangoexception.h"
+#include "arangodetail.h"
 
 namespace arangocpp {
+
+// Full list of edges used in connection query.
+std::vector<std::string> ArangoDBConnect::full_list_of_edges{};
+// Use content type Velocypack on sending requests (fu_content_type_vpack)
+bool ArangoDBConnect::use_velocypack_put = true;
+// Use content type Velocypack on getting results
+bool ArangoDBConnect::use_velocypack_get = true;
 
 //ArangoDBConnect TArangoDBClientOne::theConnect( "https://db.thermohub.net",
 //           "adminrem",  "Administrator@Remote-ThermoHub-Server",  "hub_test"  );
@@ -51,74 +28,115 @@ bool operator!=(const ArangoDBUser& lhs, const ArangoDBUser& rhs)
 bool operator!=(const ArangoDBConnect& lhs, const ArangoDBConnect& rhs)
 {
     return lhs.serverUrl != rhs.serverUrl || lhs.user != rhs.user ||
-              lhs.databaseName != rhs.databaseName;
+            lhs.databaseName != rhs.databaseName;
 }
 
-void ArangoDBConnect::getFromSettings( const std::string& group, bool rootdata )
+/// Get settings data from json string
+ArangoDBConnect connectFromSettings( const std::string& jsonstr, bool rootdata )
 {
-    GroupSettings dbGroup(ioSettings().group(group));
+    ArangoDBConnect connect_data;
 
-    if( rootdata)
-    {
-        serverUrl = dbGroup.value( "DB_URL", serverUrl );
-        databaseName = dbGroup.value( "DBRootName", databaseName );
-        user.name = dbGroup.value( "DBRootUser", user.name );
-        user.password = dbGroup.value( "DBRootPassword", user.password  );
-        user.access = dbGroup.value( "DBAccess", user.access  );
+    try{
+        auto data = ::arangodb::velocypack::Parser::fromJson(jsonstr);
+
+        auto slice = data->slice();
+        auto slicedb = slice.get("arangodb");
+        if( slicedb.isObject() )
+        {
+            auto instance = slicedb.get( "UseArangoDBInstance" ).copyString();
+            ArangoDBConnect::use_velocypack_put = slicedb.get( "UseVelocypackPut" ).getBool();
+            ArangoDBConnect::use_velocypack_get = slicedb.get( "UseVelocypackGet" ).getBool();
+            slicedb = slicedb.get("instance");
+
+            if( slicedb.isObject() )
+            {
+                if( rootdata)
+                {
+                    connect_data.serverUrl = slicedb.get( "DB_URL" ).copyString();
+                    connect_data.databaseName = slicedb.get( "DBRootName" ).copyString();
+                    connect_data.user.name = slicedb.get( "DBRootUser").copyString();
+                    connect_data.user.password = slicedb.get( "DBRootPassword" ).copyString();
+                    connect_data.user.access = "rw";
+                }
+                else
+                {
+                    connect_data.serverUrl = slicedb.get( "DB_URL" ).copyString();
+                    connect_data.databaseName = slicedb.get( "DBName" ).copyString();
+                    connect_data.user.name = slicedb.get( "DBUser" ).copyString();
+                    connect_data.user.password = slicedb.get( "DBUserPassword" ).copyString();
+                    connect_data.user.access = slicedb.get( "DBAccess" ).copyString();
+                }
+            }
+        }
     }
-    else
+    catch (::arangodb::velocypack::Exception& error )
     {
-        serverUrl = dbGroup.value( "DB_URL", serverUrl );
-        databaseName = dbGroup.value( "DBName", databaseName );
-        user.name = dbGroup.value( "DBUser", user.name );
-        user.password = dbGroup.value( "DBUserPassword", user.password  );
-        user.access = dbGroup.value( "DBAccess", user.access  );
+        JSONIO_LOG << "Read configuration file error: " << error.what() << std::endl;
+        ARANGO_THROW( "ArangoDBRootClient", 4, std::string("Read configuration file error: ")+error.what());
     }
+    return connect_data;
 }
 
-// TArangoDBRootClient ------------------------------------------
 
-/// Default Constructor
-TArangoDBRootClient::TArangoDBRootClient()
+ArangoDBConnect connectFromConfig( const std::string& cfgfile )
 {
-  rootData.getFromSettings(ioSettings().defaultArangoDB(), true );
-  resetDBConnection( rootData );
+    auto jsonstr = detail::read_all_file( cfgfile );
+    return connectFromSettings( jsonstr, false );
 }
 
-TArangoDBRootClient::~TArangoDBRootClient()
-{ }
+ArangoDBRootClient rootClientFromConfig( const std::string& cfgfile )
+{
+    auto jsonstr = detail::read_all_file( cfgfile );
+    auto connect_data = connectFromSettings( jsonstr, false );
+    return ArangoDBRootClient(connect_data);
+}
 
-void TArangoDBRootClient::resetDBConnection( const ArangoDBConnect& aconnectData )
+
+// ArangoDBRootClient ------------------------------------------
+
+
+void ArangoDBRootClient::resetDBConnection( const ArangoDBConnect& aconnectData )
 {
     rootData = aconnectData;
-    pusers.reset( new arangodb::ArangoDBUsersAPI(rootData ) ); /// here must be root data
+    pusers.reset( new ArangoDBUsersAPI(rootData) ); /// here must be root data
 }
 
-std::set<std::string> TArangoDBRootClient::getDatabaseNames()
+std::set<std::string> ArangoDBRootClient::databaseNames()
 {
-  return pusers->getDatabaseNames();
+    return pusers->databaseNames();
 }
 
-void TArangoDBRootClient::CreateDatabase( const std::string& dbname, const std::vector<ArangoDBUser>& users )
+void ArangoDBRootClient::createDatabase( const std::string& dbname, const std::vector<ArangoDBUser>& users )
 {
-   jsonioErrIf( rootData.readonlyDBAccess(), dbname, "Trying create database into read only mode.");
-   pusers->CreateDatabase( dbname, users );
+    pusers->createDatabase( dbname, users );
 }
 
-void TArangoDBRootClient::CreateUser( const ArangoDBUser& userdata )
+void ArangoDBRootClient::createUser( const ArangoDBUser& userdata )
 {
-   jsonioErrIf( rootData.readonlyDBAccess(), userdata.name, "Trying create user into read only mode.");
-   return pusers->CreateUser( userdata );
+    return pusers->createUser( userdata );
 }
 
-std::map<std::string,std::string> TArangoDBRootClient::getDatabaseNames( const std::string&  user )
+std::map<std::string,std::string> ArangoDBRootClient::databaseNames( const std::string&  user )
 {
-   return pusers->getDatabaseNames( user );
+    return pusers->databaseNames( user );
 }
 
-std::set<std::string> TArangoDBRootClient::getUserNames()
+std::set<std::string> ArangoDBRootClient::userNames()
 {
-   return pusers->getUserNames();
+    return pusers->userNames();
+}
+
+namespace detail {
+
+// Read whole ASCII file into string.
+std::string read_all_file( const std::string& file_path )
+{
+    std::ifstream t(file_path);
+    std::stringstream buffer;
+    buffer << t.rdbuf();
+    return buffer.str();
+}
+
 }
 
 } // namespace arangocpp

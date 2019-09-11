@@ -1,7 +1,8 @@
 #include <iostream>
 #include "arangocurl.h"
-#include "jsonio/nservice.h"
-#include "jsonio/io_settings.h"
+#include "arangoconnect.h"
+#include "arangoexception.h"
+#include "arangodetail.h"
 
 namespace arangocpp {
 
@@ -12,7 +13,7 @@ size_t RequestCurlObject::headerCallback(
     size_t realsize = size * nitems;
     size_t result = 0;
 
-    if (buffer != NULL)
+    if (buffer != nullptr)
     {
         buffer->append(data, realsize);
         buffer->append(";", 1);
@@ -27,7 +28,7 @@ size_t RequestCurlObject::bodyCallback(
     size_t realsize = size * nitems;
     size_t result = 0;
 
-    if (buffer != NULL)
+    if (buffer != nullptr )
     {
         buffer->append(data, realsize);
         result = realsize;
@@ -44,15 +45,15 @@ RequestCurlObject::RequestCurlObject( const std::string& theURL, const std::stri
 {
     _curl = curl_easy_init();
     if(!_curl)
-        ::jsonio::jsonioErr("RequestCurlObject", "Curl did not initialize!");
+        ARANGO_THROW( "RequestCurlObject", 2, "Curl did not initialize!");
 
     auto aRequest = _request.get();
-    bool sendJson = !ioSettings().useVelocypackPut();
+    bool sendJson = !ArangoDBConnect::use_velocypack_put;
 
     for (auto const& header : aRequest->header.meta)
     {
         if( header.first == fu_content_type_key && sendJson  )
-             continue;
+            continue;
         std::string thisHeader(header.first + ": " + header.second);
         _curlHeaders = curl_slist_append(_curlHeaders, thisHeader.c_str());
     }
@@ -103,7 +104,7 @@ RequestCurlObject::RequestCurlObject( const std::string& theURL, const std::stri
         break;
 
     case RestVerb::Illegal:
-        ::jsonio::jsonioErr( "runtime_error", "Invalid request type " + to_string(verb));
+        ARANGO_THROW( "RequestCurlObject", 3, "Invalid request type " + to_string(verb));
         break;
     }
 
@@ -139,7 +140,7 @@ RequestCurlObject::RequestCurlObject( const std::string& theURL, const std::stri
 
     auto res = curl_easy_perform(_curl);
     if(res != CURLE_OK)
-          std::cout << "Curl finish " << res << std::endl;
+        std::cout << "Curl finish " << res << std::endl;
 }
 
 std::unique_ptr<HttpMessage> RequestCurlObject::getResponse()
@@ -154,7 +155,7 @@ std::unique_ptr<HttpMessage> RequestCurlObject::getResponse()
     {
 
         //cout << "_responseHeaders  " << _responseHeaders << endl;
-        auto headers = ::jsonio::split(_responseHeaders, ";");
+        auto headers = detail::split(_responseHeaders, ";");
 
         while( !headers.empty() )
         {
@@ -169,7 +170,7 @@ std::unique_ptr<HttpMessage> RequestCurlObject::getResponse()
                 if( pit + 2 >= header.length() )
                     continue;
                 auto value = header.substr( pit + 2 );
-                ::jsonio::strip_all(value, " \t\n\r");
+                detail::trim(value);
                 response->header.addMeta( key, value);
             }
         }
@@ -183,7 +184,7 @@ std::unique_ptr<HttpMessage> RequestCurlObject::getResponse()
             response->addVPack(data->slice());
             response->header.addMeta(fu_content_type_key, fu_content_type_vpack);
 
-           // std::cout <<  "curl json response body " << std::endl;
+            // std::cout <<  "curl json response body " << std::endl;
         }
         else
         { ::arangodb::velocypack::Buffer<uint8_t> buffer;
@@ -194,5 +195,36 @@ std::unique_ptr<HttpMessage> RequestCurlObject::getResponse()
 
     return response;
 }
+
+namespace detail {
+
+
+// "a;b;c" to array { "a", "b", "c" }
+std::queue<std::string> split(const std::string& str, const std::string& delimiters)
+{
+    std::queue<std::string> v;
+
+    if( str.empty() )
+        return v;
+
+    std::string::size_type start = 0;
+    auto pos = str.find_first_of(delimiters, start);
+    while(pos != std::string::npos)
+    {
+        if(pos != start) // ignore empty tokens
+        {
+            auto vv = std::string(str, start, pos - start);
+            trim(vv);
+            v.push( vv );
+        }
+        start = pos + 1;
+        pos = str.find_first_of(delimiters, start);
+    }
+    if(start < str.length()) // ignore trailing delimiter
+        v.push( std::string (str, start, str.length() - start) );
+    return v;
+}
+
+} // namespace detail
 
 } // namespace arangocpp

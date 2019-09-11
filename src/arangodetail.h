@@ -1,42 +1,32 @@
 #pragma once
 
 #include <string>
-#include <vector>
-#include <cmath>
+#include <set>
+#include <queue>
 #include <limits>
 #include <algorithm>
 
-namespace jsonio14 {
 
-/// Get all regular file names from the directory.
-std::vector<std::string> files_into_directory( const std::string& directory_path, const std::string& sample = "");
-/// Read whole ASCII file into string.
+namespace arangocpp { namespace detail {
+
+// Read whole ASCII file into string.
 std::string read_all_file( const std::string& file_path );
 
+/// "a;b;c" to array { "a", "b", "c" }
+std::queue<std::string> split(const std::string& str, const std::string& delimiters);
 
-///  Function that can be used to split text using regexp.
-std::vector<std::string> regexp_split(const std::string& str, std::string rgx_str = "\\s+");
-///  Function that can be used to extract tokens using regexp.
-std::vector<std::string> regexp_extract(const std::string& str, std::string rgx_str);
-///  Function that can be used to replace text using regex.
-std::string regexp_replace(const std::string& instr, const std::string& rgx_str, const std::string& replacement );
-///  Returns true whether the string matches the regular expression.
-bool regexp_test(const std::string& str, std::string rgx_str);
-
-/// Replace all characters to character in string (in place).
-inline void replace_all(std::string &s, const std::string &characters, char to_character )
+/// Get subset testVector is in fullSet
+template <typename T>
+std::vector<T> getSubset(const std::vector<T>& testVector, const std::set<T>& fullSet )
 {
-    std::replace_if( s.begin(), s.end(), [=](char ch) {
-        return characters.find_first_of(ch)!=std::string::npos;
-    }, to_character );
+    std::vector<T> subset;
+    for( auto val: testVector)
+    {
+      if( fullSet.find(val) != fullSet.end() )
+          subset.push_back(val);
+    }
+    return subset;
 }
-
-template < class T>
-inline bool in_range( const T& x, const T& lower, const T& upper)
-{
-    return (x >= lower && x <= upper);
-}
-
 
 /// Trim all whitespace characters from start (in place).
 inline void ltrim(std::string &s )
@@ -108,7 +98,4 @@ bool definitelyLessThan( const T& a, const T& b, const T& epsilon = std::numeric
     return (b - a) > ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
 }
 
-/// Generate vector with minimal values from two vectors
-std::vector<size_t> min_vector(const std::vector<size_t>& lhs, const std::vector<size_t>& rhs);
-
-} // namespace jsonio14
+} } // namespace arangocpp detail
