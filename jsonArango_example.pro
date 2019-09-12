@@ -43,8 +43,10 @@ OBJECTS_DIR   = obj
 include($$JSONARANGO_DIR/jsonarango.pri)
 
 SOURCES += \
-       main.cpp
+#       main.cpp
 #      examples/create_example.cpp
+#      examples/exampleCRUD.cpp
+       examples/exampleSelection.cpp
 
 DISTFILES += \
     Resources/docs/ArangoDB.md \

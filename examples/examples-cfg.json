@@ -1,5 +1,5 @@
 {
-     "jsonio" :   {
+     "arangodb" :   {
           "UseArangoDBInstance" :   "ArangoDBLocal",
           "UseVelocypackPut" :   true,
           "UseVelocypackGet" :   true,
@@ -25,12 +25,5 @@
                "DBRootUser" :   "",
                "DBRootPassword" :   ""
           }
-     },
-     "common" :   {
-          "UserHomeDirectoryPath" :   "~/devJSONIO/jsonui-test",
-          "WorkDirectoryPath" :   ".",
-          "ResourcesDirectory" :   "~/Resources",
-          "SchemasDirectory" :   "~/Resources/data/schemas",
-          "LuaScriptsDirectory" :   "~/Resources/lua"
      }
 }

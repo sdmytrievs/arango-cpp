@@ -1,72 +1,76 @@
-/// Test example for TDBJsonDocument CRUD
+/// Test example for ArangoDBCollectionAPI the API for manipulating collections and documents into.
 
 #include <iostream>
-#include "jsonio/dbconnect.h"
-#include "jsonio/dbjsondoc.h"
-#include "jsonio/io_settings.h"
+#include "arangocollection.h"
+#include "arangoexception.h"
+#include <velocypack/Collection.h>
 
 int main(int, char* [])
 {
-    jsonio::JsonioSettings::settingsFileName = "examples-cfg.json";
+    std::string settingsFileName = "examples-cfg.json";
     std::string collectionName = "test";
+    std::string documentHandle = "test/eCRUD";
 
     try{
+        // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
+        arangocpp::ArangoDBConnect data = arangocpp::connectFromConfig( "examples-cfg.json" );
+        // Create database connection
+        arangocpp::ArangoDBCollectionAPI connect{data};
 
-        // Create database connection ( load settings from "examples-cfg.json" config file )
-        jsonio::TDataBase  database;
+        // If document collection collectionName not exist it would be created
+        connect.createCollection(collectionName, "vertex");
 
-        // Create document for collection collectionName
-        // If collection not exist it would be created
-        std::shared_ptr<jsonio::TDBJsonDocument>  document(
-                    jsonio::TDBJsonDocument::newJsonDocument( &database, collectionName ));
-
-        std::cout << "Document : " << "test/eCRUD" <<
-                     " exist " << document->Find("test/eCRUD") <<  std::endl;
+        std::cout << "Document : " << documentHandle <<
+                     " exist " << connect.existsRecord(collectionName, documentHandle) <<  std::endl;
 
         // Set data to document
-        document->SetJson("{ \"task\" : \"exampleCRUD\", "
-                          "  \"properties\" : { \"level\": \"insert record\" } "
-                          "}");
+        std::string documentData = "{ \"_key\" : \"eCRUD\", "
+                                   "  \"task\" : \"exampleCRUD\", "
+                                   "  \"properties\" : { \"level\": \"insert record\" } "
+                                   "}";
 
         // Insert document to database
-        auto rkey = document->Create("test/eCRUD");
-        //auto rkey = document->Create("test/FB'FKDB'_D_M");
-        //auto rkey = document->Create("test/fgndgn_!_$@_@$_ldkfbnso");
+        auto rkey = connect.createRecord( collectionName, documentData );
+
 
         // Read document from database
-        document->Read( rkey );
+        std::string readDocumentData;
+        connect.readRecord( collectionName, rkey,  readDocumentData);
 
         // Extract data from document
         std::cout << "Inserted document : " << rkey <<
-                     "\n" << document->GetJson(true) <<  std::endl;
+                     "\n" << readDocumentData <<  std::endl;
 
-        //
-        std::cout << "Document : " << rkey <<
-                     " exist " << document->Find(rkey) <<  std::endl;
+        // modify document
+        std::string addtorecord = "{\"comment\":\"test update\",\"properties\":{\"dvalue\":1.5,\"ivalue\":1,\"level\":\"update record\"} }";
 
+        auto record = ::arangodb::velocypack::Parser::fromJson(readDocumentData);
+        ::arangodb::velocypack::Slice srecord(record->start());
 
-        // Update document
-        document->setValue("properties.level", "update record" );
-        document->setValue("properties.ivalue", 1 );
-        document->setValue("properties.dvalue", 1.5 );
-        document->setValue("comment", "test update" );
+        auto addrecord = ::arangodb::velocypack::Parser::fromJson(addtorecord);
+        ::arangodb::velocypack::Slice saddrecord(addrecord->start());
+
+        auto bilder = ::arangodb::velocypack::Collection::merge(srecord, saddrecord, true, false );
+        documentData = bilder.toJson();
+        std::cout << "Modified document : \n" << documentData <<  std::endl;
+
 
         // Save changed document to database
-        document->Update( rkey );
+        connect.updateRecord( collectionName, rkey, documentData );
 
         // Read record after update
-        document->Read( rkey );
+        connect.readRecord( collectionName, rkey,  readDocumentData);
 
         // Extract data from document
-        std::cout << "Updated document :\n" << document->GetJson() <<  std::endl;
+        std::cout << "Updated document :\n" << readDocumentData <<  std::endl;
 
         // Delete record
-        document->Delete( rkey );
+        connect.deleteRecord( collectionName, rkey );
 
     }
-    catch(jsonio::jsonio_exception& e)
+    catch(arangocpp::arango_exception& e)
     {
-        std::cout << "TDBJsonDocument API" << e.title() << e.what() << e.field()<<  std::endl;
+        std::cout << "TDBJsonDocument API" << e.header() << e.what() <<  std::endl;
     }
     catch(std::exception& e)
     {
@@ -79,3 +83,8 @@ int main(int, char* [])
 
     return 0;
 }
+
+// curl -X GET @- --dump - http://localhost:8529/_api/document/test/eCRUD2 -u root:""
+// curl -X HEAD --dump - http://localhost:8529/_api/document/test/eCRUD2 -u root:""
+// curl -I --dump - http://localhost:8529/_api/document/test/eCRUD2 -u root:""
+//  https://serverfault.com/questions/140149/difference-between-curl-i-and-curl-x-head

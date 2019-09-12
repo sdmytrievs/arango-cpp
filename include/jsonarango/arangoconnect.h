@@ -72,7 +72,6 @@ struct ArangoDBConnect
         return( user.access=="ro");
     }
 
-    void getFromSettings(const std::string& group, bool rootdata = false );
     /// Full list of edges used in connection query.
     static std::vector<std::string> full_list_of_edges;
     /// Use content type Velocypack on sending requests (fu_content_type_vpack)

@@ -15,3 +15,12 @@ General exception structure into project.
 
 > *source: "+";    test: "+";  example: "-"*
 
+
+
+## Coments
+
+curl could be init and only chage curl requests
+
+what mean: curl_easy_setopt(_curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+
+All options could not be set all time: user pathword ...
