@@ -129,7 +129,7 @@ public:
 /// ArangoDB connections data from config file.
 ArangoDBConnect connectFromConfig( const std::string& cfgfile );
 /// ArangoDB root connections data from config file.
-ArangoDBRootClient rootClientFromConfig( const std::string& cfgfile );
+ArangoDBConnect rootClientFromConfig( const std::string& cfgfile );
 
 } // namespace arangocpp
 

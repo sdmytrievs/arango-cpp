@@ -13,6 +13,7 @@ void printData( const std::string&  title, const std::vector<std::string>& value
     std::cout <<  std::endl;
 }
 
+
 /// Test different query types
 int main(int, char* [])
 {
@@ -55,54 +56,67 @@ int main(int, char* [])
             recKeys.push_back(rkey);
         }
 
+        std::string aql = "FOR u IN " + collectionName +
+                          "\nFILTER u.name == 'a' \n"
+                          "RETURN u";
+        arangocpp::ArangoDBQuery    aqlquery( aql, arangocpp::ArangoDBQuery::AQL );
+
+
         // Define call back function
         arangocpp::SetReadedFunction setfnc = [&recjsonValues]( const std::string& jsondata )
         {
             recjsonValues.push_back(jsondata);
         };
 
-        // Select all records
-        recjsonValues.clear();
-        arangocpp::ArangoDBQuery    allquery( arangocpp::ArangoDBQuery::All );
-        connect.selectQuery( collectionName, allquery, setfnc );
-        printData( "Select all records", recjsonValues );
+        // Load by keys list
+        connect.lookupByKeys( collectionName, recKeys, setfnc );
+        printData( "Load by keys list", recjsonValues );
 
-        // Select records by template
+        // Load by query
         recjsonValues.clear();
-        arangocpp::ArangoDBQuery    templatequery( "{ \"name\" : \"a\" }", arangocpp::ArangoDBQuery::Template );
-        connect.selectQuery( collectionName, templatequery, setfnc );
-        printData( "Select records by template", recjsonValues );
-
-        // Select records by AQL query
-        recjsonValues.clear();
-        std::string aql = "FOR u IN " + collectionName +
-                "\nFILTER u.properties.value > 50 \n"
-                "RETURN { \"_id\": u._id, \"name\":u.name, \"index\":u.index }";
-        arangocpp::ArangoDBQuery    aqlquery( aql, arangocpp::ArangoDBQuery::AQL );
         connect.selectQuery( collectionName, aqlquery, setfnc );
-        printData( "Select records by AQL query", recjsonValues );
+        printData( "Load by query", recjsonValues );
 
-        // delete by example
-        connect.removeByExample( collectionName, "{ \"name\" : \"a\" }" );
+        // Define call back function
+        arangocpp::SetReadedFunctionKey setfnckey = [&recjsonValues]( const std::string& jsondata, const std::string&  )
+        {
+            recjsonValues.push_back(jsondata);
+        };
+
+        // Fetches all documents  from a collection
         recjsonValues.clear();
-        connect.selectQuery( collectionName, allquery, setfnc );
-        printData( "All after removing", recjsonValues );
+        connect.selectAll( collectionName, {}, setfnckey );
+        printData( "Fetches all documents keys", recjsonValues );
 
-        connect.removeByExample( collectionName, "{ \"name\" : \"b\" }" );
+        // Fetches fields  (_id and "index") from all documents from a collection
+        recjsonValues.clear();
+        connect.selectAll( collectionName, { { "_id", "_id" }, { "index", "index" } }, setfnckey );
+        printData( "Fetches all documents keys", recjsonValues );
+
+        // Select field values
+        recjsonValues.clear();
+        connect.collectQuery( collectionName,"name", recjsonValues );
+        printData( "Select field values 'name'", recjsonValues );
+        recjsonValues.clear();
+        connect.collectQuery( collectionName,"properties.value", recjsonValues );
+        printData( "Select field values 'properties.value'", recjsonValues );
+
+        // delete all
+        connect.removeByKeys( collectionName, recKeys );
         std::cout <<  "Finish test " <<  std::endl;
 
     }
     catch(arangocpp::arango_exception& e)
     {
-        std::cout << "ArangoDBCollectionAPI" << e.header() << e.what() <<  std::endl;
+        std::cout << "TDBJsonDocument API" << e.header() << e.what() <<  std::endl;
     }
     catch(std::exception& e)
     {
-        std::cout <<  "ArangoDBCollectionAPI" << " std::exception" << e.what() <<  std::endl;
+        std::cout <<  "TDBJsonDocument API" << " std::exception" << e.what() <<  std::endl;
     }
     catch(...)
     {
-        std::cout <<  "ArangoDBCollectionAPI" << " unknown exception" <<  std::endl;
+        std::cout <<  "TDBJsonDocument API" << " unknown exception" <<  std::endl;
     }
 
     return 0;

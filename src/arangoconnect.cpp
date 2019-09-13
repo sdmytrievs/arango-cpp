@@ -84,11 +84,10 @@ ArangoDBConnect connectFromConfig( const std::string& cfgfile )
     return connectFromSettings( jsonstr, false );
 }
 
-ArangoDBRootClient rootClientFromConfig( const std::string& cfgfile )
+ArangoDBConnect rootClientFromConfig( const std::string& cfgfile )
 {
     auto jsonstr = detail::read_all_file( cfgfile );
-    auto connect_data = connectFromSettings( jsonstr, false );
-    return ArangoDBRootClient(connect_data);
+    return connectFromSettings( jsonstr, true );
 }
 
 

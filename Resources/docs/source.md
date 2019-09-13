@@ -19,6 +19,9 @@ General exception structure into project.
 
 ## Coments
 
+Into ArangoDBCollectionAPI no example for queryEdgesToFrom and removeEdges
+
+
 curl could be init and only chage curl requests
 
 what mean: curl_easy_setopt(_curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
