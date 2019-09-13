@@ -56,8 +56,8 @@ int main(int, char* [])
             recKeys.push_back(rkey);
         }
 
-        std::string aql = "FOR u IN test \n"
-                          "FILTER u.name == 'a' \n"
+        std::string aql = "FOR u IN " + collectionName +
+                          "\nFILTER u.name == 'a' \n"
                           "RETURN u";
         arangocpp::ArangoDBQuery    aqlquery( aql, arangocpp::ArangoDBQuery::AQL );
 
@@ -83,7 +83,12 @@ int main(int, char* [])
             recjsonValues.push_back(jsondata);
         };
 
-        // Fetches all documents keys (_id) from a collection
+        // Fetches all documents  from a collection
+        recjsonValues.clear();
+        connect.selectAll( collectionName, {}, setfnckey );
+        printData( "Fetches all documents keys", recjsonValues );
+
+        // Fetches fields  (_id and "index") from all documents from a collection
         recjsonValues.clear();
         connect.selectAll( collectionName, { { "_id", "_id" }, { "index", "index" } }, setfnckey );
         printData( "Fetches all documents keys", recjsonValues );

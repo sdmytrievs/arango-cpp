@@ -1,15 +1,22 @@
-/// Test example for TDBJsonDocument selection
+/// Test example for ArangoDBCollectionAPI the API for manipulating collections and documents into.
 
 #include <iostream>
-#include "jsonio/dbconnect.h"
-#include "jsonio/dbjsondoc.h"
-#include "jsonio/io_settings.h"
+#include "arangocollection.h"
+#include "arangoexception.h"
+#include <velocypack/Collection.h>
 
+void printData( const std::string&  title, const std::vector<std::string>& values )
+{
+    std::cout <<  title <<  std::endl;
+    for( const auto& jsondata: values)
+        std::cout <<  jsondata <<  std::endl;
+    std::cout <<  std::endl;
+}
 
 /// Test different query types
 int main(int, char* [])
 {
-    jsonio::JsonioSettings::settingsFileName = "examples-cfg.json";
+    std::string settingsFileName = "examples-cfg.json";
 
     // Test collection name
     std::string collectionName = "test";
@@ -19,77 +26,78 @@ int main(int, char* [])
 
     // Record keys
     std::vector<std::string> recKeys;
+    std::vector<std::string> recjsonValues;
 
     try{
 
-        // Create database connection ( load settings from "examples-cfg.json" config file )
-        jsonio::TDataBase  database;
+        // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
+        arangocpp::ArangoDBConnect data = arangocpp::connectFromConfig( "examples-cfg.json" );
+        // Create database connection
+        arangocpp::ArangoDBCollectionAPI connect{data};
 
-        // Create document for collection collectionName
-        // If collection not exist it would be created
-        std::shared_ptr<jsonio::TDBJsonDocument>  document(
-                    jsonio::TDBJsonDocument::newJsonDocument( &database, collectionName ));
-
-        // Set data to document
-        document->SetJson("{ \"name\" : \"a\",  "
-                          "  \"index\" : 1,  "
-                          "  \"task\" : \"exampleQuery\",  "
-                          "  \"properties\" : { \"value\": 2.5 } "
-                          "}");
+        // If document collection collectionName not exist it would be created
+        connect.createCollection(collectionName, "vertex");
 
         // Insert documents to database
         for( int ii=0; ii<numOfDocuments; ii++ )
         {
-            if( ii%2 )
-                document->setValue("name", "a" );
-            else
-                document->setValue("name", "b" );
-            document->setValue("index", ii );
-            document->setValue("properties.value", 10.01*ii );
-            auto key = document->Create();
-            recKeys.push_back(key);
+            ::arangodb::velocypack::Builder builder;
+            builder.openObject();
+            builder.add("name" , ::arangodb::velocypack::Value(  ii%2 ? "a" : "b" ) );
+            builder.add("index" , ::arangodb::velocypack::Value(  ii ) );
+            builder.add("task" , ::arangodb::velocypack::Value("exampleQuery"));
+            builder.add("properties", ::arangodb::velocypack::Value(::arangodb::velocypack::ValueType::Object));
+            builder.add("value" , ::arangodb::velocypack::Value(  10.01*ii ) );
+            builder.close();
+            builder.close();
+
+            auto rkey = connect.createRecord( collectionName, builder.toJson() );
+            recKeys.push_back(rkey);
         }
 
-        // backup execute function example
-        jsonio::SetReadedFunction setfnc = []( const std::string& jsondata)
+        // Define call back function
+        arangocpp::SetReadedFunction setfnc = [&recjsonValues]( const std::string& jsondata )
         {
-            std::cout <<  jsondata <<  std::endl;
+            recjsonValues.push_back(jsondata);
         };
 
-        std::cout <<  "jsonio::DBQueryData::qAll result " <<  std::endl;
-        jsonio::DBQueryData    allquery( jsonio::DBQueryData::qAll );
-        document->runQuery( allquery, setfnc );
+        // Select all records
+        recjsonValues.clear();
+        arangocpp::ArangoDBQuery    allquery( arangocpp::ArangoDBQuery::All );
+        connect.selectQuery( collectionName, allquery, setfnc );
+        printData( "Select all records", recjsonValues );
 
-        std::cout <<  "jsonio::DBQueryData::qTemplate result " <<  std::endl;
-        jsonio::DBQueryData    templatequery( "{ \"name\" : \"a\" }", jsonio::DBQueryData::qTemplate );
-        document->runQuery( templatequery, setfnc );
+        // Select records by template
+        recjsonValues.clear();
+        arangocpp::ArangoDBQuery    templatequery( "{ \"name\" : \"a\" }", arangocpp::ArangoDBQuery::Template );
+        connect.selectQuery( collectionName, templatequery, setfnc );
+        printData( "Select records by template", recjsonValues );
 
-
-        std::cout <<  "jsonio::DBQueryData::qAQL result " <<  std::endl;
-        std::string aql = "FOR u IN test \n"
-                          "FILTER u.properties.value > 50 \n"
-                          "RETURN { \"_id\": u._id, \"name\":u.name, \"index\":u.index }";
-        jsonio::DBQueryData    aqlquery( aql, jsonio::DBQueryData::qAQL );
-        document->runQuery( aqlquery, setfnc );
-
+        // Select records by AQL query
+        recjsonValues.clear();
+        std::string aql = "FOR u IN " + collectionName +
+                "\nFILTER u.properties.value > 50 \n"
+                "RETURN { \"_id\": u._id, \"name\":u.name, \"index\":u.index }";
+        arangocpp::ArangoDBQuery    aqlquery( aql, arangocpp::ArangoDBQuery::AQL );
+        connect.selectQuery( collectionName, aqlquery, setfnc );
+        printData( "Select records by AQL query", recjsonValues );
 
         // delete all
-        document->removeByKeys(  recKeys  );
+        connect.removeByKeys( collectionName, recKeys );
         std::cout <<  "Finish test " <<  std::endl;
 
-
     }
-    catch(jsonio::jsonio_exception& e)
+    catch(arangocpp::arango_exception& e)
     {
-        std::cout << "TDBJsonDocument API " << e.title() << " " << e.what() << " " <<e.field()<<  std::endl;
+        std::cout << "ArangoDBCollectionAPI" << e.header() << e.what() <<  std::endl;
     }
     catch(std::exception& e)
     {
-        std::cout <<  "TDBJsonDocument API" << " std::exception" << e.what() <<  std::endl;
+        std::cout <<  "ArangoDBCollectionAPI" << " std::exception" << e.what() <<  std::endl;
     }
     catch(...)
     {
-        std::cout <<  "TDBJsonDocument API" << " unknown exception" <<  std::endl;
+        std::cout <<  "ArangoDBCollectionAPI" << " unknown exception" <<  std::endl;
     }
 
     return 0;
