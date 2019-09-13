@@ -23,9 +23,14 @@ public:
     /// Checks whether the graph exists.
     bool existGraph(const std::string& graphname );
 
+    /// Lists all graph names stored in this database.
+    std::set<std::string> graphNames();
+
     /// Creates a graph with the given properties for this graph’s name.
     /// The creation of a graph requires the name of the graph and a definition of its edges.
     void createGraph(const std::string& graphname, const std::string& edgeDefinitions);
+    /// Delete an existing graph.
+    void removeGraph( const std::string& graphname );
 
     /// Fetches all (edges/vertexes) collections from the graph.
     std::set<std::string> graphCollectionNames( const std::string& graphname, const std::string& colltype );

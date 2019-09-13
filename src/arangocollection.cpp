@@ -14,13 +14,14 @@ void ArangoDBAPIBase::resetDBConnection( const ArangoDBConnect& connectData )
         return;
     connect_data = connectData;
 
-    /*try{
+
+    try{
       testConnection();
     }
   catch(std::exception& e)
   {
-     cout <<  "std::exception" << e.what();
-  }*/
+     std::cout <<  "std::exception" << e.what();
+  }
 
 }
 

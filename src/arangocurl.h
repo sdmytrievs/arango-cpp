@@ -3,6 +3,10 @@
 #include <curl/curl.h>
 #include "arangorequests.h"
 
+// https://news.ycombinator.com/item?id=7695676
+// https://stackoverflow.com/questions/32852302/why-are-streaming-requests-with-libcurl-in-c-slow
+// https://gist.github.com/bagder/7eccf74f8b6d70b5abefeb7f288dba9b
+
 namespace arangocpp {
 
 class RequestCurlObject {

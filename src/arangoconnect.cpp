@@ -46,7 +46,7 @@ ArangoDBConnect connectFromSettings( const std::string& jsonstr, bool rootdata )
             auto instance = slicedb.get( "UseArangoDBInstance" ).copyString();
             ArangoDBConnect::use_velocypack_put = slicedb.get( "UseVelocypackPut" ).getBool();
             ArangoDBConnect::use_velocypack_get = slicedb.get( "UseVelocypackGet" ).getBool();
-            slicedb = slicedb.get("instance");
+            slicedb = slicedb.get(instance);
 
             if( slicedb.isObject() )
             {

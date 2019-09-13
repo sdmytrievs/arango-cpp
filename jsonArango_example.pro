@@ -48,7 +48,8 @@ SOURCES += \
 #       examples/exampleSelection.cpp
 #       examples/exampleQuery.cpp
 #       examples/exampleCollections.cpp
-       examples/exampleRoot.cpp
+#       examples/exampleRoot.cpp
+       examples/exampleGraphCRUD.cpp
 
 DISTFILES += \
     Resources/docs/ArangoDB.md \

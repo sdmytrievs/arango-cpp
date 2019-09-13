@@ -18,6 +18,26 @@ bool ArangoDBGraphAPI::existGraph(const std::string& graphname )
     return result->statusCode() != StatusNotFound;
 }
 
+
+// Lists all graph names stored in this database.
+std::set<std::string> ArangoDBGraphAPI::graphNames()
+{
+    std::set<std::string> graph_names;
+    std::string rqstr = "/_api/gharial";
+    auto request = createREQUEST(RestVerb::Get, rqstr );
+    auto result =  sendREQUEST(std::move(request));
+
+    if( result->statusCode() == StatusOK )
+    {
+        auto slice = result->slices().front();
+        auto grlst = slice.get("graphs");
+        for( size_t ii=0; ii<grlst.length(); ii++ )
+            graph_names.insert( grlst[ii].get("_key").copyString());
+    }
+    return graph_names;
+}
+
+
 // Create graph
 void ArangoDBGraphAPI::createGraph(const std::string& graphname, const std::string& edgeDefinitions)
 {
@@ -39,7 +59,7 @@ void ArangoDBGraphAPI::createGraph(const std::string& graphname, const std::stri
         request1->header.meta.erase("accept");
         auto result1 = sendREQUEST(std::move(request1));
 
-        if( result1->statusCode() == StatusConflict )
+        if( result1->statusCode() > StatusAccepted )
             ARANGO_THROW( "ArangoDBGraphAPI", 32, "This can occur either if a graph with this name is already stored,"
                                                   "or if there is one edge definition with a the same edge collection but a different "
                                                   "signature used in any other graph." );
@@ -47,6 +67,23 @@ void ArangoDBGraphAPI::createGraph(const std::string& graphname, const std::stri
     {
         JSONIO_LOG << "Velocypack error: " << error.what() << std::endl;
         ARANGO_THROW( "ArangoDBGraphAPI", 31,  std::string("Velocypack error: ")+error.what());
+    }
+}
+
+
+void ArangoDBGraphAPI::removeGraph( const std::string& graphname )
+{
+    if( !existGraph( graphname ) )
+        return;
+
+    std::string rqstr = "/_api/gharial/"+graphname;
+    auto request = createREQUEST(RestVerb::Delete, rqstr );
+    auto result = sendREQUEST(std::move(request));
+
+    if( result->statusCode() >  StatusAccepted )
+    {
+        auto errmsg = result->slices().front().get("errorMessage").copyString();
+        ARANGO_THROW( "ArangoDBGraphAPI", 39, std::string("Error when drop graph: ")+errmsg );
     }
 }
 

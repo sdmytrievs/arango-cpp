@@ -86,8 +86,8 @@ int main(int, char* [])
         user_names = rootconnect.userNames();
         printData( "Fetches data about all users after remove: ", user_names );
 
-        // Delete collectionName not
-        rootconnect.removeDatabase(databaseName);
+        // Delete databse
+        //rootconnect.removeDatabase(databaseName);
         // Test exist database
         std::cout << "After delete Database : " << databaseName << " exist " << rootconnect.existDatabase(databaseName) <<  std::endl;
 
