@@ -1,0 +1,10 @@
+{
+    "serverEndpoint": "https://db.thermohub.net",
+    "serverUsername": "adminrem",
+    "serverPassword": "Administrator@Remote-ThermoHub-Server",
+    "serverDatabase": "hub_test",
+     "host_name" :   "localhost",
+     "port" :   9090,
+     "protocol" :   "-b",
+     "transport" :   "-s"
+}
