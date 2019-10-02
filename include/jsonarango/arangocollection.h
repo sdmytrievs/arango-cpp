@@ -1,9 +1,9 @@
 #pragma once
 
 #include <set>
-#include "arangorequests.h"
-#include "arangoconnect.h"
-#include "query.h"
+#include "jsonarango/arangorequests.h"
+#include "jsonarango/arangoconnect.h"
+#include "jsonarango/arangoquery.h"
 
 namespace arangocpp {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "arangocollection.h"
+#include "jsonarango/arangocollection.h"
 
 namespace arangocpp {
 

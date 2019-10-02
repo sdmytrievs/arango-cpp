@@ -1,4 +1,4 @@
-#include "query.h"
+#include "jsonarango/arangoquery.h"
 
 namespace arangocpp {
 

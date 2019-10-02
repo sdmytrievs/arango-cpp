@@ -28,7 +28,7 @@ win32 {
 
 # Define the directory where jsonArango source code is located
 JSONARANGO_DIR =  $$PWD/src
-JSONARANGO_HEADERS_DIR =  $$JSONARANGO_DIR/../include/jsonarango
+JSONARANGO_HEADERS_DIR =  $$JSONARANGO_DIR/../include
 
 DEPENDPATH   += $$JSONARANGO_DIR
 DEPENDPATH   += $$JSONARANGO_HEADERS_DIR

@@ -1,6 +1,7 @@
-#include "arangodbusers.h"
+#include "jsonarango/arangodbusers.h"
+#include "jsonarango/arangoexception.h"
 #include "arangocurl.h"
-#include "arangoexception.h"
+
 
 namespace arangocpp {
 

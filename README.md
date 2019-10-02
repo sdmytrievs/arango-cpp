@@ -4,9 +4,9 @@ A lightweight ArangoDB client C++ library
 
 ## What jsonArango does?
 
-* _ArangoDBCollectionAPI_ the API for manipulating collections and documents into. The Collection API is implemented by all Collection instances, regardless of their specific type.
-* _ArangoDBGraphAPI_ implement the API for manipulating graphs.
-* _ArangoDBUsersAPI_ implement the API for create/delete ArangoDB users and databases.
+* _ArangoDBCollectionAPI_   the API for manipulating collections and documents into. The Collection API is implemented by all Collection instances, regardless of their specific type.
+* _ArangoDBGraphAPI_   implement the API for manipulating graphs.
+* _ArangoDBUsersAPI_   implement the API for create/delete ArangoDB users and databases.
 * jsonArango is written in C++11 using open-source library Velocypack from ArangoDB.
 * Version: currently 0.1.
 * Will be distributed as is (no liability) under the terms of Lesser GPL v.3 license.
@@ -80,8 +80,9 @@ brew install arangodb
 ```c++
 
 try{
+    std::string collectionName = "test";
 
-    // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
+    // Set Arangodb connection data
     arangocpp::ArangoDBConnect data( "http://localhost:8529", "root","", "_system");
     // Create database connection
     arangocpp::ArangoDBCollectionAPI connect{data};

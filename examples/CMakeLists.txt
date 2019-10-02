@@ -11,6 +11,6 @@ if(BuildJsonioExamples)
 
     foreach (exampleName ${Examples})
         add_executable(${exampleName} ${exampleName}.cpp)
-        target_link_libraries(${exampleName} jsonio )
+        target_link_libraries(${exampleName} jsonarango )
     endforeach()
 endif()

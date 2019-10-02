@@ -1,8 +1,8 @@
 /// Test example for ArangoDBUsersAPI API to Create/Delete ArangoDB users and databases.
 
 #include <iostream>
-#include "arangodbusers.h"
-#include "arangoexception.h"
+#include "jsonarango/arangodbusers.h"
+#include "jsonarango/arangoexception.h"
 
 
 void printData( const std::string&  title, const std::set<std::string>& values )

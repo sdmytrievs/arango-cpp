@@ -1,7 +1,7 @@
 #include <iostream>
+#include "jsonarango/arangoconnect.h"
+#include "jsonarango/arangoexception.h"
 #include "arangocurl.h"
-#include "arangoconnect.h"
-#include "arangoexception.h"
 #include "arangodetail.h"
 
 namespace arangocpp {

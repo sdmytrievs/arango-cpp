@@ -1,7 +1,7 @@
 #pragma once
 
 #include <curl/curl.h>
-#include "arangorequests.h"
+#include "jsonarango/arangorequests.h"
 
 // https://news.ycombinator.com/item?id=7695676
 // https://stackoverflow.com/questions/32852302/why-are-streaming-requests-with-libcurl-in-c-slow

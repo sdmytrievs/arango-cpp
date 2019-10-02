@@ -1,8 +1,8 @@
 /// Test example for class  ArangoDBGraphAPI implement the API for manipulating graphs..
 
 #include <iostream>
-#include "arangograph.h"
-#include "arangoexception.h"
+#include "jsonarango/arangograph.h"
+#include "jsonarango/arangoexception.h"
 
 void printData( const std::string&  title, const std::set<std::string>& values )
 {
