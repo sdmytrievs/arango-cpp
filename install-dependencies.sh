@@ -1,13 +1,23 @@
 #!/bin/bash
-# Installing dependencies needed to build ThermoFun on (k)ubuntu linux 16.04 or 18.04
+# Installing dependencies needed to build jsonArangoDB
 
 if [ "$(uname)" == "Darwin" ]; then
+
     # Do under Mac OS X platform
+    #Needs Xcode and ArangoDB server locally installed
+    brew upgrade
     brew install cmake
+    #brew install arangodb
+    
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+
+    #Needs gcc v.5 or higher and ArangoDB server locally installed
+    sudo apt-get update
+    sudo apt-get install -y libcurl4-openssl-dev
 fi
 
 # Uncomment what is necessary to reinstall by force 
-sudo rm -f /usr/local/lib/libvelocypack.a
+#sudo rm -f /usr/local/lib/libvelocypack.a
 
 threads=3
 

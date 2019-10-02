@@ -20,3 +20,8 @@ If you upgrade to new version arangodb run the command:
 ```
 
 
+
+// curl -X GET @- --dump - http://localhost:8529/_api/document/test/eCRUD2 -u root:""
+// curl -X HEAD --dump - http://localhost:8529/_api/document/test/eCRUD2 -u root:""
+// curl -I --dump - http://localhost:8529/_api/document/test/eCRUD2 -u root:""
+//  https://serverfault.com/questions/140149/difference-between-curl-i-and-curl-x-head

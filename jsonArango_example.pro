@@ -44,12 +44,12 @@ include($$JSONARANGO_DIR/jsonarango.pri)
 
 SOURCES += \
 #       main.cpp
-#       examples/exampleCRUD.cpp
+       examples/exampleCRUD.cpp
 #       examples/exampleSelection.cpp
 #       examples/exampleQuery.cpp
 #       examples/exampleCollections.cpp
 #       examples/exampleRoot.cpp
-       examples/exampleGraphCRUD.cpp
+#       examples/exampleGraphCRUD.cpp
 
 DISTFILES += \
     Resources/docs/ArangoDB.md \
