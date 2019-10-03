@@ -1,16 +1,21 @@
 # jsonArango
 
-A lightweight ArangoDB client C++ library
+A lightweight ArangoDB client C++ library, capable of CRUD and query operations with several databases and many collections on local and/or remote ArangoDB instances at the same time.
 
 ## What jsonArango does?
 
-* _ArangoDBCollectionAPI_   the API for manipulating collections and documents within the database. The Collection API is valid for all Collection instances, regardless of their type (vertices or edges).
-* _ArangoDBGraphAPI_   the API for manipulating property graphs.
-* _ArangoDBUsersAPI_   the API for creating/deleting ArangoDB users and databases.
+### _ArangoDBCollectionAPI_   
+* Use methods from this API for manipulating collections and documents within the database. The Collection API is valid for all Collection instances, regardless of their type (vertices or edges).
+### _ArangoDBGraphAPI_  
+* Use methods from this API for manipulating property graphs within one database (vertices and edges can be located in multiple collections).
+### _ArangoDBUsersAPI_   
+* Use methods from this API for managing (creating or deleting) users and databases.
 * 
-jsonArango is written in _C++11_ using the open-source library Velocypack from ArangoDB.
-Version: currently 0.1.
-Will be distributed as is (no liability) under the terms of Lesser GPL v.3 license.
+* For all methods and APIs, see header "arangocollection.h".
+* 
+* jsonArango is written in _C++11_ using the open-source library Velocypack from ArangoDB.
+* Version: currently 0.1.
+* Will be distributed as is (no liability) under the terms of Lesser GPL v.3 license.
 
 ## How to install the jsonArango library
 
@@ -29,14 +34,14 @@ git clone https://bitbucket.org/gems4/jsonarango.git
 
 * Install Dependencies
 
-In order to build the jsonArango library on Ubuntu Linux or MacOS, first execute the following:
+In order to build the jsonArango library on Ubuntu Linux or MacOS, first execute the following (may ask your sudo password):
 
 ```sh
 cd jsonarango
 ./install-dependencies.sh
 ```
 
-* Install the jsonArango library
+* Install the jsonArango library (will ask your sudo password)
 
 ```sh
 ./install.sh
@@ -67,7 +72,7 @@ sudo apt-get install arangodb3=3.5.0-1
 
 The future updates will come together with other ubuntu packages installed.
 
-* On MacOS Sierra or higher, [navigate here](https://www.arangodb.com/docs/stable/installation-mac-osx.html) and follow the instructions on how to install ArangoDB with homebrew. Basically, you have to open a terminal and run two commands:
+* On MacOS Sierra or higher, [navigate here](https://www.arangodb.com/docs/stable/installation-mac-osx.html) and follow the instructions on how to install ArangoDB with homebrew. Briefly, you have to open a terminal and run two commands:
 
 ~~~
 brew update
@@ -104,7 +109,6 @@ int main(int, char* [])
         // Create a database connection
         arangocpp::ArangoDBCollectionAPI mydb_connect{mydb_data};
 
-
         // Create a new collection "mydocuments" (or get to existing one)
         mydb_connect.createCollection( collectionName, "vertex");
 
@@ -114,25 +118,23 @@ int main(int, char* [])
                                    "  \"foo\" : { \"baz\": \"boo\" } "
                                    "}";
 
-
-        // Insert a new document to database collection and retrieve its handle
+        // Insert a new document into database collection and retrieve its handle (i.e. value of "_key" field)
         auto documentHandle = mydb_connect.createDocument( collectionName, documentData );
-
 
         // Read a document from database collection
         std::string readDocumentData;
         mydb_connect.readDocument( collectionName, documentHandle,  readDocumentData);
 
-        // Modify the document in readDocumentData
+        // Modify the document in readDocumentData as a string or using any JSON parser
         ...
 
-        // Save the modified document to database collection
+        // Save the modified document into database collection
         mydb_connect.updateDocument( collectionName, documentHandle, readDocumentData );
 
         // Delete the document from database collection
         mydb_connect.deleteDocument( collectionName, documentHandle );
-
     }
+
     catch(arangocpp::arango_exception& e)
     {
         std::cout << e.header() << e.what() <<  std::endl;
