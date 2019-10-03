@@ -8,7 +8,7 @@ A lightweight ArangoDB client C++ library
 * _ArangoDBGraphAPI_   the API for manipulating property graphs.
 * _ArangoDBUsersAPI_   the API for creating/deleting ArangoDB users and databases.
 * 
-jsonArango is written in C++11 using the open-source library Velocypack from ArangoDB.
+jsonArango is written in _C++11_ using the open-source library Velocypack from ArangoDB.
 Version: currently 0.1.
 Will be distributed as is (no liability) under the terms of Lesser GPL v.3 license.
 
@@ -17,7 +17,7 @@ Will be distributed as is (no liability) under the terms of Lesser GPL v.3 licen
 * Make sure you have g++, cmake and git installed. If not, install them (on Ubuntu Linux):
 
 ```sh
-sudo apt-get install g++ cmake git libssl-dev libtool byacc flex
+sudo apt-get install g++ cmake git libssl-dev
 ```
 For Mac OSX, make sure you have Xcode and Homebrew installed (see [Homebrew web site](http://brew.sh) ).
 
@@ -33,13 +33,13 @@ In order to build the jsonArango library on Ubuntu Linux or MacOS, first execute
 
 ```sh
 cd jsonarango
-sudo ./install-dependencies.sh
+./install-dependencies.sh
 ```
 
 * Install the jsonArango library
 
 ```sh
-sudo ./install.sh
+./install.sh
 ```
 
 After that, headers and the library can be found in /usr/local/include/jsonarango, /usr/local/lib/.
@@ -78,54 +78,71 @@ brew install arangodb
 
 ```c++
 
-try{
-    std::string collectionName = "test";
+#include <iostream>
+#include "jsonarango/arangocollection.h"
+#include "jsonarango/arangoexception.h"
 
-    // Set ArangoDB connection data (URL, user name, password, database name)
-    arangocpp::ArangoDBConnect sysdb_data( "http://localhost:8529", "root", "", "_system");
-    // Create a database connection
-    arangocpp::ArangoDBCollectionAPI sysdb_connect{sys_data};
-
-// Create a new database "mydatabase" (or get to existing one) and set a connection "mydb_connect" to it
-
-    // If document collection collectionName does not exist, it will be created
-    mydb_connect.createCollection(collectionName, "vertex");
-
-    // Set data to document
-    std::string documentData = "{ \"_key\" : \"eCRUD\", "
-                               "  \"task\" : \"exampleCRUD\", "
-                               "  \"properties\" : { \"level\": \"insert record\" } "
-                               "}";
-
-    // Insert a new document to database collection and retrieve its _key
-    auto rkey = mydb_connect.createRecord( collectionName, documentData );
-
-    // Read a document from database collection
-    std::string readDocumentData;
-    mydb_connect.readRecord( collectionName, rkey, readDocumentData);
-
-    // modify the document in readDocumentData
-    ...
-
-    // Save the modified document to database collection
-    mydb_connect.updateRecord( collectionName, rkey, readDocumentData );
-
-    // Delete the document from database collection
-    connect.deleteRecord( collectionName, rkey );
-    
-// Close the connection to "mydatabase"
-
-// Close the connection to "_system" database
-
-
-}
-catch( arangocpp::arango_exception& e)
+int main(int, char* [])
 {
-    std::cout <<  e.header() << e.what() <<  std::endl;
-}
-catch(std::exception& e)
-{
-    std::cout <<  "std::exception " << e.what() <<  std::endl;
+    std::string databaseURL = "http://localhost:8529";
+    std::string databaseName = "mydatabase";
+    std::string collectionName = "mydocuments";
+
+    try{
+        // Set ArangoDB root connection data (URL, user name, password, database name)
+        arangocpp::ArangoDBConnection root_data( databaseURL, "root", "", "_system");
+        // Create a database root connection
+        arangocpp::ArangoDBRootClient root_connect{root_data};
+
+        // Define ArangoDB users
+        arangocpp::ArangoDBUser dbuser( "myuser", "mypasswd", "rw");
+        // Create a new database "mydatabase" (or get to existing one)
+        root_connect.createDatabase(databaseName, {dbuser} );
+
+        // Set ArangoDB connection data (URL, user name, password, database name)
+        arangocpp::ArangoDBConnection mydb_data( databaseURL, dbuser.name, dbuser.password, databaseName);
+        // Create a database connection
+        arangocpp::ArangoDBCollectionAPI mydb_connect{mydb_data};
+
+
+        // Create a new collection "mydocuments" (or get to existing one)
+        mydb_connect.createCollection( collectionName, "vertex");
+
+        // Set data to document
+        std::string documentData = "{ \"_key\" : \"CRUD\", "
+                                   "  \"baz\": [1, 2, 3], "
+                                   "  \"foo\" : { \"baz\": \"boo\" } "
+                                   "}";
+
+
+        // Insert a new document to database collection and retrieve its handle
+        auto documentHandle = mydb_connect.createDocument( collectionName, documentData );
+
+
+        // Read a document from database collection
+        std::string readDocumentData;
+        mydb_connect.readDocument( collectionName, documentHandle,  readDocumentData);
+
+        // Modify the document in readDocumentData
+        ...
+
+        // Save the modified document to database collection
+        mydb_connect.updateDocument( collectionName, documentHandle, readDocumentData );
+
+        // Delete the document from database collection
+        mydb_connect.deleteDocument( collectionName, documentHandle );
+
+    }
+    catch(arangocpp::arango_exception& e)
+    {
+        std::cout << e.header() << e.what() <<  std::endl;
+    }
+    catch(std::exception& e)
+    {
+        std::cout <<  " std::exception" << e.what() <<  std::endl;
+    }
+
+    return 0;
 }
 
 ```

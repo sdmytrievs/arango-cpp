@@ -48,7 +48,7 @@ RequestCurlObject::RequestCurlObject( const std::string& theURL, const std::stri
         ARANGO_THROW( "RequestCurlObject", 2, "Curl did not initialize!");
 
     auto aRequest = _request.get();
-    bool sendJson = !ArangoDBConnect::use_velocypack_put;
+    bool sendJson = !ArangoDBConnection::use_velocypack_put;
 
     for (auto const& header : aRequest->header.meta)
     {

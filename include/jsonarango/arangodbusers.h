@@ -14,7 +14,7 @@ class ArangoDBUsersAPI : public ArangoDBAPIBase
 public:
 
     ///  Constructor
-    explicit ArangoDBUsersAPI( const ArangoDBConnect& rootData ):
+    explicit ArangoDBUsersAPI( const ArangoDBConnection& rootData ):
         ArangoDBAPIBase(rootData)
     { }
 

@@ -40,7 +40,7 @@ void HttpMessage::setContentType()
     //if( ioSettings().PutVelocypack() )
     header.addMeta(fu_content_type_key, fu_content_type_vpack);
 
-    if( ArangoDBConnect::use_velocypack_get )
+    if( ArangoDBConnection::use_velocypack_get )
         header.addMeta(fu_accept_key, fu_content_type_vpack);
 }
 

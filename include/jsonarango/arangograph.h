@@ -11,7 +11,7 @@ class ArangoDBGraphAPI : public ArangoDBAPIBase
 public:
 
     ///  Constructor
-    explicit ArangoDBGraphAPI( const ArangoDBConnect& connectData ):
+    explicit ArangoDBGraphAPI( const ArangoDBConnection& connectData ):
         ArangoDBAPIBase(connectData)
     { }
 

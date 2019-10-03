@@ -18,9 +18,9 @@ inline bool operator&(const CollectionTypes& lhs, const CollectionTypes& rhs)
 { return static_cast<int>(lhs)&static_cast<int>(rhs); }
 
 /// Callback function fetching document from a collection that match the specified condition
-using  SetReadedFunction = std::function<void( const std::string& jsondata )>;
+using  FetchingDocumentCallback = std::function<void( const std::string& jsondata )>;
 /// Callback function fetching document and _id from a collection that match the specified condition
-using  SetReadedFunctionKey = std::function<void( const std::string& jsondata, const std::string& id )>;
+using  FetchingDocumentIdCallback = std::function<void( const std::string& jsondata, const std::string& id )>;
 
 
 /// Map of query fields used to generate return values for AQL.

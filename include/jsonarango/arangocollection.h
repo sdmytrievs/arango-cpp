@@ -19,7 +19,7 @@ class ArangoDBAPIBase
 public:
 
     ///  Constructor
-    explicit ArangoDBAPIBase( const ArangoDBConnect& connectData )
+    explicit ArangoDBAPIBase( const ArangoDBConnection& connectData )
     {
         dump_options.unsupportedTypeBehavior = ::arangodb::velocypack::Options::NullifyUnsupportedType;
         parse_options.validateUtf8Strings = true;
@@ -31,7 +31,7 @@ public:
     { }
 
     /// Reset connections to ArangoDB server.
-    void resetDBConnection( const ArangoDBConnect& connectData );
+    void resetDBConnection( const ArangoDBConnection& connectData );
 
     void updateBatchSize( int newsize )
     {
@@ -48,7 +48,7 @@ public:
 protected:
 
     /// ArangoDB connection data.
-    ArangoDBConnect connect_data;
+    ArangoDBConnection connect_data;
     /// Max number of records on transfer
     int batch_size = 500;
     ::arangodb::velocypack::Options dump_options;
@@ -99,7 +99,7 @@ class ArangoDBCollectionAPI : public ArangoDBAPIBase
 public:
 
     ///  Constructor
-    explicit ArangoDBCollectionAPI( const ArangoDBConnect& connectData ):
+    explicit ArangoDBCollectionAPI( const ArangoDBConnection& connectData ):
         ArangoDBAPIBase(connectData)
     { }
 
@@ -121,17 +121,17 @@ public:
 
     /// Create new record from a JSON representation of a single document.
     /// Return a document-handle.
-    std::string createRecord( const std::string& collname, const std::string& jsonrec );
+    std::string createDocument( const std::string& collname, const std::string& jsonrec );
     /// Read record by rid to JSON representation of a single document.
-    bool readRecord( const std::string& collname, const std::string& documentHandle, std::string& jsonrec );
+    bool readDocument( const std::string& collname, const std::string& documentHandle, std::string& jsonrec );
     /// Update existing document (a  JSON representation of a document update as an object).
-    std::string updateRecord( const std::string& collname, const std::string& documentHandle, const std::string& jsonrec );
+    std::string updateDocument( const std::string& collname, const std::string& documentHandle, const std::string& jsonrec );
     /// Removes the document identified by document-handle.
-    bool deleteRecord( const std::string& collname, const std::string& documentHandle );
+    bool deleteDocument( const std::string& collname, const std::string& documentHandle );
 
     /// Gets an edge/vertex header from the given collection.
     /// \return  true is returned if the document was found.
-    bool existsRecord( const std::string& collname, const std::string& documentHandle );
+    bool existsDocument( const std::string& collname, const std::string& documentHandle );
 
     // Selections
 
@@ -140,13 +140,19 @@ public:
                                     const std::string& edgeCollections );
 
     /// Execute function to multiple documents by their keys.
-    void lookupByKeys( const std::string& collname,  const std::vector<std::string>& keys,  SetReadedFunction setfnc );
+    void lookupByKeys( const std::string& collname,  const std::vector<std::string>& keys,  FetchingDocumentCallback setfnc );
+    /// Get list of json strings with multiple documents by their keys.
+    std::vector<std::string> lookupByKeys(const std::string &collname, const std::vector<std::string> &keys);
 
     /// Execute function to selected records by condition ( query is simple, query by-example or AQL ).
-    void selectQuery( const std::string& collname,  const ArangoDBQuery& query,  SetReadedFunction setfnc );
+    void selectQuery( const std::string& collname,  const ArangoDBQuery& query,  FetchingDocumentCallback setfnc );
+    /// Get list of json strings with documents selected by condition ( query is simple, query by-example or AQL ).
+    std::vector<std::string> selectQuery(const std::string &collname, const ArangoDBQuery &query);
 
     /// Execute function to all records into collection, if isComlexFields false  extracts only Query Fields.
-    void selectAll( const std::string& collname, const QueryFields& queryFields, SetReadedFunctionKey setfnc );
+    void selectAll( const std::string& collname, const QueryFields& queryFields, FetchingDocumentIdCallback setfnc );
+    /// Get list of json strings with all documents into collection, extracts only queryFields.
+    std::vector<std::string> selectAll(const std::string &collname, const QueryFields &queryFields);
 
     /// Collect distinct values for field fpath into collection collname.
     void collectQuery( const std::string& collname, const std::string& fpath, std::vector<std::string>& values );
@@ -157,7 +163,7 @@ public:
     void removeByKeys( const std::string& collname,  const std::vector<std::string>& keys  );
 
     /// Remove records from collection collname using template.
-    void removeByExample( const std::string& collname,  const std::string& jsontempl  );
+    void removeByTemplate( const std::string& collname,  const std::string& jsontempl  );
 
     /// Remove outgoing and incoming edges for vertex.
     void removeEdges( const std::string& collname, const std::string& vertexid );
@@ -177,9 +183,9 @@ protected:
     std::unique_ptr<HttpMessage> createEdgeRequest( const std::string& collname,  const ArangoDBQuery& query  );
 
     /// Execute user function to all records data
-    void extractData( const ::arangodb::velocypack::Slice& sresult,  SetReadedFunction setfnc );
+    void extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentCallback setfnc );
     /// Execute user function to all records data
-    void extractData( const ::arangodb::velocypack::Slice& sresult,  SetReadedFunctionKey setfnc );
+    void extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentIdCallback setfnc );
 
 };
 

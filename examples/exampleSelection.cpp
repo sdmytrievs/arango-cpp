@@ -32,7 +32,7 @@ int main(int, char* [])
     try{
 
         // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
-        arangocpp::ArangoDBConnect data = arangocpp::connectFromConfig( "examples-cfg.json" );
+        arangocpp::ArangoDBConnection data = arangocpp::connectFromConfig( "examples-cfg.json" );
         // Create database connection
         arangocpp::ArangoDBCollectionAPI connect{data};
 
@@ -52,7 +52,7 @@ int main(int, char* [])
             builder.close();
             builder.close();
 
-            auto rkey = connect.createRecord( collectionName, builder.toJson() );
+            auto rkey = connect.createDocument( collectionName, builder.toJson() );
             recKeys.push_back(rkey);
         }
 
@@ -63,7 +63,7 @@ int main(int, char* [])
 
 
         // Define call back function
-        arangocpp::SetReadedFunction setfnc = [&recjsonValues]( const std::string& jsondata )
+        arangocpp::FetchingDocumentCallback setfnc = [&recjsonValues]( const std::string& jsondata )
         {
             recjsonValues.push_back(jsondata);
         };
@@ -78,7 +78,7 @@ int main(int, char* [])
         printData( "Load by query", recjsonValues );
 
         // Define call back function
-        arangocpp::SetReadedFunctionKey setfnckey = [&recjsonValues]( const std::string& jsondata, const std::string&  )
+        arangocpp::FetchingDocumentIdCallback setfnckey = [&recjsonValues]( const std::string& jsondata, const std::string&  )
         {
             recjsonValues.push_back(jsondata);
         };

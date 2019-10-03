@@ -7,11 +7,11 @@
 namespace arangocpp {
 
 // Full list of edges used in connection query.
-std::vector<std::string> ArangoDBConnect::full_list_of_edges{};
+std::vector<std::string> ArangoDBConnection::full_list_of_edges{};
 // Use content type Velocypack on sending requests (fu_content_type_vpack)
-bool ArangoDBConnect::use_velocypack_put = true;
+bool ArangoDBConnection::use_velocypack_put = true;
 // Use content type Velocypack on getting results
-bool ArangoDBConnect::use_velocypack_get = true;
+bool ArangoDBConnection::use_velocypack_get = true;
 
 //ArangoDBConnect TArangoDBClientOne::theConnect( "https://db.thermohub.net",
 //           "adminrem",  "Administrator@Remote-ThermoHub-Server",  "hub_test"  );
@@ -25,16 +25,16 @@ bool operator!=(const ArangoDBUser& lhs, const ArangoDBUser& rhs)
     return  lhs.name != rhs.name || lhs.access != rhs.access;
 }
 
-bool operator!=(const ArangoDBConnect& lhs, const ArangoDBConnect& rhs)
+bool operator!=(const ArangoDBConnection& lhs, const ArangoDBConnection& rhs)
 {
     return lhs.serverUrl != rhs.serverUrl || lhs.user != rhs.user ||
             lhs.databaseName != rhs.databaseName;
 }
 
 /// Get settings data from json string
-ArangoDBConnect connectFromSettings( const std::string& jsonstr, bool rootdata )
+ArangoDBConnection connectFromSettings( const std::string& jsonstr, bool rootdata )
 {
-    ArangoDBConnect connect_data;
+    ArangoDBConnection connect_data;
 
     try{
         auto data = ::arangodb::velocypack::Parser::fromJson(jsonstr);
@@ -44,8 +44,8 @@ ArangoDBConnect connectFromSettings( const std::string& jsonstr, bool rootdata )
         if( slicedb.isObject() )
         {
             auto instance = slicedb.get( "UseArangoDBInstance" ).copyString();
-            ArangoDBConnect::use_velocypack_put = slicedb.get( "UseVelocypackPut" ).getBool();
-            ArangoDBConnect::use_velocypack_get = slicedb.get( "UseVelocypackGet" ).getBool();
+            ArangoDBConnection::use_velocypack_put = slicedb.get( "UseVelocypackPut" ).getBool();
+            ArangoDBConnection::use_velocypack_get = slicedb.get( "UseVelocypackGet" ).getBool();
             slicedb = slicedb.get(instance);
 
             if( slicedb.isObject() )
@@ -78,13 +78,13 @@ ArangoDBConnect connectFromSettings( const std::string& jsonstr, bool rootdata )
 }
 
 
-ArangoDBConnect connectFromConfig( const std::string& cfgfile )
+ArangoDBConnection connectFromConfig( const std::string& cfgfile )
 {
     auto jsonstr = detail::read_all_file( cfgfile );
     return connectFromSettings( jsonstr, false );
 }
 
-ArangoDBConnect rootClientFromConfig( const std::string& cfgfile )
+ArangoDBConnection rootClientFromConfig( const std::string& cfgfile )
 {
     auto jsonstr = detail::read_all_file( cfgfile );
     return connectFromSettings( jsonstr, true );
@@ -94,7 +94,7 @@ ArangoDBConnect rootClientFromConfig( const std::string& cfgfile )
 // ArangoDBRootClient ------------------------------------------
 
 
-void ArangoDBRootClient::resetDBConnection( const ArangoDBConnect& aconnectData )
+void ArangoDBRootClient::resetDBConnection( const ArangoDBConnection& aconnectData )
 {
     rootData = aconnectData;
     pusers.reset( new ArangoDBUsersAPI(rootData) ); /// here must be root data

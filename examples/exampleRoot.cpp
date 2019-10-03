@@ -29,7 +29,7 @@ int main(int, char* [])
 
     try{
         // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
-        arangocpp::ArangoDBConnect rootdata = arangocpp::connectFromConfig( "examples-cfg.json" );
+        arangocpp::ArangoDBConnection rootdata( "http://localhost:8529", "root", "", "_system");
         // Create database connection
         arangocpp::ArangoDBUsersAPI rootconnect{rootdata};
 
@@ -87,7 +87,7 @@ int main(int, char* [])
         printData( "Fetches data about all users after remove: ", user_names );
 
         // Delete databse
-        //rootconnect.removeDatabase(databaseName);
+        rootconnect.removeDatabase(databaseName);
         // Test exist database
         std::cout << "After delete Database : " << databaseName << " exist " << rootconnect.existDatabase(databaseName) <<  std::endl;
 

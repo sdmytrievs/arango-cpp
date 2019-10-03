@@ -13,7 +13,7 @@ int main(int, char* [])
 
     try{
         // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
-        arangocpp::ArangoDBConnect data = arangocpp::connectFromConfig( "examples-cfg.json" );
+        arangocpp::ArangoDBConnection data = arangocpp::connectFromConfig( "examples-cfg.json" );
         // Create database connection
         arangocpp::ArangoDBCollectionAPI connect{data};
 
@@ -21,7 +21,7 @@ int main(int, char* [])
         connect.createCollection(collectionName, "vertex");
 
         std::cout << "Document : " << documentHandle <<
-                     " exist " << connect.existsRecord(collectionName, documentHandle) <<  std::endl;
+                     " exist " << connect.existsDocument(collectionName, documentHandle) <<  std::endl;
 
         // Set data to document
         std::string documentData = "{ \"_key\" : \"eCRUD\", "
@@ -30,12 +30,12 @@ int main(int, char* [])
                                    "}";
 
         // Insert document to database
-        auto rkey = connect.createRecord( collectionName, documentData );
+        auto rkey = connect.createDocument( collectionName, documentData );
 
 
         // Read document from database
         std::string readDocumentData;
-        connect.readRecord( collectionName, rkey,  readDocumentData);
+        connect.readDocument( collectionName, rkey,  readDocumentData);
 
         // Extract data from document
         std::cout << "Inserted document : " << rkey <<
@@ -56,16 +56,16 @@ int main(int, char* [])
 
 
         // Save changed document to database
-        connect.updateRecord( collectionName, rkey, documentData );
+        connect.updateDocument( collectionName, rkey, documentData );
 
         // Read record after update
-        connect.readRecord( collectionName, rkey,  readDocumentData);
+        connect.readDocument( collectionName, rkey,  readDocumentData);
 
         // Extract data from document
         std::cout << "Updated document :\n" << readDocumentData <<  std::endl;
 
         // Delete record
-        connect.deleteRecord( collectionName, rkey );
+        connect.deleteDocument( collectionName, rkey );
 
     }
     catch(arangocpp::arango_exception& e)

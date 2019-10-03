@@ -20,7 +20,7 @@ int main(int, char* [])
 
     try{
         // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
-        arangocpp::ArangoDBConnect data = arangocpp::connectFromConfig( "examples-cfg.json" );
+        arangocpp::ArangoDBConnection data = arangocpp::connectFromConfig( "examples-cfg.json" );
         // Create database connection
         arangocpp::ArangoDBCollectionAPI connect{data};
 

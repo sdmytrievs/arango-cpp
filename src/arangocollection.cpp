@@ -8,7 +8,7 @@
 namespace arangocpp {
 
 
-void ArangoDBAPIBase::resetDBConnection( const ArangoDBConnect& connectData )
+void ArangoDBAPIBase::resetDBConnection( const ArangoDBConnection& connectData )
 {
     if( !(connect_data != connectData) )
         return;
@@ -157,7 +157,7 @@ std::set<std::string> ArangoDBCollectionAPI::collectionNames( CollectionTypes ct
     return collnames;
 }
 
-bool ArangoDBCollectionAPI::readRecord( const std::string& collname,
+bool ArangoDBCollectionAPI::readDocument( const std::string& collname,
                                         const std::string& key, std::string& jsonrec )
 {
     std::string rid = getId( collname, key );
@@ -182,7 +182,7 @@ bool ArangoDBCollectionAPI::readRecord( const std::string& collname,
     //return false;
 }
 
-std::string ArangoDBCollectionAPI::createRecord( const std::string& collname, const std::string& jsonrec )
+std::string ArangoDBCollectionAPI::createDocument( const std::string& collname, const std::string& jsonrec )
 {
     std::string newId = "";
 
@@ -216,7 +216,7 @@ std::string ArangoDBCollectionAPI::createRecord( const std::string& collname, co
     return newId;
 }
 
-std::string ArangoDBCollectionAPI::updateRecord( const std::string& collname,
+std::string ArangoDBCollectionAPI::updateDocument( const std::string& collname,
                                                  const std::string& key, const std::string& jsonrec )
 {
     std::string newId = "";
@@ -251,7 +251,7 @@ std::string ArangoDBCollectionAPI::updateRecord( const std::string& collname,
     return newId;
 }
 
-bool ArangoDBCollectionAPI::deleteRecord( const std::string& collname, const std::string& key )
+bool ArangoDBCollectionAPI::deleteDocument( const std::string& collname, const std::string& key )
 {
     std::string rid = getId( collname, key );
 
@@ -271,7 +271,7 @@ bool ArangoDBCollectionAPI::deleteRecord( const std::string& collname, const std
     return true;
 }
 
-bool ArangoDBCollectionAPI::existsRecord( const std::string& collname,
+bool ArangoDBCollectionAPI::existsDocument( const std::string& collname,
                                           const std::string& key )
 {
     std::string rid = getId( collname, key );
@@ -387,14 +387,14 @@ std::unique_ptr<HttpMessage> ArangoDBCollectionAPI::createEdgeRequest(const std:
     return createAQLRequest( collname,  querytofrom  );
 }
 
-void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sresult,  SetReadedFunction setfnc )
+void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentCallback setfnc )
 {
     auto numb = sresult.length();
     for( uint ii=0; ii<numb; ii++ )
         setfnc( sresult[ii].toJson(&dump_options) );
 }
 
-void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sresult,  SetReadedFunctionKey setfnc )
+void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentIdCallback setfnc )
 {
     auto numb = sresult.length();
     for( uint ii=0; ii<numb; ii++ )
@@ -414,7 +414,7 @@ ArangoDBQuery ArangoDBCollectionAPI::queryEdgesToFrom( ArangoDBQuery::QueryType 
     if( edgeCollections.empty() )
     {
         auto edgesexist = collectionNames( CollectionTypes::Edge );
-        auto edges = detail::getSubset( ArangoDBConnect::full_list_of_edges, edgesexist );
+        auto edges = detail::getSubset( ArangoDBConnection::full_list_of_edges, edgesexist );
         for( auto edgecoll: edges)
         {
             if( !edgeCollections.empty())
@@ -443,7 +443,7 @@ ArangoDBQuery ArangoDBCollectionAPI::queryEdgesToFrom( ArangoDBQuery::QueryType 
 
 // Possible work with cursor
 void ArangoDBCollectionAPI::selectQuery( const std::string& collname,
-                                         const ArangoDBQuery& query,  SetReadedFunction setfnc )
+                                         const ArangoDBQuery& query,  FetchingDocumentCallback setfnc )
 {
     std::unique_ptr<HttpMessage> request;
     bool usejson = true;
@@ -496,9 +496,23 @@ void ArangoDBCollectionAPI::selectQuery( const std::string& collname,
     }
 }
 
+std::vector<std::string> ArangoDBCollectionAPI::selectQuery( const std::string& collname,
+                                                   const ArangoDBQuery& query )
+{
+    std::vector<std::string> resultData;
+
+    FetchingDocumentCallback setfnc = [&resultData]( const std::string& jsondata )
+    {
+        resultData.push_back(jsondata);
+    };
+
+    selectQuery( collname, query, setfnc );
+    return resultData;
+}
+
 // Possible work with cursor
 void ArangoDBCollectionAPI::selectAll( const std::string& collname,
-                                       const QueryFields& queryFields,  SetReadedFunctionKey setfnc )
+                                       const QueryFields& queryFields,  FetchingDocumentIdCallback setfnc )
 {
     std::unique_ptr<HttpMessage> request;
     if( queryFields.empty() )
@@ -536,9 +550,22 @@ void ArangoDBCollectionAPI::selectAll( const std::string& collname,
     }
 }
 
+std::vector<std::string> ArangoDBCollectionAPI::selectAll( const std::string& collname,
+                                                           const QueryFields& queryFields )
+{
+    std::vector<std::string> resultData;
+
+    FetchingDocumentIdCallback setfnc = [&resultData]( const std::string& jsondata, const std::string&  )
+    {
+        resultData.push_back(jsondata);
+    };
+    selectAll( collname,  queryFields,  setfnc );
+    return resultData;
+}
+
 // Fetches multiple documents by their keys
 void ArangoDBCollectionAPI::lookupByKeys( const std::string& collname,
-                                          const std::vector<std::string>& keys,  SetReadedFunction setfnc )
+                                          const std::vector<std::string>& keys,  FetchingDocumentCallback setfnc )
 {
     ::arangodb::velocypack::Builder builder;
     builder.openObject();
@@ -562,6 +589,20 @@ void ArangoDBCollectionAPI::lookupByKeys( const std::string& collname,
     extractData( query_result, setfnc );
 }
 
+std::vector<std::string> ArangoDBCollectionAPI::lookupByKeys( const std::string& collname,
+                                                              const std::vector<std::string>& keys )
+{
+    std::vector<std::string> resultData;
+
+    FetchingDocumentCallback setfnc = [&resultData]( const std::string& jsondata )
+    {
+        resultData.push_back(jsondata);
+    };
+
+    lookupByKeys( collname, keys, setfnc );
+    return resultData;
+}
+
 void ArangoDBCollectionAPI::collectQuery( const std::string& collname,
                                           const std::string& fpath, std::vector<std::string>& values )
 {
@@ -575,7 +616,7 @@ void ArangoDBCollectionAPI::collectQuery( const std::string& collname,
     aqlQuery += " RETURN DISTINCT doc.";
     aqlQuery += fpath;
 
-    SetReadedFunction setfnc = [&]( const std::string& jsondata)
+    FetchingDocumentCallback setfnc = [&]( const std::string& jsondata)
     {
         if(jsondata != "null")
             values.push_back(jsondata);
@@ -586,7 +627,7 @@ void ArangoDBCollectionAPI::collectQuery( const std::string& collname,
 }
 
 
-void ArangoDBCollectionAPI::removeByExample( const std::string& collname,  const std::string& jsontempl  )
+void ArangoDBCollectionAPI::removeByTemplate(const std::string &collname, const std::string &jsontempl)
 {
     try{
         auto data = ::arangodb::velocypack::Parser::fromJson(jsontempl, &parse_options);
@@ -630,8 +671,8 @@ void ArangoDBCollectionAPI::removeEdges(const std::string& collname, const std::
     auto edges = collectionNames( CollectionTypes::Edge );
     for( auto edgecoll: edges)
     {
-        removeByExample( edgecoll,  to_templ  );
-        removeByExample( edgecoll,  from_templ  );
+        removeByTemplate( edgecoll,  to_templ  );
+        removeByTemplate( edgecoll,  from_templ  );
     }
 
     /*

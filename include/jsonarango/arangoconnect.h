@@ -41,7 +41,7 @@ struct ArangoDBUser
 bool operator!=(const ArangoDBUser& lhs, const ArangoDBUser& rhs);
 
 
-struct ArangoDBConnect
+struct ArangoDBConnection
 {
     /// Server URL.
     std::string serverUrl;   // "http://localhost:8529"
@@ -51,12 +51,12 @@ struct ArangoDBConnect
     /// Server User Data.
     ArangoDBUser user;
 
-    ArangoDBConnect( const std::string& theURL, const std::string& theUser,
+    ArangoDBConnection( const std::string& theURL, const std::string& theUser,
                      const std::string& thePasswd, const std::string& theDBname):
         serverUrl(theURL),  databaseName(theDBname), user(theUser, thePasswd)
     {}
 
-    ArangoDBConnect():  serverUrl("http://localhost:8529"), databaseName("_system")
+    ArangoDBConnection():  serverUrl("http://localhost:8529"), databaseName("_system")
     {}
 
     std::string fullHost() const
@@ -81,7 +81,7 @@ struct ArangoDBConnect
 
 };
 
-bool operator!=(const ArangoDBConnect& lhs, const ArangoDBConnect& rhs);
+bool operator!=(const ArangoDBConnection& lhs, const ArangoDBConnection& rhs);
 
 
 /// Definition of ArangoDB root API Low Level C++ Driver for ArangoDB.
@@ -89,7 +89,7 @@ class ArangoDBRootClient final
 {
 
     /// Connection
-    ArangoDBConnect rootData;
+    ArangoDBConnection rootData;
 
     /// ArangoDB database/user data
     std::shared_ptr<ArangoDBUsersAPI> pusers;
@@ -97,13 +97,13 @@ class ArangoDBRootClient final
 public:
 
     /// Constructor
-    ArangoDBRootClient( const ArangoDBConnect& rootconnectData )
+    ArangoDBRootClient( const ArangoDBConnection& rootconnectData )
     {
         resetDBConnection( rootconnectData );
     }
 
     /// Reset connections to ArangoDB server
-    void resetDBConnection( const ArangoDBConnect& connectData );
+    void resetDBConnection( const ArangoDBConnection& connectData );
 
     // Database API
 
@@ -127,9 +127,9 @@ public:
 };
 
 /// ArangoDB connections data from config file.
-ArangoDBConnect connectFromConfig( const std::string& cfgfile );
+ArangoDBConnection connectFromConfig( const std::string& cfgfile );
 /// ArangoDB root connections data from config file.
-ArangoDBConnect rootClientFromConfig( const std::string& cfgfile );
+ArangoDBConnection rootClientFromConfig( const std::string& cfgfile );
 
 } // namespace arangocpp
 

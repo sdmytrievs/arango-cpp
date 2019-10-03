@@ -31,7 +31,7 @@ int main(int, char* [])
     try{
 
         // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
-        arangocpp::ArangoDBConnect data = arangocpp::connectFromConfig( "examples-cfg.json" );
+        arangocpp::ArangoDBConnection data = arangocpp::connectFromConfig( "examples-cfg.json" );
         // Create database connection
         arangocpp::ArangoDBCollectionAPI connect{data};
 
@@ -51,12 +51,12 @@ int main(int, char* [])
             builder.close();
             builder.close();
 
-            auto rkey = connect.createRecord( collectionName, builder.toJson() );
+            auto rkey = connect.createDocument( collectionName, builder.toJson() );
             recKeys.push_back(rkey);
         }
 
         // Define call back function
-        arangocpp::SetReadedFunction setfnc = [&recjsonValues]( const std::string& jsondata )
+        arangocpp::FetchingDocumentCallback setfnc = [&recjsonValues]( const std::string& jsondata )
         {
             recjsonValues.push_back(jsondata);
         };
@@ -83,12 +83,12 @@ int main(int, char* [])
         printData( "Select records by AQL query", recjsonValues );
 
         // delete by example
-        connect.removeByExample( collectionName, "{ \"name\" : \"a\" }" );
+        connect.removeByTemplate( collectionName, "{ \"name\" : \"a\" }" );
         recjsonValues.clear();
         connect.selectQuery( collectionName, allquery, setfnc );
         printData( "All after removing", recjsonValues );
 
-        connect.removeByExample( collectionName, "{ \"name\" : \"b\" }" );
+        connect.removeByTemplate( collectionName, "{ \"name\" : \"b\" }" );
         std::cout <<  "Finish test " <<  std::endl;
 
     }
