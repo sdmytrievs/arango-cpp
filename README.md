@@ -1,8 +1,8 @@
 # jsonArango
 
-A lightweight ArangoDB client C++ library, capable of CRUD and query operations with several databases and many collections on local and/or remote ArangoDB instances at the same time.
+This is a lightweight ArangoDB client C++ library, providing CRUD and query operations using several databases and many collections on local and/or remote ArangoDB instances at the same time.
 
-## What jsonArango does?
+## What jsonArango can do?
 
 ### _ArangoDBCollectionAPI_   
 * Use methods from this API for manipulating collections and documents within the database. The Collection API is valid for all Collection instances, regardless of their type (vertices or edges).
@@ -10,12 +10,12 @@ A lightweight ArangoDB client C++ library, capable of CRUD and query operations 
 * Use methods from this API for manipulating property graphs within one database (vertices and edges can be located in multiple collections).
 ### _ArangoDBUsersAPI_   
 * Use methods from this API for managing (creating or deleting) users and databases.
-* 
-* For all methods and APIs, see header "arangocollection.h".
-* 
-* jsonArango is written in _C++11_ using the open-source library Velocypack from ArangoDB.
-* Version: currently 0.1.
-* Will be distributed as is (no liability) under the terms of Lesser GPL v.3 license.
+
+For all methods and APIs, see header "arangocollection.h".
+
+jsonArango is written in _C++11_ using the open-source library Velocypack from ArangoDB.
+Version: currently 0.1.
+Will be distributed as is (no liability) under the terms of Lesser GPL v.3 license.
 
 ## How to install the jsonArango library
 
