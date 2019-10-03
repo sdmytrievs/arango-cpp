@@ -1,27 +1,65 @@
 ## Files descriptions
 
-1. exeptions.h
+1. arangoexeptions.h
 
 General exception structure into project.
 
-> _source: "+";    test: "-";  example: "-"_
+> _source: "+";    test: "-";  example: "+"_
 
 
-2. jsondetail.h(cpp)  
+2. arangodetail.h
 
-    - Type check macros  ( is_container, is_mappish )
-    - Basic functions for read/write numeric values to/from string
-    - Split string to query functions
+Some internal functions
 
-> *source: "+";    test: "+";  example: "-"*
+> *source: "+";    test: "-";  example: "internal"*
+
+3. arangocurl.h(cpp)
+
+Working with curl : [libcurl](https://curl.haxx.se/libcurl/c/libcurl.html) - client-side URL transfers
+
+> *source: "+";    test: "-";  example: "internal"*
+
+4. arangorequests.h(cpp)
+
+Internal description of requests
+
+> *source: "+";    test: "-";  example: "internal"*
+
+5. arangoquery.h(cpp)
+
+Description AQL, by Template and other ArangoDB query types and other external structures/functions
+
+> *source: "+";    test: "-";  example: "+"*
 
 
+6. arangoconnect.h(cpp)
+
+Classes with ArangoDB  connection data (URL, user name, password, database name)
+
+> *source: "+";    test: "-";  example: "+"*
+
+7. arangousers.h(cpp)
+
+API to Create/Delete ArangoDB users and databases. You need permission to the _system database in order to execute this REST call.
+
+> *source: "+";    test: "-";  example: "+"*
+
+8. arangocollection.h(cpp)
+
+ArangoDBCollectionAPI the API for manipulating collections and documents within the database. The Collection API is valid for all Collection instances, regardless of their type (vertices or edges).
+
+> *source: "+";    test: "-";  example: "+"*
+
+9. arangograph.h(cpp)
+
+ArangoDBGraphAPI the API for manipulating property graphs.
+
+> *source: "+";    test: "-";  example: "+"*
 
 ## Coments
 
 To Do
 
-1. Make all files descriptions
 
 2. Add google tests for driver (research before best practices )
 

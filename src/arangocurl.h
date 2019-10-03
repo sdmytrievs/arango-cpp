@@ -61,21 +61,3 @@ class RequestCurlObject {
 
 } // arangocpp
 
-
-/*
-
-curl -X PUT --data-binary @- --dump - https://db.cemgems.app/_db/cemgems/_api/simple/all -u backend:"cement consumption in megatons" <<EOF
-{ "collection": "anonym" }
-EOF
-
-curl -u username:password http://example.com
-
-curl -u adminrem:"Administrator@Remote-ThermoHub-Server" https://db.thermohub.net/_db/hub_test/_api/collection/docpages/properties
-
-curl -u adminrem:"Administrator@Remote-ThermoHub-Server" https://db.thermohub.net/_db/hub_test/_api/collection/elements/properties
-
-curl -u adminrem:"Administrator@Remote-ThermoHub-Server" https://db.thermohub.net/_db/hub_test/_api/collection
-
-*/
-
-
