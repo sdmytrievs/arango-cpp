@@ -45,7 +45,9 @@ include($$TESTS_DIR/gtest_dependency.pri)
 include($$JSONARANGO_DIR/jsonarango.pri)
 
 HEADERS += \
+        $$TESTS_DIR/init_tests.h \
         $$TESTS_DIR/tst_arango.h \
+        $$TESTS_DIR/tst_crud.h
 
 SOURCES += \
         $$TESTS_DIR/main.cpp

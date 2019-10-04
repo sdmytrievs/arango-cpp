@@ -1,7 +1,7 @@
 #pragma once
 
 #include <gtest/gtest.h>
-#include <gmock/gmock-matchers.h>
+//#include <gmock/gmock-matchers.h>
 
 #include "jsonarango/arangoquery.h"
 #include "jsonarango/arangoconnect.h"
