@@ -26,7 +26,7 @@ win32 {
 
 # Define the directory where jsonio14 source code is located
 JSONARANGO_DIR =  $$PWD/src
-JSONARANGO_HEADERS_DIR =  $$PWD/include/jsonarango
+JSONARANGO_HEADERS_DIR =  $$JSONARANGO_DIR/../include
 TESTS_DIR =  $$PWD/tests
 
 DEPENDPATH   += $$JSONARANGO_DIR
@@ -42,7 +42,7 @@ LIBS +=  -lcurl  -lvelocypack
 OBJECTS_DIR   = obj
 
 include($$TESTS_DIR/gtest_dependency.pri)
-include($$JSONIO14_DIR/jsonio14.pri)
+include($$JSONARANGO_DIR/jsonarango.pri)
 
 HEADERS += \
         $$TESTS_DIR/tst_arango.h \

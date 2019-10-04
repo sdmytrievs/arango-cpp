@@ -1,4 +1,4 @@
-#include "tst_jsonio.h"
+#include "tst_arango.h"
 
 
 #include <gtest/gtest.h>

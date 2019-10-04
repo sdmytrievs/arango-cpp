@@ -4,39 +4,39 @@
 
 General exception structure into project.
 
-> _source: "+";    test: "-";  example: "+"_
+> _source: "+";    test: "+";  example: "+"_
 
 
 2. arangodetail.h
 
 Some internal functions
 
-> *source: "+";    test: "-";  example: "internal"*
+> *source: "+";    test: "x";  example: "internal"*
 
 3. arangocurl.h(cpp)
 
 Working with curl : [libcurl](https://curl.haxx.se/libcurl/c/libcurl.html) - client-side URL transfers
 
-> *source: "+";    test: "-";  example: "internal"*
+> *source: "+";    test: "x";  example: "internal"*
 
 4. arangorequests.h(cpp)
 
 Internal description of requests
 
-> *source: "+";    test: "-";  example: "internal"*
+> *source: "+";    test: "x";  example: "internal"*
 
 5. arangoquery.h(cpp)
 
 Description AQL, by Template and other ArangoDB query types and other external structures/functions
 
-> *source: "+";    test: "-";  example: "+"*
+> *source: "+";    test: "+";  example: "+"*
 
 
 6. arangoconnect.h(cpp)
 
 Classes with ArangoDB  connection data (URL, user name, password, database name)
 
-> *source: "+";    test: "-";  example: "+"*
+> *source: "+";    test: "+";  example: "+"*
 
 7. arangousers.h(cpp)
 
@@ -81,3 +81,4 @@ To Do
 
 
 
+// https://stackoverflow.com/questions/87610/automated-integration-testing-a-c-app-with-a-database

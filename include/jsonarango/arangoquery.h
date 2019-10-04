@@ -30,7 +30,6 @@ using QueryFields = std::map<std::string, std::string >;
 
 /// Map of query fields used to generate Filter values for AQL.
 /// <jsonpath expression>-><value>
-/// The following jsonpath expression could be used:    "name1.name2[3].name3"
 using FieldValueMap = std::map<std::string, std::string >;
 
 /// \class ArangoDBQuery can be used to retrieve data that are stored in ArangoDB.
