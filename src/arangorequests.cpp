@@ -93,8 +93,7 @@ std::string HttpMessage::payloadAsString()
     }
     else
     {
-        auto p = payload();
-        return std::string(boost::asio::buffer_cast<char const*>(p), boost::asio::buffer_size(p));
+        return std::string(payloadData(), payloadSize());
     }
 }
 //-------------------------------------------------------------

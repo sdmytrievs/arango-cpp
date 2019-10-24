@@ -116,13 +116,10 @@ RequestCurlObject::RequestCurlObject( const std::string& theURL, const std::stri
 
     if( !sendJson )
     {
-        auto pay = aRequest->payload();
-        auto paySize = boost::asio::buffer_size(pay);
-
-        if (paySize > 0)
+        if (aRequest->payloadSize() > 0)
         {
-            curl_easy_setopt(_curl, CURLOPT_POSTFIELDSIZE, paySize);
-            curl_easy_setopt(_curl, CURLOPT_COPYPOSTFIELDS, boost::asio::buffer_cast<const char*>(pay));
+            curl_easy_setopt(_curl, CURLOPT_POSTFIELDSIZE, aRequest->payloadSize());
+            curl_easy_setopt(_curl, CURLOPT_COPYPOSTFIELDS, aRequest->payloadData());
         }
     }
     else

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/asio/buffer.hpp>
 #include <velocypack/Parser.h>
 #include <string>
 #include <map>
@@ -108,9 +107,15 @@ public:
     void addVPack(::arangodb::velocypack::Slice const& slice);
 
     std::vector<::arangodb::velocypack::Slice>const & slices();
-    boost::asio::const_buffer payload() const
+
+    size_t payloadSize() const
     {
-        return boost::asio::const_buffer(_payload.data(), _payloadLength);
+      return  _payloadLength;
+    }
+
+    char const* payloadData() const
+    {
+      return  reinterpret_cast<char const*>(_payload.data());
     }
 
     std::string payloadAsString();
