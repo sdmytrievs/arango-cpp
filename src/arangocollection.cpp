@@ -142,7 +142,7 @@ std::set<std::string> ArangoDBCollectionAPI::collectionNames( CollectionTypes ct
         auto collst = slice.get("result");
 
         auto numb = collst.length();
-        for( uint ii=0; ii<numb; ii++ )
+        for( size_t ii=0; ii<numb; ii++ )
         {
             if( collst[ii].get("isSystem").getBool() )
                 continue;
@@ -390,14 +390,14 @@ std::unique_ptr<HttpMessage> ArangoDBCollectionAPI::createEdgeRequest(const std:
 void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentCallback setfnc )
 {
     auto numb = sresult.length();
-    for( uint ii=0; ii<numb; ii++ )
+    for( size_t ii=0; ii<numb; ii++ )
         setfnc( sresult[ii].toJson(&dump_options) );
 }
 
 void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentIdCallback setfnc )
 {
     auto numb = sresult.length();
-    for( uint ii=0; ii<numb; ii++ )
+    for( size_t ii=0; ii<numb; ii++ )
     {
         auto Id=sresult[ii].get("_id").copyString();
         setfnc( sresult[ii].toJson(&dump_options), Id );

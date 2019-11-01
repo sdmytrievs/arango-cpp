@@ -12,6 +12,7 @@ int main(int, char* [])
     std::string documentHandle = "test/eCRUD";
 
     try{
+        std::cout << "Start " << std::endl;
         // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
         arangocpp::ArangoDBConnection data = arangocpp::connectFromConfig( "examples-cfg.json" );
         // Create database connection

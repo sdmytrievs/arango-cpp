@@ -35,7 +35,7 @@ std::set<std::string> ArangoDBUsersAPI::databaseNames()
     {
         auto slice = result->slices().front();
         auto collst = slice.get("result");
-        for( uint ii=0; ii<collst.length(); ii++ )
+        for( size_t ii=0; ii<collst.length(); ii++ )
             dbnames.insert( collst[ii].copyString());
     }
     return dbnames;
@@ -53,7 +53,7 @@ std::map<std::string,std::string> ArangoDBUsersAPI::databaseNames(const std::str
     {
         auto slice = result->slices().front();
         auto collst = slice.get("result");
-        for( uint ii=0; ii<collst.length(); ii++ )
+        for( size_t ii=0; ii<collst.length(); ii++ )
             dbnames[collst.keyAt(ii).copyString()] = collst.valueAt(ii).copyString();
     }
 
@@ -237,7 +237,7 @@ std::set<std::string> ArangoDBUsersAPI::userNames()
     {
         auto slice = result->slices().front();
         auto collst = slice.get("result");
-        for( uint ii=0; ii<collst.length(); ii++ )
+        for( size_t ii=0; ii<collst.length(); ii++ )
             usernames.insert( collst[ii].get("user").copyString());
     }
     return usernames;

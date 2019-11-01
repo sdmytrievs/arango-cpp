@@ -103,7 +103,7 @@ std::set<std::string> ArangoDBGraphAPI::graphCollectionNames(
         auto collst = slice.get("collections");
 
         auto numb = collst.length();
-        for( uint ii=0; ii<numb; ii++ )
+        for( size_t ii=0; ii<numb; ii++ )
             collnames.insert(collst[ii].copyString());
     }
 
