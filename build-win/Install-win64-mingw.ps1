@@ -42,15 +42,39 @@ Function Load-To ( [string] $url, [string] $fname )
   Write-Host ('Downloaded {0} bytes' -f (Get-Item $fname).length);
 }
 
+# Uzip 
+# https://stackoverflow.com/questions/43715949/powershell-extract-specific-files-folders-from-a-zipped-archive
+Function Unzip-Dir ( [string] $fname, [string] $dir, [string] $destination )
+{
+ Add-Type -Assembly System.IO.Compression.FileSystem
+
+#extract list entries for dir myzipdir/c/ into myzipdir.zip
+$zip = [IO.Compression.ZipFile]::OpenRead($fname)
+
+$outputFile = [io.path]::GetFileNameWithoutExtension($fname)
+$outputFile = "$outputFile/$dir/"
+
+$entries=$zip.Entries | where {$_.FullName -like "$outputFile*" -and $_.FullName -ne "$outputFile"} 
+
+#create dir for result of extraction
+$destinationexists = Check-Folder $destination -create
+
+#extraction
+$entries | foreach {[IO.Compression.ZipFileExtensions]::ExtractToFile( $_, "$destination\" + $_.Name, $true ) }
+
+#free object
+$zip.Dispose()
+}
 
 
 #3)	Main processing
 
 #a) Main links.
 
-$binPrefix="$installPrefix\local\bin"
-$libPrefix="$installPrefix\local\lib"
-$includePrefix="$installPrefix\local\include"
+$localPrefix="$installPrefix\local"
+$binPrefix="$localPrefix\bin"
+$libPrefix="$localPrefix\lib"
+$includePrefix="$localPrefix\include"
 
 $major, $minor, $patch = $cmakeVersion.split('.')
 $cmakeUrl = ('https://cmake.org/files/v{0}.{1}/cmake-{2}-win64-x64.zip' -f $major, $minor, $cmakeVersion)
@@ -62,6 +86,7 @@ $curlName = "$installPrefix/curl-$curlVersion-win64-mingw.zip"
 $ssh2Url = ('https://curl.haxx.se/windows/dl-{0}/libssh2-{1}-win64-mingw.zip' -f $curlVersion, $ssh2Version )
 $ssh2Name = "$installPrefix/libssh2-$ssh2Version-win64-mingw.zip"
 
+#https://curl.haxx.se/windows/dl-7.67.0_2/openssl-1.1.1d_2-win64-mingw.zip
 
 #b) Test for the existence of the destination folders; create it if it is not found.
 $destinationexists = Check-Folder $installPrefix -create
@@ -71,23 +96,67 @@ if (!$destinationexists){
     Exit
 }
 
-$destinationexists = Check-Folder "$installPrefix\local" -create
+$destinationexists = Check-Folder $localPrefix -create
 $destinationexists = Check-Folder $binPrefix -create
 $destinationexists = Check-Folder $libPrefix -create
 $destinationexists = Check-Folder $includePrefix -create
 
 #c) Install cmake
 
+# Download from "https://cmake.org/download/"
 Load-To $cmakeUrl $cmakeName 
-Expand-Archive $cmakeName -DestinationPath $installPrefix
+# Unpack to  "C:/usr" and Copy bin to c:/usr/local
+## Expand-Archive $cmakeName -DestinationPath $installPrefix -Force
+##Unzip-Dir $cmakeName "cmake-3.14.0-win64-x64/bin/" "$localPrefix/bin"
+Unzip-Dir $cmakeName "bin" "$localPrefix/bin"
+
+#  Copy bin to c:/usr/local
+
+# Add “C:\usr\cmake-3.14.0-rc1-win64-x64\bin” to you PATH under Control Panel->System->Advanced
+
+#d) Link cmake to qt mingw dir
+
+# Add “C:/Qt5/Tools/mingw730_64/bin” to you PATH under Control Panel->System->Advanced
+
+# For convenience, symlink make to mingw32-make
+#   ( do it as Admin, "Command prompt" right mouse bottom run as admin )
+# ~~~
+# cd  C:/Qt5/Tools/mingw730_64/bin
+# mklink make.exe mingw32-make.exe
+# ~~~
 
 
-#d) Install curl
 
+#e) Install curl
+
+
+# Download curl from https://curl.haxx.se/windows/
 Load-To $curlUrl $curlName
-Expand-Archive $curlName -DestinationPath $installPrefix
+# Unpack and Copy lib, bin and include to c:/usr/local
+# Expand-Archive $curlName -DestinationPath $installPrefix -Force
+Unzip-Dir $curlName "bin" "$localPrefix/bin"
+Unzip-Dir $curlName "lib" "$localPrefix/lib"
+Unzip-Dir $curlName "include/curl" "$localPrefix/include/curl"
 
-#e) Install ssh2
 
+#f) Install ssh2
+
+# Download libssh2 1.9.0 from https://curl.haxx.se/windows/
 Load-To $ssh2Url $ssh2Name
-Expand-Archive $ssh2Name -DestinationPath $installPrefix
+# Unpack and Copy lib, bin and include to c:/usr/local
+#Expand-Archive $ssh2Name -DestinationPath $installPrefix -Force
+Unzip-Dir $ssh2Name "bin" "$localPrefix/bin"
+Unzip-Dir $ssh2Name "lib" "$localPrefix/lib"
+Unzip-Dir $ssh2Name "include" "$localPrefix/include"
+
+#h) Install OpenSSL
+
+# Download OpenSSL 1.1.1c from https://curl.haxx.se/windows/
+#Load-To $ssh2Url $ssh2Name
+# Unpack 
+#Expand-Archive $ssh2Name -DestinationPath $installPrefix
+# Copy lib, bin and include to c:/usr/local
+
+
+
+##  copy libcrypto-1_1-x64.dll, libssl-1_1-x64.dll and libcurl-x64.dll to executable in pro
