@@ -106,9 +106,9 @@ $destinationexists = Check-Folder $includePrefix -create
 # Download from "https://cmake.org/download/"
 Load-To $cmakeUrl $cmakeName 
 # Unpack to  "C:/usr" and Copy bin to c:/usr/local
-#Unzip-Dir $cmakeName "cmake-3.14.0-win64-x64/bin/" "$localPrefix/bin"
-Unzip-Dir $cmakeName "bin" "$localPrefix/bin"
-## Expand-Archive $cmakeName -DestinationPath $installPrefix -Force
+#Unzip-Dir $cmakeName "bin" "$localPrefix/bin"
+#Unzip-Dir $cmakeName "share" "$localPrefix/share"
+Expand-Archive $cmakeName -DestinationPath $installPrefix -Force
 
 
 #d) Install curl
@@ -145,11 +145,15 @@ Unzip-Dir $curlName "include/curl" "$localPrefix/include/curl"
 
 #f) Set Environment Path
 
-$Env:Path += ";$binPrefix;$mingwPath"
+$cmakeDir = "D:\usr\cmake-3.14.0-win64-x64\bin\"
+$Env:Path += ";$cmakeDir;$mingwPath"
 #Add-Content -Path $Profile.CurrentUserAllHosts -Value '$Env:Path +=";$binPrefix;$mingwPath"'
 $Env:Path
 # C:\Qt5\Tools\mingw730_64\bin\
 # C:\usr\cmake-3.14.0-rc1-win64-x64\bin\
+
+#cd  C:/Qt5/Tools/mingw730_64/bin
+#mklink make.exe mingw32-make.exe
 
 #g) Install dependencies
 #chmod u+x install-dependencies-Win.sh
