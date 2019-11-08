@@ -21,9 +21,9 @@ macx-clang {
 }
 
 win32 {
-  INCLUDEPATH   += "C:\usr\local\include"
-  DEPENDPATH   += "C:\usr\local\include"
-  LIBPATH += "C:\usr\local\lib"
+  INCLUDEPATH   += "D:\usr\local\include"
+  DEPENDPATH   += "D:\usr\local\include"
+  LIBPATH += "D:\usr\local\lib"
 }
 
 # Define the directory where jsonArango source code is located

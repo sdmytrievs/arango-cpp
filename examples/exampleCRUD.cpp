@@ -32,7 +32,7 @@ int main(int, char* [])
 
         // Insert document to database
         auto rkey = connect.createDocument( collectionName, documentData );
-
+       // std::string rkey = "test/eCRUD";
 
         // Read document from database
         std::string readDocumentData;
