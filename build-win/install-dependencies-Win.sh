@@ -5,6 +5,9 @@ localPrefix=$1
 full_path="$localPrefix/lib/libvelocypack.a"
 threads=3
 
+# Uncomment what is necessary to reinstall by force
+#rm -f $full_path
+
 # Velocypack from ArangoDB (added for installing JSONIO database client)
 # if no VPack installed in /usr/local/lib/libvelocypack.a (/usr/local/include/velocypack)
 test -f $full_path || {

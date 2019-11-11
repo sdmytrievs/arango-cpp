@@ -2,15 +2,17 @@
 # get-executionpolicy
 # Start-Process powershell -Verb runAs
 # Set-ExecutionPolicy RemoteSigned
+# powershell -ExecutionPolicy ByPass ".\Install-win64-mingw.ps1 -installPrefix "C:\usr" "
 
 
 #Parameters
 #The script could take 2 arguments.
-param(  [string]$installPrefix="D:\usr",
+param(  [string]$installPrefix="C:\usr",
         [string]$mingwPath ="C:\Qt5\Tools\mingw730_64\bin",
         [string]$cmakeVersion="3.14.0",
         [string]$curlVersion="7.67.0",
-        [string]$ssh2Version="1.9.0" )
+        [string]$ssh2Version="1.9.0",
+        [string]$opensslVersion="1.1.1d_2" )
 
 
 
@@ -80,13 +82,18 @@ $major, $minor, $patch = $cmakeVersion.split('.')
 $cmakeUrl = ('https://cmake.org/files/v{0}.{1}/cmake-{2}-win64-x64.zip' -f $major, $minor, $cmakeVersion)
 $cmakeName = "$installPrefix/cmake-$cmakeVersion-win64-x64.zip"
 
+#https://curl.haxx.se/windows/dl-7.67.0/curl-7.67.0-win64-mingw.zip
 $curlUrl = ('https://curl.haxx.se/windows/dl-{0}/curl-{0}-win64-mingw.zip' -f $curlVersion)
 $curlName = "$installPrefix/curl-$curlVersion-win64-mingw.zip"
 
+#https://curl.haxx.se/windows/dl-7.67.0/libssh2-1.9.0-win64-mingw.zip
 $ssh2Url = ('https://curl.haxx.se/windows/dl-{0}/libssh2-{1}-win64-mingw.zip' -f $curlVersion, $ssh2Version )
 $ssh2Name = "$installPrefix/libssh2-$ssh2Version-win64-mingw.zip"
 
 #https://curl.haxx.se/windows/dl-7.67.0_2/openssl-1.1.1d_2-win64-mingw.zip
+$opensslUrl = ('https://curl.haxx.se/windows/dl-{0}_2/openssl-{1}-win64-mingw.zip' -f $curlVersion, $opensslVersion )
+$opensslName = "$installPrefix/openssl-$opensslVersion-win64-mingw.zip"
+
 
 #b) Test for the existence of the destination folders; create it if it is not found.
 $destinationexists = Check-Folder $installPrefix -create
@@ -105,9 +112,7 @@ $destinationexists = Check-Folder $includePrefix -create
 
 # Download from "https://cmake.org/download/"
 Load-To $cmakeUrl $cmakeName 
-# Unpack to  "C:/usr" and Copy bin to c:/usr/local
-#Unzip-Dir $cmakeName "bin" "$localPrefix/bin"
-#Unzip-Dir $cmakeName "share" "$localPrefix/share"
+# Unpack to  "C:/usr" 
 Expand-Archive $cmakeName -DestinationPath $installPrefix -Force
 
 
@@ -135,26 +140,10 @@ Unzip-Dir $curlName "include/curl" "$localPrefix/include/curl"
 
 #e) Install OpenSSL
 
-# Download OpenSSL 1.1.1c from https://curl.haxx.se/windows/
-#Load-To $ssh2Url $ssh2Name
+# Download OpenSSL  from https://curl.haxx.se/windows/
+Load-To $opensslUrl $opensslName
 # Unpack 
 #Expand-Archive $ssh2Name -DestinationPath $installPrefix
-# Copy lib, bin and include to c:/usr/local
 ##  copy libcrypto-1_1-x64.dll, libssl-1_1-x64.dll and libcurl-x64.dll to executable in pro
 
 
-#f) Set Environment Path
-
-$cmakeDir = "D:\usr\cmake-3.14.0-win64-x64\bin\"
-$Env:Path += ";$cmakeDir;$mingwPath"
-#Add-Content -Path $Profile.CurrentUserAllHosts -Value '$Env:Path +=";$binPrefix;$mingwPath"'
-$Env:Path
-# C:\Qt5\Tools\mingw730_64\bin\
-# C:\usr\cmake-3.14.0-rc1-win64-x64\bin\
-
-#cd  C:/Qt5/Tools/mingw730_64/bin
-#mklink make.exe mingw32-make.exe
-
-#g) Install dependencies
-#chmod u+x install-dependencies-Win.sh
-.\install-dependencies-Win.sh $localPrefix
