@@ -13,11 +13,18 @@ bool ArangoDBConnection::use_velocypack_put = true;
 // Use content type Velocypack on getting results
 bool ArangoDBConnection::use_velocypack_get = true;
 
-//ArangoDBConnect TArangoDBClientOne::theConnect( "https://db.thermohub.net",
-//           "adminrem",  "Administrator@Remote-ThermoHub-Server",  "hub_test"  );
 
-//ArangoDBConnect TArangoDBClientOne::theConnect( "http://localhost:8529",
-//           "root",  "",  "_system"  );
+const char* ArangoDBConnection::local_server_endpoint = "http://localhost:8529";
+const char* ArangoDBConnection::local_server_username  = "root";
+const char* ArangoDBConnection::local_server_password  = "";
+const char* ArangoDBConnection::local_server_database  = "_system";
+const char* ArangoDBConnection::local_root_username  = "root";
+const char* ArangoDBConnection::local_root_password  = "";
+const char* ArangoDBConnection::local_root_database  = "_system";
+const char* ArangoDBConnection::remote_server_endpoint = "https://db.thermohub.net";
+const char* ArangoDBConnection::remote_server_username  = "__put_here_the_user_name__";
+const char* ArangoDBConnection::remote_server_password  = "__put_here_the_remote_password__";
+const char* ArangoDBConnection::remote_server_database  = "_system";
 
 
 bool operator!=(const ArangoDBUser& lhs, const ArangoDBUser& rhs)

@@ -12,7 +12,7 @@
 const std::vector<ConnectionArangoDBParams> connectionTestParams =
 {
     { "http://localhost:8529", "root", "", "_system", true }
-//    { "https://db.thermohub.net", "adminrem", "Administrator@Remote-ThermoHub-Server", "hub_test", false },
+//    { "https://db.thermohub.net", "__put_here_the_user_name__", "__put_here_the_remote_password__", "hub_test", false },
 };
 
 int main(int argc, char *argv[])

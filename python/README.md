@@ -5,7 +5,7 @@ API database server access. Concerning the ThermoHub database, a unification of 
 
 ## Before running ArangoDB server  ##
 
-* Install ArangoDB Community Edition on [Ubuntu](proposal.md) 
+* Install ArangoDB Community Edition on Ubuntu
 
 * Install python3.
 
@@ -41,8 +41,8 @@ cd THERMOHUB/arangodb/py-server/
 ~~~
 {
     "serverEndpoint": "http://localhost:8529",
-    "serverUsername": "adminrem",
-    "serverPassword": "Administrator@Remote-ThermoHub-Server",
+    "serverUsername": "__put_here_the_user_name__",
+    "serverPassword": "__put_here_the_user_password__",
     "serverDatabase": "hub_test",
      "host_name" :   "localhost",
      "port" :   9090,

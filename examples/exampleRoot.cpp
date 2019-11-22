@@ -29,7 +29,10 @@ int main(int, char* [])
 
     try{
         // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
-        arangocpp::ArangoDBConnection rootdata( "http://localhost:8529", "root", "", "_system");
+        arangocpp::ArangoDBConnection rootdata( arangocpp::ArangoDBConnection::local_server_endpoint,
+                                                arangocpp::ArangoDBConnection::local_root_username,
+                                                arangocpp::ArangoDBConnection::local_root_password,
+                                                "_system");
         // Create database connection
         arangocpp::ArangoDBUsersAPI rootconnect{rootdata};
 

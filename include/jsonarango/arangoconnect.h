@@ -16,9 +16,9 @@ class ArangoDBUsersAPI;
 struct ArangoDBUser
 {
     /// The name of the user as a string. This is mandatory.
-    std::string name; //  "adminrem"
+    std::string name;
     /// The user password as a string.
-    std::string password;  // "Administrator@Remote-ThermoHub-Server"
+    std::string password;
     /// Database Access  "rw" (read&write) or "ro" ( read only ).
     std::string access;
     /// An optional flag that specifies whether the user is active. If not specified, this will default to true.
@@ -46,7 +46,7 @@ struct ArangoDBConnection
     /// Server URL.
     std::string serverUrl;   // "http://localhost:8529"
     /// The Database Name.
-    std::string databaseName; //  "hub_test"
+    std::string databaseName;
 
     /// Server User Data.
     ArangoDBUser user;
@@ -56,7 +56,7 @@ struct ArangoDBConnection
         serverUrl(theURL),  databaseName(theDBname), user(theUser, thePasswd)
     {}
 
-    ArangoDBConnection():  serverUrl("http://localhost:8529"), databaseName("_system")
+    ArangoDBConnection():  serverUrl(local_server_endpoint), databaseName(local_server_database)
     {}
 
     std::string fullHost() const
@@ -79,6 +79,19 @@ struct ArangoDBConnection
     /// Use content type Velocypack on getting results
     static bool use_velocypack_get;
 
+    static const char* local_server_endpoint;
+    static const char* local_server_username;
+    static const char* local_server_password;
+    static const char* local_server_database;
+
+    static const char* local_root_username;
+    static const char* local_root_password;
+    static const char* local_root_database;
+
+    static const char* remote_server_endpoint;
+    static const char* remote_server_username;
+    static const char* remote_server_password;
+    static const char* remote_server_database;
 };
 
 bool operator!=(const ArangoDBConnection& lhs, const ArangoDBConnection& rhs);

@@ -35,10 +35,10 @@ EOF
 
 curl -u username:password http://example.com
 
-curl -u adminrem:"Administrator@Remote-ThermoHub-Server" https://db.thermohub.net/_db/hub_test/_api/collection/docpages/properties
+curl -u adminrem:"password" https://db.thermohub.net/_db/hub_test/_api/collection/docpages/properties
 
-curl -u adminrem:"Administrator@Remote-ThermoHub-Server" https://db.thermohub.net/_db/hub_test/_api/collection/elements/properties
+curl -u adminrem:"password" https://db.thermohub.net/_db/hub_test/_api/collection/elements/properties
 
-curl -u adminrem:"Administrator@Remote-ThermoHub-Server" https://db.thermohub.net/_db/hub_test/_api/collection
+curl -u adminrem:"password" https://db.thermohub.net/_db/hub_test/_api/collection
 
 */
