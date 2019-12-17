@@ -4,10 +4,19 @@ cmake_minimum_required(VERSION 2.8)
 # Set the name of the project
 project(jsonarango)
 
+# Set the cmake module path of the project
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 set(CMAKE_MACOSX_RPATH ON)
 
+# Ensure proper configuration if in a conda environment
+include(CondaAware)
+
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+find_library(CURL_LIB libcurl)
+else()
 find_library(CURL_LIB curl)
+endif()
 if(NOT CURL_LIB)
   message(FATAL_ERROR "curl library not found")
 endif()
@@ -32,6 +41,8 @@ endif()
 # Define which types of libraries to build
 option(BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(BUILD_STATIC_LIBS "Build static libraries." ON)
+
+option(JSONARANGO_BUILD_EXAMPLES "Build the python wrappers and python package thermofun." ON)
 
 # Currently is not setup to produce a dynamic library using MSVC, only static
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
@@ -58,7 +69,14 @@ endif()
 
 # Set the list of compiler flags for MSVC compiler
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-    add_compile_options("/W0 -D_SCL_SECURE_NO_WARNINGS /MP4")
+    add_compile_options(
+        /D_SCL_SECURE_NO_WARNINGS
+        /D_CRT_SECURE_NO_WARNINGS=1
+        /MP4
+        /EHsc
+        /D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
+        /DNOMINMAX
+    )
 endif()
 
 
@@ -78,6 +96,8 @@ endif()
 # Build jsonio library
 add_subdirectory(src)
 
+if(JSONARANGO_BUILD_EXAMPLES)
 # Build the examples
-add_subdirectory(examples)
+    add_subdirectory(examples)
+endif()
 
