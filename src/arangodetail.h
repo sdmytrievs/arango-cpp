@@ -5,6 +5,7 @@
 #include <queue>
 #include <limits>
 #include <algorithm>
+#include <cctype>
 
 
 namespace arangocpp { namespace detail {

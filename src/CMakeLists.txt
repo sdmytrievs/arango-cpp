@@ -24,7 +24,7 @@ endif()
 # Check if a static library is to be built
 if(BUILD_STATIC_LIBS)
     add_library(JSONARANGO_STATIC STATIC $<TARGET_OBJECTS:JSONARANGO_OBJECTS>)
-    set_target_properties(JSONARANGO_STATIC PROPERTIES OUTPUT_NAME jsonarango)
+    set_target_properties(JSONARANGO_STATIC PROPERTIES OUTPUT_NAME jsonarango-static)
     install(TARGETS JSONARANGO_STATIC DESTINATION lib)
 endif()
 
