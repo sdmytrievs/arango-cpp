@@ -44,7 +44,7 @@ std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendREQUEST(std::unique_ptr<HttpMe
     RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
     auto result = mco.getResponse();
     DEBUG_OUTPUT( "result", result )
-            if( !result->isContentTypeVPack() )
+    if( !result->isContentTypeVPack() )
             ARANGO_THROW( "ArangoDBAPIBase", 3, "Illegal content type" );
     if( result->statusCode() == 0 )
         ARANGO_THROW( "ArangoDBAPIBase", 2, "Server connections error" );
