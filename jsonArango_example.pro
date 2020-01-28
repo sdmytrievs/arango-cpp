@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += thread console c++11
+CONFIG += thread console c++14
 CONFIG -= app_bundle
 CONFIG -= qt
 
@@ -43,8 +43,8 @@ OBJECTS_DIR   = obj
 include($$JSONARANGO_DIR/jsonarango.pri)
 
 SOURCES += \
-       main.cpp
-#       examples/exampleCRUD.cpp
+#       main.cpp
+       examples/exampleCRUD.cpp
 #       examples/exampleSelection.cpp
 #       examples/exampleQuery.cpp
 #       examples/exampleCollections.cpp

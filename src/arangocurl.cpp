@@ -151,7 +151,7 @@ std::unique_ptr<HttpMessage> RequestCurlObject::getResponse()
     if (_responseHeaders.length())
     {
 
-        //cout << "_responseHeaders  " << _responseHeaders << endl;
+        //std::cout << "_responseHeaders  " << _responseHeaders << std::endl;
         auto headers = detail::split(_responseHeaders, ";");
 
         while( !headers.empty() )
@@ -188,6 +188,10 @@ std::unique_ptr<HttpMessage> RequestCurlObject::getResponse()
             buffer.append(_responseBody);
             response->addVPack(std::move(buffer));
         }
+    }
+    else
+    {
+        response->header.addMeta(fu_content_type_key, fu_content_type_vpack);
     }
 
     return response;
