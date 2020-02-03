@@ -52,7 +52,7 @@ public:
 
     /// Empty or All  query constructor.
     ArangoDBQuery( QueryType atype = All  ):
-        query_type{atype}, find_condition{}, bind_vars{}, query_fields{}
+        query_type{atype}, find_condition{}, bind_vars{}, query_options{}, query_fields{}
     { }
 
     /// An AQL query text or json template constructor.
@@ -103,6 +103,19 @@ public:
         return bind_vars;
     }
 
+    /// Set json string with the  key/value object with extra options for the query
+    ///  need to be passed along with the query when it is executed.
+    void  setOptions( const std::string& jsonOptionsObject )
+    {
+        query_options = jsonOptionsObject;
+    }
+
+    /// Get the json string with  key/value object with extra options for the query.
+    const std::string& options() const
+    {
+        return query_options;
+    }
+
     /// Set the fixed set of attributes from the collection is queried,
     /// then the query result values will have a homogeneous structure.
     void  setQueryFields( const QueryFields& mapFields )
@@ -137,6 +150,9 @@ protected:
     std::string find_condition;
     /// The bind parameter values need to be passed along with the query when it is executed.
     std::string bind_vars;
+    /// options: key/value object with extra options for the query.
+    /// The options need to be passed along with the query when it is executed.
+    std::string query_options;
     /// List of fields, the fixed set of attributes from the collection.
     /// FOR u IN users
     /// RETURN { "id": u.id, "name": u.name }

@@ -88,6 +88,8 @@ std::string HttpMessage::payloadAsString()
         ::arangodb::velocypack::Options options;
         options.unsupportedTypeBehavior = ::arangodb::velocypack::Options::ConvertUnsupportedType;
         options.buildUnindexedArrays = true;
+        if( payloadSize()  <= 0 )
+            return "";
         auto jsonstr = slices().front().toJson(&options);
         return jsonstr;
     }

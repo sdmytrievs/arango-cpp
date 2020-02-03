@@ -349,6 +349,12 @@ std::unique_ptr<HttpMessage> ArangoDBCollectionAPI::createAQLRequest(
             builder.add("batchSize" , ::arangodb::velocypack::Value(batch_size*2));
         } else
             builder.add("batchSize" , ::arangodb::velocypack::Value(batch_size));
+
+        if( !query.options().empty() )
+        {
+            auto data = ::arangodb::velocypack::Parser::fromJson(query.options(), &parse_options);
+            builder.add("options" , data->slice() );
+        }
         builder.close();
 
         auto request = createREQUEST(RestVerb::Post, std::string("/_api/cursor"));
