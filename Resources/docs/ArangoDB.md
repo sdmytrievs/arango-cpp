@@ -16,9 +16,25 @@ If you upgrade to new version arangodb run the command:
 
 
 ```sh
+
+brew link arangodb
 /usr/local/Cellar/arangodb/<VERSION>/sbin> ./arangod --database.auto-upgrade true
 ```
 
+
+Some triks
+
+```sh
+bash-3.2$ brew link arangodb
+Linking /usr/local/Cellar/arangodb/3.6.0... 
+Error: Could not symlink sbin/arango-dfdb
+/usr/local/sbin is not writable.
+
+sudo mkdir sbin
+sudo chown -R $(whoami) $(brew --prefix)/*
+brew link arangodb
+
+````
 
 
 // curl -X GET @- --dump - http://localhost:8529/_api/document/test/eCRUD2 -u root:""
