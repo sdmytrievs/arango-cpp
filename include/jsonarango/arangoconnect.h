@@ -143,6 +143,8 @@ public:
 ArangoDBConnection connectFromConfig( const std::string& cfgfile );
 /// ArangoDB root connections data from config file.
 ArangoDBConnection rootClientFromConfig( const std::string& cfgfile );
+/// Get settings data from json string for root or user
+ArangoDBConnection connectFromSettings( const std::string& jsonstr, bool rootdata );
 
 } // namespace arangocpp
 

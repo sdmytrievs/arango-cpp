@@ -11,7 +11,7 @@ bool operator !=( const ArangoDBQuery& iEl,  const ArangoDBQuery& iEr)
 }
 
 ArangoDBQuery::ArangoDBQuery( const std::string &condition, ArangoDBQuery::QueryType atype):
-    query_type{atype}, find_condition{condition}, bind_vars{}, query_fields{}
+    query_type{atype}, find_condition{condition}, bind_vars{}, query_options{}, query_fields{}
 {
     if( find_condition.empty() )
         query_type = All;

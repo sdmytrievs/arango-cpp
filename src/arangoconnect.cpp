@@ -38,7 +38,7 @@ bool operator!=(const ArangoDBConnection& lhs, const ArangoDBConnection& rhs)
             lhs.databaseName != rhs.databaseName;
 }
 
-/// Get settings data from json string
+// Get settings data from json string
 ArangoDBConnection connectFromSettings( const std::string& jsonstr, bool rootdata )
 {
     ArangoDBConnection connect_data;
