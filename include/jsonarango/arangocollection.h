@@ -12,6 +12,8 @@ namespace arangocpp {
 #define JSONIO_LOG   if (0) std::cout
 //#define JSONIO_LOG    std::cout
 
+class RequestCurlObject;
+
 class ArangoDBAPIBase
 {
 
@@ -19,12 +21,7 @@ class ArangoDBAPIBase
 public:
 
     ///  Constructor
-    explicit ArangoDBAPIBase( const ArangoDBConnection& connectData )
-    {
-        dump_options.unsupportedTypeBehavior = ::arangodb::velocypack::Options::NullifyUnsupportedType;
-        parse_options.validateUtf8Strings = true;
-        resetDBConnection(connectData);
-    }
+    explicit ArangoDBAPIBase( const ArangoDBConnection& connectData );
 
     ///  Destructor
     virtual ~ArangoDBAPIBase()
@@ -53,6 +50,9 @@ protected:
     int batch_size = 500;
     ::arangodb::velocypack::Options dump_options;
     ::arangodb::velocypack::Options parse_options;
+
+    /// Curl requests data
+    std::shared_ptr<RequestCurlObject> curl_object;
 
     virtual std::unique_ptr<HttpMessage> createREQUEST( RestVerb verb, std::string const& path,
                                                         StringMap const& parameter = StringMap() );

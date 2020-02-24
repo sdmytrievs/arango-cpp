@@ -37,15 +37,27 @@ size_t RequestCurlObject::bodyCallback(
 }
 
 
-RequestCurlObject::RequestCurlObject( const std::string& theURL, const std::string& theUser,
+int RequestCurlObject::sendRequest( const std::string& theURL, const std::string& theUser,
                                       const std::string& thePasswd,
-                                      std::unique_ptr<HttpMessage> request ):
-    _URL(theURL), _dbUser(theUser), _dbPasswd(thePasswd),
-    _request(std::move(request)), _curl(nullptr), _curlHeaders(nullptr)
+                                      std::unique_ptr<HttpMessage> request )
 {
-    _curl = curl_easy_init();
-    if(!_curl)
+    _URL = theURL;
+    _dbUser = theUser;
+    _dbPasswd = thePasswd;
+    _request = (std::move(request));
+
+    _responseHeaders.clear();
+    _responseBody.clear();
+
+    if (_curlHeaders != nullptr)
+    {
+       curl_slist_free_all(_curlHeaders);
+       _curlHeaders = nullptr;
+    }
+
+    if( !_curl )
         ARANGO_THROW( "RequestCurlObject", 2, "Curl did not initialize!");
+
 
     auto aRequest = _request.get();
     bool sendJson = !ArangoDBConnection::use_velocypack_put;
@@ -61,10 +73,10 @@ RequestCurlObject::RequestCurlObject( const std::string& theURL, const std::stri
     curl_easy_setopt(_curl, CURLOPT_HTTPHEADER, _curlHeaders);
     curl_easy_setopt(_curl, CURLOPT_HEADER, 0L);
 
-    curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, &RequestCurlObject::bodyCallback);
-    curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_responseBody);
-    curl_easy_setopt(_curl, CURLOPT_HEADERFUNCTION, &RequestCurlObject::headerCallback);
-    curl_easy_setopt(_curl, CURLOPT_HEADERDATA, &_responseHeaders);
+//    curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, &RequestCurlObject::bodyCallback);
+//    curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_responseBody);
+//    curl_easy_setopt(_curl, CURLOPT_HEADERFUNCTION, &RequestCurlObject::headerCallback);
+//    curl_easy_setopt(_curl, CURLOPT_HEADERDATA, &_responseHeaders);
 
     curl_easy_setopt(_curl, CURLOPT_URL, _URL.c_str());
 
@@ -77,6 +89,7 @@ RequestCurlObject::RequestCurlObject( const std::string& theURL, const std::stri
     {
     case RestVerb::Post:
         curl_easy_setopt(_curl, CURLOPT_POST, 1);
+        curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, NULL );
         break;
 
     case RestVerb::Put:
@@ -101,6 +114,7 @@ RequestCurlObject::RequestCurlObject( const std::string& theURL, const std::stri
         break;
 
     case RestVerb::Get:
+        curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, NULL );
         break;
 
     case RestVerb::Illegal:
@@ -136,9 +150,37 @@ RequestCurlObject::RequestCurlObject( const std::string& theURL, const std::stri
     }
 
     auto res = curl_easy_perform(_curl);
-    if(res != CURLE_OK)
+    if( res != CURLE_OK )
         std::cout << "Curl finish " << res << std::endl;
+    return res;
 }
+
+RequestCurlObject::RequestCurlObject():
+    _URL(""), _dbUser(""), _dbPasswd(""),
+    _request(nullptr), _curl(nullptr), _curlHeaders(nullptr)
+{
+    _curl = curl_easy_init();
+    if(!_curl)
+        ARANGO_THROW( "RequestCurlObject", 2, "Curl did not initialize!");
+
+
+   curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, &RequestCurlObject::bodyCallback);
+    curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_responseBody);
+    curl_easy_setopt(_curl, CURLOPT_HEADERFUNCTION, &RequestCurlObject::headerCallback);
+    curl_easy_setopt(_curl, CURLOPT_HEADERDATA, &_responseHeaders);
+
+
+#ifndef __unix  // Windows
+    //curl_easy_setopt(_curl, CURLOPT_VERBOSE, 1L);
+    curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYPEER,false);
+#endif
+
+/*    curl_easy_setopt(_curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    curl_easy_setopt(_curl, CURLOPT_USERNAME, _dbUser.c_str());
+    curl_easy_setopt(_curl, CURLOPT_PASSWORD, _dbPasswd.c_str());
+*/
+}
+
 
 std::unique_ptr<HttpMessage> RequestCurlObject::getResponse()
 {

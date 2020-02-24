@@ -11,8 +11,10 @@ std::unique_ptr<HttpMessage> ArangoDBUsersAPI::sendREQUEST(std::unique_ptr<HttpM
     //try{
     DEBUG_OUTPUT( "request", rq )
             auto url = connect_data.serverUrl+rq->header.path;
-    RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
-    auto result = mco.getResponse();
+    //RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
+    //auto result = mco.getResponse();
+    curl_object->sendRequest(url, connect_data.user.name, connect_data.user.password, std::move(rq));
+    auto result = curl_object->getResponse();
     DEBUG_OUTPUT( "result", result )
             if( !result->isContentTypeVPack() )
             ARANGO_THROW( "ArangoDBUsersAPI", 42, "Illegal content type" );

@@ -13,9 +13,7 @@ class RequestCurlObject {
 
   public:
 
-    RequestCurlObject( const std::string& theURL, const std::string& theUser,
-                       const std::string& thePasswd,
-                       std::unique_ptr<HttpMessage> request );
+    RequestCurlObject();
 
     ~RequestCurlObject()
     {
@@ -27,6 +25,9 @@ class RequestCurlObject {
 
     static size_t bodyCallback(  char* pdatatr, size_t size, size_t nmemb, std::string* buffer);
     static size_t headerCallback( char* data, size_t size, size_t nitems, std::string* buffer);
+
+    int sendRequest( const std::string &theURL, const std::string &theUser,
+                    const std::string &thePasswd, std::unique_ptr<HttpMessage> request );
 
 
     std::unique_ptr<HttpMessage> getResponse();
@@ -45,7 +46,7 @@ class RequestCurlObject {
     }
 
 
-  protected:
+protected:
 
     std::string _URL;
     std::string _dbUser;
