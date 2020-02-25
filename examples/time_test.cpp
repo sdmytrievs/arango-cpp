@@ -12,7 +12,7 @@
 using time_point_t = std::chrono::time_point<std::chrono::high_resolution_clock>;
 
 // Current number documents into collection
-static int documentsInCollection =  1000;
+static int documentsInCollection =  10;
 
 
 void printData( const std::string&  title, const std::vector<std::string>& values )
@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
         // Create database connection
         arangocpp::ArangoDBCollectionAPI connect{data};
 
-        //different_query_types( connect );
-        substances_query_types( connect );
+        different_query_types( connect );
+        //substances_query_types( connect );
 
     }
     catch(...)
@@ -72,15 +72,15 @@ int main(int argc, char* argv[])
 int different_query_types( arangocpp::ArangoDBCollectionAPI& connect )
 {
     // Test collection name
-    std::string collectionName = "test1";
+    std::string collectionName = "test";
 
     // Record keys
     std::vector<std::string> recKeys;
     std::vector<std::string> recjsonValues;
     // Define call back function
-    arangocpp::FetchingDocumentCallback setfnc = [&recjsonValues]( const std::string& jsondata )
+    arangocpp::FetchingDocumentCallback setfnc = [&recjsonValues]( std::string&& jsondata )
     {
-        recjsonValues.push_back(jsondata);
+        recjsonValues.emplace_back( std::forward<std::string>(jsondata) );
     };
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -162,9 +162,9 @@ int substances_query_types( arangocpp::ArangoDBCollectionAPI& connect )
     std::vector<std::string> recKeys;
     std::vector<std::string> recjsonValues;
     // Define call back function
-    arangocpp::FetchingDocumentCallback setfnc = [&recjsonValues]( const std::string& jsondata )
+    arangocpp::FetchingDocumentCallback setfnc = [&recjsonValues]( std::string&& jsondata )
     {
-        recjsonValues.push_back(jsondata);
+        recjsonValues.emplace_back( std::forward<std::string>(jsondata) );
     };
 
     auto start = std::chrono::high_resolution_clock::now();

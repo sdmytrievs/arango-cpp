@@ -37,22 +37,19 @@ size_t RequestCurlObject::bodyCallback(
 }
 
 
-int RequestCurlObject::sendRequest( const std::string& theURL, const std::string& theUser,
-                                      const std::string& thePasswd,
-                                      std::unique_ptr<HttpMessage> request )
+int RequestCurlObject::sendRequest( const std::string& theURL, std::unique_ptr<HttpMessage> request )
 {
-    _URL = theURL;
-    _dbUser = theUser;
-    _dbPasswd = thePasswd;
-    _request = (std::move(request));
+    //std::cout <<  "curl URL Request \n" << _URL << std::endl;
 
+    _URL = theURL;
+    _request = (std::move(request));
     _responseHeaders.clear();
     _responseBody.clear();
 
     if (_curlHeaders != nullptr)
     {
-       curl_slist_free_all(_curlHeaders);
-       _curlHeaders = nullptr;
+        curl_slist_free_all(_curlHeaders);
+        _curlHeaders = nullptr;
     }
 
     if( !_curl )
@@ -72,24 +69,17 @@ int RequestCurlObject::sendRequest( const std::string& theURL, const std::string
 
     curl_easy_setopt(_curl, CURLOPT_HTTPHEADER, _curlHeaders);
     curl_easy_setopt(_curl, CURLOPT_HEADER, 0L);
-
-//    curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, &RequestCurlObject::bodyCallback);
-//    curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_responseBody);
-//    curl_easy_setopt(_curl, CURLOPT_HEADERFUNCTION, &RequestCurlObject::headerCallback);
-//    curl_easy_setopt(_curl, CURLOPT_HEADERDATA, &_responseHeaders);
-
     curl_easy_setopt(_curl, CURLOPT_URL, _URL.c_str());
 
-#ifndef __unix  // Windows
-    //curl_easy_setopt(_curl, CURLOPT_VERBOSE, 1L);
-    curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYPEER,false);
-#endif
+    // clear last command
+    curl_easy_setopt(_curl, CURLOPT_HTTPGET, 1L);
+
     auto verb = aRequest->header.restVerb;
     switch (verb)
     {
     case RestVerb::Post:
         curl_easy_setopt(_curl, CURLOPT_POST, 1);
-        curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, NULL );
+        //curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, NULL );
         break;
 
     case RestVerb::Put:
@@ -114,7 +104,7 @@ int RequestCurlObject::sendRequest( const std::string& theURL, const std::string
         break;
 
     case RestVerb::Get:
-        curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, NULL );
+        //curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, NULL );
         break;
 
     case RestVerb::Illegal:
@@ -126,7 +116,8 @@ int RequestCurlObject::sendRequest( const std::string& theURL, const std::string
     curl_easy_setopt(_curl, CURLOPT_USERNAME, _dbUser.c_str());
     curl_easy_setopt(_curl, CURLOPT_PASSWORD, _dbPasswd.c_str());
 
-    //std::cout <<  "curl URL Request \n" << _URL << std::endl;
+    // clear
+    //curl_easy_setopt(_curl, CURLOPT_POSTFIELDSIZE, -1);
 
     if( !sendJson )
     {
@@ -164,7 +155,7 @@ RequestCurlObject::RequestCurlObject():
         ARANGO_THROW( "RequestCurlObject", 2, "Curl did not initialize!");
 
 
-   curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, &RequestCurlObject::bodyCallback);
+    curl_easy_setopt(_curl, CURLOPT_WRITEFUNCTION, &RequestCurlObject::bodyCallback);
     curl_easy_setopt(_curl, CURLOPT_WRITEDATA, &_responseBody);
     curl_easy_setopt(_curl, CURLOPT_HEADERFUNCTION, &RequestCurlObject::headerCallback);
     curl_easy_setopt(_curl, CURLOPT_HEADERDATA, &_responseHeaders);
@@ -175,12 +166,20 @@ RequestCurlObject::RequestCurlObject():
     curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYPEER,false);
 #endif
 
-/*    curl_easy_setopt(_curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-    curl_easy_setopt(_curl, CURLOPT_USERNAME, _dbUser.c_str());
-    curl_easy_setopt(_curl, CURLOPT_PASSWORD, _dbPasswd.c_str());
-*/
 }
 
+void RequestCurlObject::setConnectData(const std::string &theUser, const std::string &thePasswd)
+{
+    _dbUser = theUser;
+    _dbPasswd = thePasswd;
+
+    if( !_curl )
+        ARANGO_THROW( "RequestCurlObject", 2, "Curl did not initialize!");
+
+    curl_easy_setopt(_curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    curl_easy_setopt(_curl, CURLOPT_USERNAME, _dbUser.c_str());
+    curl_easy_setopt(_curl, CURLOPT_PASSWORD, _dbPasswd.c_str());
+}
 
 std::unique_ptr<HttpMessage> RequestCurlObject::getResponse()
 {
