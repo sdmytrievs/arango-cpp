@@ -88,11 +88,19 @@ ArangoDBCollectionAPI::~ArangoDBCollectionAPI()
 // Test exist collection
 bool ArangoDBCollectionAPI::existCollection(const std::string& collname )
 {
-    std::string qpath  = std::string("/_api/collection/")+collname+"/properties";
+    //std::string qpath  = std::string("/_api/collection/")+collname+"/properties";
+    std::string qpath  = std::string("/_api/collection/")+collname;
     auto request = createREQUEST(RestVerb::Get, qpath );
     auto result = sendREQUEST(std::move(request));
 
-    return result->statusCode() != StatusNotFound;
+    int status = 5; //deleted
+    if(result->statusCode() != StatusNotFound )
+    {
+        auto slice = result->slices().front();
+        status = slice.get("status").getInt();
+    }
+
+    return ( status != 5 );
 }
 
 // Create collection if no exist

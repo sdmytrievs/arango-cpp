@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 int different_query_types( arangocpp::ArangoDBCollectionAPI& connect )
 {
     // Test collection name
-    std::string collectionName = "test";
+    std::string collectionName = "test_oo";
 
     // Record keys
     std::vector<std::string> recKeys;
@@ -149,6 +149,8 @@ int different_query_types( arangocpp::ArangoDBCollectionAPI& connect )
     printTime( "Delete by example", end5, end6 );
 
     printTime( "All time", start, end6 );
+    connect.dropCollection(collectionName);
+
     return 0;
 }
 

@@ -2,7 +2,11 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+#include "jsonarango/arangocollection.h"
+#include "jsonarango/arangoexception.h"
 
+using arango_connect_t = std::shared_ptr<arangocpp::ArangoDBCollectionAPI>;
 
 struct ConnectionArangoDBParams {
     std::string url;          // ARANGODB_URL
@@ -12,4 +16,6 @@ struct ConnectionArangoDBParams {
     bool        root;         // ROOT_OR_NOT_USER
 };
 
-extern const std::vector<ConnectionArangoDBParams> connectionTestParams;
+extern const std::vector<ConnectionArangoDBParams> dataTestParams;
+
+extern std::vector<arango_connect_t> connectionTestParams;
