@@ -57,11 +57,7 @@ ArangoDBGraphAPI the API for manipulating property graphs.
 > *source: "+";    test: "-";  example: "+"*
 
 ## Coments
-
-To Do
-
-
-2. Add google tests for driver (research before best practices )
+Done
 
 3. Add time test for driver
 
@@ -69,8 +65,20 @@ To Do
 
     - curl could be init and only chage curl requests
     - All options could not be set all time: user pathword ...
-    - no curl use
-    - ...
+
+
+To Do
+
+
+2. Add google tests for driver (research before best practices )
+   - test crud   +
+   - test selection
+   - test query params
+   - test local root commands
+   - test graph commands
+   - run test for remote
+   - read test data from config file
+
 
 5. Add the same test examples for pyArango and compare time execution
 

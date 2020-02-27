@@ -79,7 +79,7 @@ int RequestCurlObject::sendRequest( const std::string& theURL, std::unique_ptr<H
     {
     case RestVerb::Post:
         curl_easy_setopt(_curl, CURLOPT_POST, 1);
-        //curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, NULL );
+        curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, NULL );
         break;
 
     case RestVerb::Put:
@@ -104,7 +104,7 @@ int RequestCurlObject::sendRequest( const std::string& theURL, std::unique_ptr<H
         break;
 
     case RestVerb::Get:
-        //curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, NULL );
+        curl_easy_setopt(_curl, CURLOPT_CUSTOMREQUEST, NULL );
         break;
 
     case RestVerb::Illegal:

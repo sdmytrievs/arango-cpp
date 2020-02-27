@@ -47,7 +47,7 @@ include($$JSONARANGO_DIR/jsonarango.pri)
 HEADERS += \
         $$TESTS_DIR/init_tests.h \
         $$TESTS_DIR/tst_arango.h \
-        $$TESTS_DIR/tst_crud.h
+        $$TESTS_DIR/tst_collection_api.h
 
 SOURCES += \
         $$TESTS_DIR/main.cpp

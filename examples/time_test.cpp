@@ -12,7 +12,7 @@
 using time_point_t = std::chrono::time_point<std::chrono::high_resolution_clock>;
 
 // Current number documents into collection
-static int documentsInCollection =  10;
+static int documentsInCollection =  100;
 
 
 void printData( const std::string&  title, const std::vector<std::string>& values )
@@ -149,7 +149,7 @@ int different_query_types( arangocpp::ArangoDBCollectionAPI& connect )
     printTime( "Delete by example", end5, end6 );
 
     printTime( "All time", start, end6 );
-    connect.dropCollection(collectionName);
+    //connect.dropCollection(collectionName);
 
     return 0;
 }

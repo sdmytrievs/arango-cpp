@@ -1,5 +1,5 @@
 
-
+#include <regex>
 #include <gtest/gtest.h>
 
 #include "init_tests.h"
@@ -29,11 +29,14 @@ int main(int argc, char *argv[])
                                         arangocpp::ArangoDBConnection( data.url, data.user, data.password, data.database ) ));
     }
 
-//connectionTestParams[0]->dropCollection("test_vertex_API");
-//connectionTestParams[0]->dropCollection("test_Vertex");
-//connectionTestParams[0]->dropCollection("test_Vertex1");
-//return 0;
-
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
+}
+
+//  Function that can be used to replace text using regex.
+std::string regexp_replace(const std::string& instr, const std::string& rgx_str, const std::string& replacement )
+{
+   std::regex re(rgx_str);
+   std::string output_str = regex_replace(instr, re, replacement);
+   return output_str;
 }
