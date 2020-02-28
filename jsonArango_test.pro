@@ -49,7 +49,8 @@ HEADERS += \
         $$TESTS_DIR/tst_arango.h \
         $$TESTS_DIR/tst_collection_api.h \
         $$TESTS_DIR/tst_query_api.h \
-        $$TESTS_DIR/tst_root_api.h
+        $$TESTS_DIR/tst_root_api.h \
+        $$TESTS_DIR/tst_graph_api.h
 
 SOURCES += \
         $$TESTS_DIR/main.cpp

@@ -4,10 +4,12 @@
 #include <vector>
 #include <memory>
 #include "jsonarango/arangocollection.h"
+#include "jsonarango/arangograph.h"
 #include "jsonarango/arangoexception.h"
 
 
 using arango_connect_t = std::shared_ptr<arangocpp::ArangoDBCollectionAPI>;
+using arango_graph_t = std::shared_ptr<arangocpp::ArangoDBGraphAPI>;
 
 struct ConnectionArangoDBParams {
     std::string url;          // ARANGODB_URL
@@ -20,6 +22,7 @@ struct ConnectionArangoDBParams {
 extern const std::vector<ConnectionArangoDBParams> dataTestParams;
 
 extern std::vector<arango_connect_t> connectionTestParams;
+extern std::vector<arango_graph_t> graphTestParams;
 
 const char* rev_regexp = "(\"_rev\":\"[^\"]*\",)";
 const char* id_regexp = "(\"_id\":\"[^\"]*\",)";

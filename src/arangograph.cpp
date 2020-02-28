@@ -71,12 +71,14 @@ void ArangoDBGraphAPI::createGraph(const std::string& graphname, const std::stri
 }
 
 
-void ArangoDBGraphAPI::removeGraph( const std::string& graphname )
+void ArangoDBGraphAPI::removeGraph( const std::string& graphname, bool dropCollections )
 {
     if( !existGraph( graphname ) )
         return;
 
     std::string rqstr = "/_api/gharial/"+graphname;
+    if( dropCollections )
+       rqstr+="?dropCollections=true";
     auto request = createREQUEST(RestVerb::Delete, rqstr );
     auto result = sendREQUEST(std::move(request));
 
