@@ -5,6 +5,7 @@
 #include "init_tests.h"
 #include "tst_arango.h"
 #include "tst_collection_api.h"
+#include "tst_query_api.h"
 
 // https://doc.qt.io/qtcreator/creator-autotest.html
 // https://stackoverflow.com/questions/39574360/google-testing-framework-and-qt

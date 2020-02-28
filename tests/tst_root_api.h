@@ -9,6 +9,9 @@
 using namespace testing;
 using namespace arangocpp;
 
+const char* rev_regexp = "(\"_rev\":\"[^\"]*\",)";
+const char* id_regexp = "(\"_id\":\"[^\"]*\",)";
+const char* key_regexp = "(\"_key\":\"[^\"]*\",)";
 
 // ConnectionTestF is a test fixture that can be used for all kinds of connection
 // tests. You can configure it using the ConnectionTestParams struct.
