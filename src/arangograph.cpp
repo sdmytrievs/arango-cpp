@@ -141,8 +141,12 @@ void ArangoDBGraphAPI::addEdgeGraph(const std::string& graphname, const std::str
         auto result1 = sendREQUEST(std::move(request1));
 
         if( result1->statusCode() >=  StatusBadRequest )
-            ARANGO_THROW( "ArangoDBGraphAPI", 34, "The defininition could not be added,"
-                                                  "the edge collection is used in an other graph with a different signature" );
+        {
+            auto slice = result1->slices().front();
+            auto errmsg = slice.get("errorMessage").copyString();
+            JSONIO_LOG << "Error :" << errmsg << std::endl;
+            ARANGO_THROW( "ArangoDBGraphAPI", 34, "Error create edge: "+errmsg );
+        }
     } catch (::arangodb::velocypack::Exception& error )
     {
         JSONIO_LOG << "Velocypack error: " << error.what() << std::endl;

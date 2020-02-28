@@ -3,9 +3,9 @@
 #include <gtest/gtest.h>
 
 #include "init_tests.h"
-//#include "tst_arango.h"
-//#include "tst_collection_api.h"
-//#include "tst_query_api.h"
+#include "tst_arango.h"
+#include "tst_collection_api.h"
+#include "tst_query_api.h"
 #include "tst_graph_api.h"
 
 // https://doc.qt.io/qtcreator/creator-autotest.html

@@ -64,7 +64,7 @@ TEST_P(GraphCRUDTestF, testCollectionsCreateSelect )
     auto   connect = GetParam();
     std::string grName = "links";
 
-    std::string linkDefinition = "[ {  \"collection\" : \"edge\","
+    std::string linkDefinition = "[ {  \"collection\" : \"edge12\","
                                  "     \"from\" : [ \"vertex1\" ],"
                                  "     \"to\" :   [ \"vertex2\"  ] } ] ";
 
@@ -80,6 +80,22 @@ TEST_P(GraphCRUDTestF, testCollectionsCreateSelect )
     EXPECT_NE( allexist.find(graphName), allexist.end() );
     EXPECT_NE( allexist.find(grName), allexist.end() );
 
+    // Adds a vertex collection to the set of collections of the graph.
+    EXPECT_NO_THROW( connect->addVertexGraph(grName, "vertex3" ));
+
+    // Adds an additional edge definition to the graph.
+    std::string linkDefinition2 = "{  \"collection\" : \"edge21\","
+                                 "     \"from\" : [ \"vertex3\" ],"
+                                 "     \"to\" :   [ \"vertex4\"  ] }";
+    EXPECT_NO_THROW( connect->addEdgeGraph( grName, linkDefinition2 ) );
+
+
+    // Fetches all (edges/vertexes) collections from the graph.
+    auto vertexnames =  connect->graphCollectionNames( grName, "vertex" );
+    EXPECT_EQ(vertexnames, std::set<std::string>({"vertex1", "vertex2", "vertex3", "vertex4"}) );
+
+    auto edgenames =  connect->graphCollectionNames( grName, "edge" );
+    EXPECT_EQ(edgenames, std::set<std::string>({"edge12", "edge21"}) );
 
     // drop collection
     EXPECT_NO_THROW( connect->removeGraph(grName, true ) );
@@ -89,122 +105,173 @@ TEST_P(GraphCRUDTestF, testCollectionsCreateSelect )
     EXPECT_EQ( allexist.find(grName), allexist.end() );
 }
 
-/*
-TEST_P( GraphCRUDTestF, testCreateDocument )
+TEST_P( GraphCRUDTestF, testCreatVertexEdge )
 {
-    std::string documentHandle = collectionName+"/eCreate";
-    std::string documentData = "{ \"_key\" : \"eCreate\", "
-                               "  \"task\" : \"exampleCRUD\" }";
     auto   connect = GetParam();
 
-    EXPECT_FALSE( connect->existsDocument( collectionName, documentHandle));
+    std::string record1 = "{\"_key\":\"v_from\",\"a\":1,\"name\":\"vertex\"}";
+    auto id1 = connect->createRecord( graphName, "vertex", vertex1, record1 );
+    std::string record2 = "{\"_key\":\"v_to\",\"b\":2,\"name\":\"vertex\"}";
+    auto id2 = connect->createRecord( graphName, "vertex", vertex2, record2 );
 
-    auto rkey = connect->createDocument( collectionName, documentData );
-    EXPECT_EQ(rkey, documentHandle );
-    EXPECT_TRUE( connect->existsDocument( collectionName, documentHandle));
+    std::string edgerecord = "{\"_from\":\"startVertex/v_from\",\"_key\":\"g_11\",\"_to\":\"endVertex/v_to\",\"ab\":12}";
+    auto id3 = connect->createRecord( graphName, "edge", edge12, edgerecord );
 
-    std::string readDocumentData;
-    EXPECT_NO_THROW( connect->readDocument( collectionName, rkey,  readDocumentData) );
-    auto delrev = regexp_replace(readDocumentData, rev_regexp, "" );
-    EXPECT_EQ( delrev, "{\"_id\":\"test_vertex_API/eCreate\",\"_key\":\"eCreate\",\"task\":\"exampleCRUD\"}" );
+    std::string record;
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex1, id1, record ) );
+    auto delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, record1 );
 
-    // try use the same key
-    EXPECT_THROW( connect->createDocument( collectionName, "{ \"_key\" : \"eCreate\", \"a\" : 1 }" ), arango_exception);
-    // error json
-    EXPECT_THROW( connect->createDocument( collectionName, "{  \"a\" : 1 " ), arango_exception);
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex2, id2, record ) );
+    delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, record2 );
+
+    EXPECT_NO_THROW( connect->readRecord( graphName, "edge", edge12, id3, record ) );
+    delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, edgerecord );
 }
 
-TEST_P( GraphCRUDTestF, testReadDocument )
+
+TEST_P( GraphCRUDTestF, testReadVertexEdge )
 {
-    std::string documentHandle = collectionName+"/eRead";
-    std::string documentData = "{ \"_key\" : \"eRead\", "
-                               "  \"task\" : \"exampleCRUD\" }";
     auto   connect = GetParam();
 
-    auto rkey = connect->createDocument( collectionName, documentData );
-    EXPECT_EQ(rkey, documentHandle );
+    std::string record1 = "{\"_key\":\"v_from\",\"a\":1,\"name\":\"vertex\"}";
+    auto id1 = connect->createRecord( graphName, "vertex", vertex1, record1 );
+    std::string record2 = "{\"_key\":\"v_to\",\"b\":2,\"name\":\"vertex\"}";
+    auto id2 = connect->createRecord( graphName, "vertex", vertex2, record2 );
+    std::string edgerecord = "{\"_from\":\"startVertex/v_from\",\"_key\":\"g_11\",\"_to\":\"endVertex/v_to\",\"ab\":12}";
+    auto id3 = connect->createRecord( graphName, "edge", edge12, edgerecord );
 
-    std::string readDocumentData;
-    EXPECT_NO_THROW( connect->readDocument( collectionName, documentHandle,  readDocumentData) );
-    auto delrev = regexp_replace(readDocumentData, rev_regexp, "" );
-    EXPECT_EQ( delrev, "{\"_id\":\"test_vertex_API/eRead\",\"_key\":\"eRead\",\"task\":\"exampleCRUD\"}" );
+    std::string record;
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex1, id1, record ) );
+    auto delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, record1 );
 
-    // try read not exist
-    EXPECT_THROW( connect->readDocument( collectionName, collectionName+"/eReadNotExist",  readDocumentData), arango_exception);
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex2, id2, record ) );
+    delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, record2 );
+
+    EXPECT_NO_THROW( connect->readRecord( graphName, "edge", edge12, id3, record ) );
+    delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, edgerecord );
+
+    EXPECT_THROW( connect->readRecord( graphName, "vertex", vertex2, vertex2+"/not_exist", record ), arango_exception );
+    EXPECT_THROW( connect->readRecord( graphName, "vertex", "not_exist", id2, record ), arango_exception );
+
+    EXPECT_THROW( connect->readRecord( graphName, "edge", edge12, edge12+"/not_exist", record ), arango_exception );
+    EXPECT_THROW( connect->readRecord( graphName, "edge", "not_exist", id3, record ), arango_exception );
 }
 
-TEST_P( GraphCRUDTestF, testDeleteDocument )
-{
-    std::string documentHandle = collectionName+"/eDelete";
-    std::string documentData = "{ \"_key\" : \"eDelete\", "
-                               "  \"task\" : \"exampleCRUD\" }";
-    auto   connect = GetParam();
-
-    auto rkey = connect->createDocument( collectionName, documentData );
-    EXPECT_EQ(rkey, documentHandle );
-    EXPECT_TRUE( connect->existsDocument( collectionName, documentHandle));
-    EXPECT_NO_THROW( connect->deleteDocument( collectionName, documentHandle ) );
-    EXPECT_FALSE( connect->existsDocument( collectionName, documentHandle));
-
-    // error delete not exist
-    EXPECT_THROW( connect->deleteDocument( collectionName, collectionName+"/eDelNotExist" ), arango_exception);
-    EXPECT_THROW( connect->deleteDocument( "collectionName", documentHandle ), arango_exception);
-}
-
-TEST_P( GraphCRUDTestF, testUpdateDocument )
-{
-    std::string documentHandle = collectionName+"/eUpdate";
-    std::string documentData = "{ \"_key\" : \"eUpdate\", "
-                               "  \"task\" : \"exampleCRUD\" }";
-    auto   connect = GetParam();
-
-    auto rkey = connect->createDocument( collectionName, documentData );
-    EXPECT_EQ(rkey, documentHandle );
-
-    std::string readDocumentData;
-    EXPECT_NO_THROW( connect->readDocument( collectionName, rkey,  readDocumentData) );
-    auto delrev = regexp_replace(readDocumentData, rev_regexp, "" );
-    EXPECT_EQ( delrev, "{\"_id\":\"test_vertex_API/eUpdate\",\"_key\":\"eUpdate\",\"task\":\"exampleCRUD\"}" );
-
-    documentData = "{\"_id\":\"test_vertex_API/eUpdate\",\"_key\":\"eUpdate\",\"a\":1}";
-    auto testkey = connect->updateDocument( collectionName, rkey, documentData );
-    EXPECT_EQ( testkey, rkey );
-    EXPECT_NO_THROW( connect->readDocument( collectionName, rkey,  readDocumentData) );
-    delrev = regexp_replace(readDocumentData, rev_regexp, "" );
-    EXPECT_EQ( delrev, "{\"_id\":\"test_vertex_API/eUpdate\",\"_key\":\"eUpdate\",\"a\":1}" );
-
-    // try use other key
-    EXPECT_THROW( connect->updateDocument( collectionName, collectionName+"/eUpdNotExist", documentData ), arango_exception);
-    // error json
-    EXPECT_THROW( connect->updateDocument( collectionName, rkey, "{  \"a\" : 1 " ), arango_exception);
-}
 
 TEST_P( GraphCRUDTestF, testDeleteVertex )
 {
     auto   connect = GetParam();
 
-    std::vector<std::string> recKeys;
-    // Insert documents to database
-    for( int ii=0; ii<3; ii++ )
-    {
-        ::arangodb::velocypack::Builder builder;
-        builder.openObject();
-        builder.add("name" , ::arangodb::velocypack::Value(  ii%2 ? "a" : "b" ) );
-        builder.add("index" , ::arangodb::velocypack::Value(  ii ) );
-        builder.close();
+    std::string record1 = "{\"_key\":\"v_from\",\"a\":1,\"name\":\"vertex\"}";
+    auto id1 = connect->createRecord( graphName, "vertex", vertex1, record1 );
+    std::string record2 = "{\"_key\":\"v_to\",\"b\":2,\"name\":\"vertex\"}";
+    auto id2 = connect->createRecord( graphName, "vertex", vertex2, record2 );
+    std::string edgerecord = "{\"_from\":\"startVertex/v_from\",\"_key\":\"g_11\",\"_to\":\"endVertex/v_to\",\"ab\":12}";
+    auto id3 = connect->createRecord( graphName, "edge", edge12, edgerecord );
 
-        auto rkey = connect->createDocument( collectionName, builder.toJson() );
-        recKeys.push_back(rkey);
-    }
+    std::string record;
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex1, id1, record ) );
+    auto delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, record1 );
 
-    for( const auto& rec: recKeys)
-        EXPECT_TRUE( connect->existsDocument( collectionName, rec));
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex2, id2, record ) );
+    delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, record2 );
 
-    EXPECT_NO_THROW( connect->removeByKeys( collectionName, recKeys ) );
+    EXPECT_NO_THROW( connect->readRecord( graphName, "edge", edge12, id3, record ) );
+    delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, edgerecord );
 
-    for( const auto& rec: recKeys)
-        EXPECT_FALSE( connect->existsDocument( collectionName, rec));
+    EXPECT_NO_THROW( connect->deleteRecord( graphName, "vertex", vertex1, id1 ));
 
+    EXPECT_THROW( connect->readRecord( graphName, "vertex", vertex1, id1, record ), arango_exception );
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex2, id2, record ) );
+
+    EXPECT_THROW( connect->readRecord( graphName, "edge", edge12, id3, record ), arango_exception );
 }
 
-*/
+TEST_P( GraphCRUDTestF, testDeleteEdge )
+{
+    auto   connect = GetParam();
+
+    std::string record1 = "{\"_key\":\"v_from\",\"a\":1,\"name\":\"vertex\"}";
+    auto id1 = connect->createRecord( graphName, "vertex", vertex1, record1 );
+    std::string record2 = "{\"_key\":\"v_to\",\"b\":2,\"name\":\"vertex\"}";
+    auto id2 = connect->createRecord( graphName, "vertex", vertex2, record2 );
+    std::string edgerecord = "{\"_from\":\"startVertex/v_from\",\"_key\":\"g_11\",\"_to\":\"endVertex/v_to\",\"ab\":12}";
+    auto id3 = connect->createRecord( graphName, "edge", edge12, edgerecord );
+
+    std::string record;
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex1, id1, record ) );
+    auto delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, record1 );
+
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex2, id2, record ) );
+    delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, record2 );
+
+    EXPECT_NO_THROW( connect->readRecord( graphName, "edge", edge12, id3, record ) );
+    delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, edgerecord );
+
+    EXPECT_NO_THROW( connect->deleteRecord( graphName, "edge", edge12, id3 ));
+
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex1, id1, record ) );
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex2, id2, record ) );
+
+    EXPECT_THROW( connect->readRecord( graphName, "edge", edge12, id3, record ), arango_exception );
+}
+
+
+TEST_P( GraphCRUDTestF, testUpdateVertexEdge )
+{
+    auto   connect = GetParam();
+
+    std::string record1 = "{\"_key\":\"v_from\",\"a\":1,\"name\":\"vertex\"}";
+    auto id1 = connect->createRecord( graphName, "vertex", vertex1, record1 );
+    std::string record2 = "{\"_key\":\"v_to\",\"b\":2,\"name\":\"vertex\"}";
+    auto id2 = connect->createRecord( graphName, "vertex", vertex2, record2 );
+    std::string edgerecord = "{\"_from\":\"startVertex/v_from\",\"_key\":\"g_11\",\"_to\":\"endVertex/v_to\",\"ab\":12}";
+    auto id3 = connect->createRecord( graphName, "edge", edge12, edgerecord );
+
+    std::string record;
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex1, id1, record ) );
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex2, id2, record ) );
+    EXPECT_NO_THROW( connect->readRecord( graphName, "edge", edge12, id3, record ) );
+
+    std::string record11 = "{\"_key\":\"v_from\",\"c\":3,\"name\":\"vertex\"}";
+    EXPECT_NO_THROW( connect->updateRecord( graphName, "vertex", vertex1, id1, record11 ));
+
+    EXPECT_NO_THROW( connect->readRecord( graphName, "vertex", vertex1, id1, record ) );
+    auto delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, record11 );
+    EXPECT_NE( delrev, record1 );
+
+    std::string edgerecord2 = "{\"_from\":\"startVertex/v_from\",\"_key\":\"g_11\",\"_to\":\"endVertex/v_to\",\"abc\":12}";
+    EXPECT_NO_THROW( connect->updateRecord( graphName, "edge", edge12, id3, edgerecord2 ));
+
+    EXPECT_NO_THROW( connect->readRecord( graphName, "edge", edge12, id3, record ) );
+    delrev = regexp_replace(record, rev_regexp, "" );
+    delrev = regexp_replace(delrev, id_regexp, "" );
+    EXPECT_EQ( delrev, edgerecord2 );
+    EXPECT_NE( delrev, edgerecord );
+}
