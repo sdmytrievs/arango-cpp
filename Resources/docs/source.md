@@ -66,18 +66,20 @@ Done
     - curl could be init and only chage curl requests
     - All options could not be set all time: user pathword ...
 
+2. Added google tests for driver (research before best practices )
+   - test crud   +
+   - test selection +
+   - test query params +
+   - test local root commands +
+   - test graph commands +
+   - run test for remote +
+   - read test data from config file -
+
 
 To Do
 
 
-2. Add google tests for driver (research before best practices )
-   - test crud   +
-   - test selection
-   - test query params
-   - test local root commands
-   - test graph commands
-   - run test for remote
-   - read test data from config file
+
 
 
 5. Add the same test examples for pyArango and compare time execution
