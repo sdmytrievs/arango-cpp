@@ -133,6 +133,16 @@ void ArangoDBUsersAPI::removeDatabase( const std::string& dbname )
     }
 }
 
+
+// Information of the user
+bool ArangoDBUsersAPI::existUser( const std::string& username )
+{
+    std::string qpath  = std::string("/_api/user/") + username;
+    auto request = createREQUEST(RestVerb::Get, qpath );
+    auto result = sendREQUEST(std::move(request));
+    return result->statusCode() == StatusOK;
+}
+
 void ArangoDBUsersAPI::createUser( const ArangoDBUser& userdata )
 {
     try{

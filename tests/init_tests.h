@@ -10,6 +10,7 @@
 
 using arango_connect_t = std::shared_ptr<arangocpp::ArangoDBCollectionAPI>;
 using arango_graph_t = std::shared_ptr<arangocpp::ArangoDBGraphAPI>;
+using arango_root_t = std::shared_ptr<arangocpp::ArangoDBUsersAPI>;
 
 struct ConnectionArangoDBParams {
     std::string url;          // ARANGODB_URL
@@ -23,6 +24,7 @@ extern const std::vector<ConnectionArangoDBParams> dataTestParams;
 
 extern std::vector<arango_connect_t> connectionTestParams;
 extern std::vector<arango_graph_t> graphTestParams;
+extern std::vector<arango_root_t> rootTestParams;
 
 const char* rev_regexp = "(\"_rev\":\"[^\"]*\",)";
 const char* id_regexp = "(\"_id\":\"[^\"]*\",)";

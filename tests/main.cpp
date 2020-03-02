@@ -7,6 +7,7 @@
 #include "tst_collection_api.h"
 #include "tst_query_api.h"
 #include "tst_graph_api.h"
+#include "tst_root_api.h"
 
 // https://doc.qt.io/qtcreator/creator-autotest.html
 // https://stackoverflow.com/questions/39574360/google-testing-framework-and-qt
@@ -14,18 +15,20 @@
 
 const std::vector<ConnectionArangoDBParams> dataTestParams =
 {
-    { "http://localhost:8529", "root", "", "test_database", false }
-//    { "https://db.thermohub.net", "__put_here_the_user_name__", "__put_here_the_remote_password__", "hub_test", false },
+    { "http://localhost:8529", "root", "", "test_database", false },
+    { "https://db.thermohub.net", "adminrem", "nnn", "test_db_api", false }
+//    { "https://db.thermohub.net", "__put_here_the_user_name__", "__put_here_the_remote_password__", "test_db_api", false },
 };
 
-const std::vector<ConnectionArangoDBParams> rootTestParams =
+const std::vector<ConnectionArangoDBParams> dataRootTestParams =
 {
     { "http://localhost:8529", "root", "", "_system", true }
 };
 
 
 std::vector<arango_connect_t> connectionTestParams;
- std::vector<arango_graph_t> graphTestParams;
+std::vector<arango_graph_t> graphTestParams;
+std::vector<arango_root_t> rootTestParams;
 
 int main(int argc, char *argv[])
 {
@@ -36,6 +39,13 @@ int main(int argc, char *argv[])
                                         arangocpp::ArangoDBConnection( data.url, data.user, data.password, data.database ) ));
 
         graphTestParams.push_back( std::make_shared<arangocpp::ArangoDBGraphAPI>(
+                                        arangocpp::ArangoDBConnection( data.url, data.user, data.password, data.database ) ));
+    }
+
+    // Init params (could be from config file)
+    for( auto& data: dataRootTestParams )
+    {
+        rootTestParams.push_back( std::make_shared<arangocpp::ArangoDBUsersAPI>(
                                         arangocpp::ArangoDBConnection( data.url, data.user, data.password, data.database ) ));
     }
 

@@ -4,57 +4,40 @@
 #include <gmock/gmock-matchers.h>
 
 #include "init_tests.h"
-#include "jsonarango/arangocollection.h"
+#include "jsonarango/arangodbusers.h"
+#include "jsonarango/arangoconnect.h"
 
 using namespace testing;
 using namespace arangocpp;
 
-const char* rev_regexp = "(\"_rev\":\"[^\"]*\",)";
-const char* id_regexp = "(\"_id\":\"[^\"]*\",)";
-const char* key_regexp = "(\"_key\":\"[^\"]*\",)";
 
 // ConnectionTestF is a test fixture that can be used for all kinds of connection
 // tests. You can configure it using the ConnectionTestParams struct.
-// Used to test CRUD, create/delete collections, load/delete list of documents for local and remote ArangoDB
-class CollectionCRUDTestF : public ::testing::TestWithParam< arango_connect_t >
+// Used to test API to Create/Delete ArangoDB users and databases
+class RootTestF : public ::testing::TestWithParam< arango_root_t >
 {
+
 
 public:
 
-    const std::string collectionName = "test_vertex_API";
+    const std::string databaseName = "test_root_db";
+    arangocpp::ArangoDBUser user1;
+    arangocpp::ArangoDBUser user2;
 
 protected:
 
-    CollectionCRUDTestF() {}
-    virtual ~CollectionCRUDTestF() noexcept override {}
+    RootTestF():user1( "test_user1", "passwd1", "rw"),
+        user2( "test_user2", "passwd2", "ro")
+    {}
+    virtual ~RootTestF() noexcept override {}
 
 
-    // Per-test-suite set-up.
-    // Called before the first test in this test suite.
-    static void SetUpTestSuite()
-    {
-        try {
-            // if root create new db   "test_db_crud"
-        } catch(std::exception const& ex) {
-            std::cout << "SETUP OF FIXTURE FAILED" << std::endl;
-            throw ex;
-        }
-
-    }
-
-    // Per-test-suite tear-down.
-    // Called after the last test in this test suite.
-    static void TearDownTestSuite()
-    {
-        // if root delete database  "test_db_crud"
-    }
 
     virtual void SetUp() override
     {
         try {
-            auto   connect = GetParam();
-            //std::cout <<  GetParam()->batchSize() << std::endl;
-            connect->createCollection(collectionName, "vertex");
+            auto   rootconnect = GetParam();
+            rootconnect->createDatabase(databaseName, {user1});
         }
         catch(std::exception const& ex)
         {
@@ -66,198 +49,98 @@ protected:
     virtual void TearDown() override
     {
         // delete collection  "test_crud"
-        auto   connect = GetParam();
-        connect->dropCollection(collectionName);
+        auto   rootconnect = GetParam();
+        rootconnect->removeDatabase(databaseName);
+        rootconnect->removeUser( user1.name );
+        rootconnect->removeUser( user2.name );
     }
 
 private:
 
 };
 
-INSTANTIATE_TEST_SUITE_P(BasicConnectionTests, CollectionCRUDTestF,
-                         ::testing::ValuesIn(connectionTestParams));
+INSTANTIATE_TEST_SUITE_P(BasicConnectionTests, RootTestF,
+                         ::testing::ValuesIn(rootTestParams));
 
-TEST_P(CollectionCRUDTestF, testCollectionsCreateSelect )
+TEST_P(RootTestF, testDatabaseCreateSelect )
 {
-    auto   connect = GetParam();
-    std::string edgeName = "test_Edge";
+    auto   rootconnect = GetParam();
+    std::string otherDatabaseName = "test_other_db2";
 
-    EXPECT_TRUE( connect->existCollection(collectionName) );
-    EXPECT_FALSE( connect->existCollection(edgeName) );
+    EXPECT_TRUE( rootconnect->existDatabase(databaseName) );
+    EXPECT_FALSE( rootconnect->existDatabase(otherDatabaseName) );
 
-    // create collection
-    EXPECT_NO_THROW( connect->createCollection(edgeName, "edge" ) );
-    ASSERT_TRUE( connect->existCollection(edgeName) );
+    // create database
+    EXPECT_NO_THROW( rootconnect->createDatabase(otherDatabaseName, {user1, user2} ) );
+    ASSERT_TRUE( rootconnect->existDatabase(otherDatabaseName) );
+    EXPECT_TRUE( rootconnect->existUser(user1.name) );
+    EXPECT_TRUE( rootconnect->existUser(user2.name) );
 
-    // collection names
-    auto allexist = connect->collectionNames( CollectionTypes::All );
-    EXPECT_NE( allexist.find(collectionName), allexist.end() );
-    EXPECT_NE( allexist.find(edgeName), allexist.end() );
+    // database names
+    auto alldatabases = rootconnect->databaseNames();
+    EXPECT_NE( alldatabases.find(databaseName), alldatabases.end() );
+    EXPECT_NE( alldatabases.find(otherDatabaseName), alldatabases.end() );
 
-    auto vertexexist = connect->collectionNames( CollectionTypes::Vertex );
-    EXPECT_NE( vertexexist.find(collectionName), vertexexist.end() );
-    EXPECT_EQ( vertexexist.find(edgeName), vertexexist.end() );
+    // drop database
+    EXPECT_NO_THROW( rootconnect->removeDatabase(otherDatabaseName) );
+    EXPECT_FALSE( rootconnect->existDatabase(otherDatabaseName) );
 
-    auto edgesexist = connect->collectionNames( CollectionTypes::Edge );
-    EXPECT_EQ( edgesexist.find(collectionName), edgesexist.end() );
-    EXPECT_NE( edgesexist.find(edgeName), edgesexist.end() );
-
-    // drop collection
-    EXPECT_NO_THROW( connect->dropCollection(edgeName) );
-    EXPECT_FALSE( connect->existCollection(edgeName) );
-
-    allexist = connect->collectionNames( CollectionTypes::All );
-    EXPECT_EQ( allexist.find(edgeName), allexist.end() );
-}
-
-
-TEST_P( CollectionCRUDTestF, testCreateDocument )
-{
-    std::string documentHandle = collectionName+"/eCreate";
-    std::string documentData = "{ \"_key\" : \"eCreate\", "
-                               "  \"task\" : \"exampleCRUD\" }";
-    auto   connect = GetParam();
-
-    EXPECT_FALSE( connect->existsDocument( collectionName, documentHandle));
-
-    auto rkey = connect->createDocument( collectionName, documentData );
-    EXPECT_EQ(rkey, documentHandle );
-    EXPECT_TRUE( connect->existsDocument( collectionName, documentHandle));
-
-    std::string readDocumentData;
-    EXPECT_NO_THROW( connect->readDocument( collectionName, rkey,  readDocumentData) );
-    auto delrev = regexp_replace(readDocumentData, rev_regexp, "" );
-    EXPECT_EQ( delrev, "{\"_id\":\"test_vertex_API/eCreate\",\"_key\":\"eCreate\",\"task\":\"exampleCRUD\"}" );
-
-    // try use the same key
-    EXPECT_THROW( connect->createDocument( collectionName, "{ \"_key\" : \"eCreate\", \"a\" : 1 }" ), arango_exception);
-    // error json
-    EXPECT_THROW( connect->createDocument( collectionName, "{  \"a\" : 1 " ), arango_exception);
-}
-
-TEST_P( CollectionCRUDTestF, testReadDocument )
-{
-    std::string documentHandle = collectionName+"/eRead";
-    std::string documentData = "{ \"_key\" : \"eRead\", "
-                               "  \"task\" : \"exampleCRUD\" }";
-    auto   connect = GetParam();
-
-    auto rkey = connect->createDocument( collectionName, documentData );
-    EXPECT_EQ(rkey, documentHandle );
-
-    std::string readDocumentData;
-    EXPECT_NO_THROW( connect->readDocument( collectionName, documentHandle,  readDocumentData) );
-    auto delrev = regexp_replace(readDocumentData, rev_regexp, "" );
-    EXPECT_EQ( delrev, "{\"_id\":\"test_vertex_API/eRead\",\"_key\":\"eRead\",\"task\":\"exampleCRUD\"}" );
-
-    // try read not exist
-    EXPECT_THROW( connect->readDocument( collectionName, collectionName+"/eReadNotExist",  readDocumentData), arango_exception);
-}
-
-TEST_P( CollectionCRUDTestF, testDeleteDocument )
-{
-    std::string documentHandle = collectionName+"/eDelete";
-    std::string documentData = "{ \"_key\" : \"eDelete\", "
-                               "  \"task\" : \"exampleCRUD\" }";
-    auto   connect = GetParam();
-
-    auto rkey = connect->createDocument( collectionName, documentData );
-    EXPECT_EQ(rkey, documentHandle );
-    EXPECT_TRUE( connect->existsDocument( collectionName, documentHandle));
-    EXPECT_NO_THROW( connect->deleteDocument( collectionName, documentHandle ) );
-    EXPECT_FALSE( connect->existsDocument( collectionName, documentHandle));
-
-    // error delete not exist
-    EXPECT_THROW( connect->deleteDocument( collectionName, collectionName+"/eDelNotExist" ), arango_exception);
-    EXPECT_THROW( connect->deleteDocument( "collectionName", documentHandle ), arango_exception);
-}
-
-TEST_P( CollectionCRUDTestF, testUpdateDocument )
-{
-    std::string documentHandle = collectionName+"/eUpdate";
-    std::string documentData = "{ \"_key\" : \"eUpdate\", "
-                               "  \"task\" : \"exampleCRUD\" }";
-    auto   connect = GetParam();
-
-    auto rkey = connect->createDocument( collectionName, documentData );
-    EXPECT_EQ(rkey, documentHandle );
-
-    std::string readDocumentData;
-    EXPECT_NO_THROW( connect->readDocument( collectionName, rkey,  readDocumentData) );
-    auto delrev = regexp_replace(readDocumentData, rev_regexp, "" );
-    EXPECT_EQ( delrev, "{\"_id\":\"test_vertex_API/eUpdate\",\"_key\":\"eUpdate\",\"task\":\"exampleCRUD\"}" );
-
-    documentData = "{\"_id\":\"test_vertex_API/eUpdate\",\"_key\":\"eUpdate\",\"a\":1}";
-    auto testkey = connect->updateDocument( collectionName, rkey, documentData );
-    EXPECT_EQ( testkey, rkey );
-    EXPECT_NO_THROW( connect->readDocument( collectionName, rkey,  readDocumentData) );
-    delrev = regexp_replace(readDocumentData, rev_regexp, "" );
-    EXPECT_EQ( delrev, "{\"_id\":\"test_vertex_API/eUpdate\",\"_key\":\"eUpdate\",\"a\":1}" );
-
-    // try use other key
-    EXPECT_THROW( connect->updateDocument( collectionName, collectionName+"/eUpdNotExist", documentData ), arango_exception);
-    // error json
-    EXPECT_THROW( connect->updateDocument( collectionName, rkey, "{  \"a\" : 1 " ), arango_exception);
-}
-
-TEST_P( CollectionCRUDTestF, testDeleteList )
-{
-    auto   connect = GetParam();
-
-    std::vector<std::string> recKeys;
-    // Insert documents to database
-    for( int ii=0; ii<3; ii++ )
-    {
-        ::arangodb::velocypack::Builder builder;
-        builder.openObject();
-        builder.add("name" , ::arangodb::velocypack::Value(  ii%2 ? "a" : "b" ) );
-        builder.add("index" , ::arangodb::velocypack::Value(  ii ) );
-        builder.close();
-
-        auto rkey = connect->createDocument( collectionName, builder.toJson() );
-        recKeys.push_back(rkey);
-    }
-
-    for( const auto& rec: recKeys)
-        EXPECT_TRUE( connect->existsDocument( collectionName, rec));
-
-    EXPECT_NO_THROW( connect->removeByKeys( collectionName, recKeys ) );
-
-    for( const auto& rec: recKeys)
-        EXPECT_FALSE( connect->existsDocument( collectionName, rec));
+    alldatabases = rootconnect->databaseNames();
+    EXPECT_EQ( alldatabases.find(otherDatabaseName), alldatabases.end() );
 
 }
 
-TEST_P( CollectionCRUDTestF, testLoadList )
+TEST_P(RootTestF, testUserCreateSelect )
 {
-    auto   connect = GetParam();
+    auto   rootconnect = GetParam();
+    arangocpp::ArangoDBUser otherUser( "test_user3", "passwd3", "rw");
 
-    std::vector<std::string> recKeys;
-    std::set<std::string> invalues;
-    std::vector<std::string> values;
-    // Insert documents to database
-    for( int ii=0; ii<3; ii++ )
-    {
-        ::arangodb::velocypack::Builder builder;
-        builder.openObject();
-        builder.add("name" , ::arangodb::velocypack::Value(  ii%2 ? "a" : "b" ) );
-        builder.add("index" , ::arangodb::velocypack::Value(  ii ) );
-        builder.close();
+    EXPECT_TRUE( rootconnect->existUser(user1.name) );
+    EXPECT_FALSE( rootconnect->existUser(user2.name) );
+    EXPECT_FALSE( rootconnect->existUser(otherUser.name) );
 
-        auto data = builder.toJson();
-        invalues.insert(data);
-        auto rkey = connect->createDocument( collectionName, data );
-        recKeys.push_back(rkey);
-    }
+    // create user
+    EXPECT_NO_THROW( rootconnect->createUser( user2 ) );
+    EXPECT_NO_THROW( rootconnect->createUser( otherUser ) );
+    ASSERT_TRUE( rootconnect->existUser(otherUser.name) );
+    EXPECT_TRUE( rootconnect->existUser(user1.name) );
+    EXPECT_TRUE( rootconnect->existUser(user2.name) );
 
-    arangocpp::FetchingDocumentCallback setfnc = [&invalues]( const std::string& jsondata )
-    {
-        auto delrev = regexp_replace(jsondata, id_regexp, "" );
-        delrev = regexp_replace(delrev, key_regexp, "" );
-        delrev = regexp_replace(delrev, rev_regexp, "" );
-        EXPECT_NE( invalues.find(delrev), invalues.end());
-    };
+    // user names
+    auto allusers = rootconnect->userNames();
+    EXPECT_NE( allusers.find(user2.name), allusers.end() );
+    EXPECT_NE( allusers.find(otherUser.name), allusers.end() );
 
-    // Load by keys list
-    connect->lookupByKeys( collectionName, recKeys, setfnc );
+    // drop database
+    EXPECT_NO_THROW( rootconnect->removeUser(otherUser.name) );
+    EXPECT_FALSE( rootconnect->existUser(otherUser.name) );
+
+    allusers = rootconnect->databaseNames();
+    EXPECT_EQ( allusers.find(otherUser.name), allusers.end() );
+}
+
+TEST_P(RootTestF, testUserGrandUpdate )
+{
+    auto   rootconnect = GetParam();
+
+    EXPECT_TRUE( rootconnect->existUser(user1.name) );
+    EXPECT_FALSE( rootconnect->existUser(user2.name) );
+
+    // create user
+    EXPECT_NO_THROW( rootconnect->createUser( user2 ) );
+    EXPECT_TRUE( rootconnect->existUser(user2.name) );
+
+    // Modify attributes of an existing user.
+    user2.password = "passwd_new";
+    user2.access = "rw";
+    EXPECT_NO_THROW( rootconnect->updateUser( user2 ));
+
+    // Grant or revoke user access to a database ( "rw", "ro" or "none").
+    EXPECT_NO_THROW( rootconnect->grantUserToDataBase(databaseName, user2.name, "ro" ));
+    // Retrieves a map contains the databases names as object keys, and the associated privileges
+    // for the database as values of all databases the current user can access.
+    auto databasegrand = rootconnect->databaseNames( user2.name );
+    EXPECT_EQ( databasegrand.size(), 1 );
+    EXPECT_EQ( databasegrand.begin()->first , databaseName );
+    EXPECT_EQ( databasegrand.begin()->second , "ro" );
 }
