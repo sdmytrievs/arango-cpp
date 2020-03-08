@@ -277,7 +277,7 @@ bool ArangoDBCollectionAPI::deleteDocument( const std::string& collname, const s
 
     std::string rqstr = "/_api/document/"+rid;
     auto request = createREQUEST(RestVerb::Delete, rqstr  );
-    request->header.meta.erase("accept");
+    //request->header.meta.erase("accept");
     auto result =  sendREQUEST(std::move(request));
 
     if( result->statusCode() >=  StatusBadRequest )

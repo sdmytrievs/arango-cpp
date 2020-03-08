@@ -16,7 +16,7 @@
 const std::vector<ConnectionArangoDBParams> dataTestParams =
 {
     { "http://localhost:8529", "root", "", "test_database", false },
-//    { "https://db.thermohub.net", "__put_here_the_user_name__", "__put_here_the_remote_password__", "test_db_api", false },
+    { "https://db.thermohub.net", "test_api_user", "TestApiUser@Remote-ThermoHub-Server", "test_db_api", false },
 };
 
 const std::vector<ConnectionArangoDBParams> dataRootTestParams =

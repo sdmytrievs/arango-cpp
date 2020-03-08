@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
         // Create database connection
         arangocpp::ArangoDBCollectionAPI connect{data};
 
-        different_query_types( connect );
-        //substances_query_types( connect );
+        //different_query_types( connect );
+        substances_query_types( connect );
 
     }
     catch(...)

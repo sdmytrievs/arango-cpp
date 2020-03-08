@@ -11,8 +11,8 @@ bool ArangoDBGraphAPI::existGraph(const std::string& graphname )
 {
     std::string qpath  = std::string("/_api/gharial/")+graphname;
     auto request = createREQUEST(RestVerb::Get, qpath );
-    request->header.meta.erase("content-type");
-    request->header.meta.erase("accept");
+    //request->header.meta.erase("content-type");
+    //request->header.meta.erase("accept");
     auto result = sendREQUEST(std::move(request));
 
     return result->statusCode() != StatusNotFound;
@@ -56,7 +56,7 @@ void ArangoDBGraphAPI::createGraph(const std::string& graphname, const std::stri
 
         auto request1 = createREQUEST(RestVerb::Post, std::string("/_api/gharial") );
         request1->addVPack(builder.slice());
-        request1->header.meta.erase("accept");
+        //request1->header.meta.erase("accept");
         auto result1 = sendREQUEST(std::move(request1));
 
         if( result1->statusCode() > StatusAccepted )
@@ -95,7 +95,7 @@ std::set<std::string> ArangoDBGraphAPI::graphCollectionNames(
     std::set<std::string> collnames;
     std::string rqstr = "/_api/gharial/"+graphname+ "/"+colltype;
     auto request = createREQUEST(RestVerb::Get, rqstr  );
-    request->header.meta.erase("content-type");
+    //request->header.meta.erase("content-type");
     //request->header.meta.erase("accept");
     auto result =  sendREQUEST(std::move(request));
 
@@ -122,7 +122,7 @@ void ArangoDBGraphAPI::addVertexGraph(const std::string& graphname, const std::s
     std::string rqstr = "/_api/gharial/"+graphname+ "/vertex";
     auto request1 = createREQUEST(RestVerb::Post, rqstr );
     request1->addVPack(builder.slice());
-    request1->header.meta.erase("accept");
+    //request1->header.meta.erase("accept");
     auto result1 = sendREQUEST(std::move(request1));
 
     if( result1->statusCode() >=  StatusBadRequest )
@@ -137,7 +137,7 @@ void ArangoDBGraphAPI::addEdgeGraph(const std::string& graphname, const std::str
         std::string rqstr = "/_api/gharial/"+graphname+ "/edge";
         auto request1 = createREQUEST(RestVerb::Post, rqstr);
         request1->addVPack(data->slice());
-        request1->header.meta.erase("accept");
+        //request1->header.meta.erase("accept");
         auto result1 = sendREQUEST(std::move(request1));
 
         if( result1->statusCode() >=  StatusBadRequest )
@@ -165,8 +165,8 @@ bool ArangoDBGraphAPI::readRecord( const std::string& graphname, const std::stri
 
     std::string rqstr = "/_api/gharial/"+graphname+ "/"+colltype+"/"+rid;
     auto request = createREQUEST(RestVerb::Get, rqstr  );
-    request->header.meta.erase("content-type");
-    request->header.meta.erase("accept");
+    //request->header.meta.erase("content-type");
+    //request->header.meta.erase("accept");
     auto result =  sendREQUEST(std::move(request));
     auto slice = result->slices().front();
 
@@ -264,7 +264,7 @@ bool ArangoDBGraphAPI::deleteRecord( const std::string& graphname, const std::st
 
     std::string rqstr = "/_api/gharial/"+graphname+ "/"+colltype+"/"+rid;
     auto request = createREQUEST(RestVerb::Delete, rqstr  );
-    request->header.meta.erase("content-type");
+    //request->header.meta.erase("content-type");
     //request->header.meta.erase("accept");
     auto result =  sendREQUEST(std::move(request));
 
