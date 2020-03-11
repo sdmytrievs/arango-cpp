@@ -15,13 +15,20 @@
 
 const std::vector<ConnectionArangoDBParams> dataTestParams =
 {
-    { "http://localhost:8529", "root", "", "test_database", false },
+#ifdef TestLocalServer
+    { "http://localhost:8529", "root", "", "test_db_api", false },
+#endif
+
+#ifdef TestRemoteServer
     { "https://db.thermohub.net", "test_api_user", "TestApiUser@Remote-ThermoHub-Server", "test_db_api", false },
+#endif
 };
 
 const std::vector<ConnectionArangoDBParams> dataRootTestParams =
 {
+#ifdef TestLocalServer
     { "http://localhost:8529", "root", "", "_system", true }
+#endif
 };
 
 
@@ -46,6 +53,7 @@ int main(int argc, char *argv[])
     {
         rootTestParams.push_back( std::make_shared<arangocpp::ArangoDBUsersAPI>(
                                         arangocpp::ArangoDBConnection( data.url, data.user, data.password, data.database ) ));
+        rootTestParams.back()->createDatabase("test_db_api");  // create if not exist
     }
 
     ::testing::InitGoogleTest(&argc, argv);

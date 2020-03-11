@@ -4,7 +4,7 @@
           "UseVelocypackPut" :   true,
           "UseVelocypackGet" :   true,
           "ArangoDBLocal" :   {
-               "DBName" :   "_system",
+               "DBName" :   "test_db_api",
                "DBCreate" :   true,
                "DB_URL" :   "http://localhost:8529",
                "DBUser" :   "root",
@@ -15,7 +15,7 @@
                "DBRootPassword" :   ""
           },
           "ArangoDBRemote" :   {
-               "DBName" :   "hub_test",
+               "DBName" :   "test_db_api",
                "DBCreate" :   false,
                "DB_URL" :   "https://db.thermohub.net",
                "DBUser" :   "__put_here_the_user_name__",

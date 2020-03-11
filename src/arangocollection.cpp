@@ -337,7 +337,7 @@ std::unique_ptr<HttpMessage> ArangoDBCollectionAPI::createByExampleRequest(
 
         auto request = createREQUEST(RestVerb::Put, std::string("/_api/simple/by-example"));
         request->addVPack(builder.slice());
-        request->header.meta.erase("accept");
+        //request->header.meta.erase("accept");
         return request;
     }
     catch (::arangodb::velocypack::Exception& error )
@@ -472,13 +472,13 @@ void ArangoDBCollectionAPI::selectQuery( const std::string& collname,
                                          const ArangoDBQuery& query,  FetchingDocumentCallback setfnc )
 {
     std::unique_ptr<HttpMessage> request;
-    bool usejson = true;
+    //bool usejson = true;
 
     switch( query.type() )
     {
     case ArangoDBQuery::Template:
         request = createByExampleRequest( collname,  query.queryString()  );
-        usejson = true;
+        //usejson = true;
         break;
     case ArangoDBQuery::All:
         request = createSimpleAllRequest( collname );
@@ -510,8 +510,8 @@ void ArangoDBCollectionAPI::selectQuery( const std::string& collname,
     {
         std::string id=slice.get("id").copyString();
         request = createREQUEST(RestVerb::Put, std::string("/_api/cursor/")+id);
-        if( usejson )
-            request->header.meta.erase("accept");
+        //if( usejson )
+        //    request->header.meta.erase("accept");
         result = sendREQUEST(std::move(request));
         if( result->statusCode() >=  StatusBadRequest )
             return;  //need close cursor???

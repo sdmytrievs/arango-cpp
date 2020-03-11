@@ -45,9 +45,9 @@ endif()
 option(BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(BUILD_STATIC_LIBS "Build static libraries." ON)
 
-option(BUILD_EXAMPLES "Build the python wrappers and python package thermofun." ON)
-option(BuildLocalDBTests "Build test suite" ON)
-option(BuildRemoteDBTests "Build test suite" ON)
+option(BUILD_EXAMPLES "Build the python wrappers and python package thermofun." OFF)
+option(BULID_LOCAL_TESTS "Build test suite for local ArangoDB" OFF)
+option(BULID_REMOTE_TESTS "Build test suite for remote ArangoDB" ON)
 
 # Currently is not setup to produce a dynamic library using MSVC, only static
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
@@ -103,13 +103,13 @@ endif()
 # Build jsonio library
 add_subdirectory(src)
 
-if(BUILD_EXAMPLES)
 # Build the examples
+if(BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
 # Run the tests
-if(BuildRemoteDBTests OR BuildLocalDBTests )
+if(BULID_LOCAL_TESTS OR BULID_REMOTE_TESTS )
     add_subdirectory(tests)
 endif()
 

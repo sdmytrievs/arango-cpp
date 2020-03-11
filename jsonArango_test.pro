@@ -3,6 +3,9 @@ CONFIG += thread console c++14
 CONFIG -= app_bundle
 CONFIG -= qt
 
+DEFINES += TestLocalServer
+DEFINES += TestRemoteServer
+
 !win32 {
   DEFINES += __unix
 }
