@@ -1,26 +1,37 @@
 #include <iostream>
 #include "jsonarango/arangocollection.h"
 #include "jsonarango/arangoexception.h"
-#include "arangocurl.h"
+#include "jsonarango/arangocurl.h"
 #include "arangodetail.h"
 
 
 namespace arangocpp {
 
 
+ArangoDBAPIBase::ArangoDBAPIBase(const ArangoDBConnection &connectData)
+{
+    curl_object = std::make_shared<RequestCurlObject>();
+    curl_object->setConnectData( connect_data.user.name, connect_data.user.password );
+
+    dump_options.unsupportedTypeBehavior = ::arangodb::velocypack::Options::NullifyUnsupportedType;
+    parse_options.validateUtf8Strings = true;
+    resetDBConnection(connectData);
+}
+
 void ArangoDBAPIBase::resetDBConnection( const ArangoDBConnection& connectData )
 {
     if( !(connect_data != connectData) )
         return;
-    connect_data = connectData;
 
+    connect_data = connectData;
+    curl_object->setConnectData( connect_data.user.name, connect_data.user.password );
 
     try{
-      testConnection();
+        testConnection();
     }
-  catch(std::exception& e)
-  {
-     std::cout <<  "std::exception" << e.what();
+    catch(std::exception& e)
+    {
+        std::cout <<  "std::exception" << e.what();
   }
 
 }
@@ -41,8 +52,9 @@ std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendREQUEST(std::unique_ptr<HttpMe
     //try{
     DEBUG_OUTPUT( "request", rq )
             auto url = connect_data.fullURL(rq->header.path);
-    RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
-    auto result = mco.getResponse();
+    //RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
+    curl_object->sendRequest(url, std::move(rq));
+    auto result = curl_object->getResponse();
     DEBUG_OUTPUT( "result", result )
     if( !result->isContentTypeVPack() )
             ARANGO_THROW( "ArangoDBAPIBase", 3, "Illegal content type" );
@@ -76,11 +88,19 @@ ArangoDBCollectionAPI::~ArangoDBCollectionAPI()
 // Test exist collection
 bool ArangoDBCollectionAPI::existCollection(const std::string& collname )
 {
-    std::string qpath  = std::string("/_api/collection/")+collname+"/properties";
+    //std::string qpath  = std::string("/_api/collection/")+collname+"/properties";
+    std::string qpath  = std::string("/_api/collection/")+collname;
     auto request = createREQUEST(RestVerb::Get, qpath );
     auto result = sendREQUEST(std::move(request));
 
-    return result->statusCode() != StatusNotFound;
+    int status = 5; //deleted
+    if(result->statusCode() != StatusNotFound )
+    {
+        auto slice = result->slices().front();
+        status = slice.get("status").getInt();
+    }
+
+    return ( status != 5 );
 }
 
 // Create collection if no exist
@@ -257,7 +277,7 @@ bool ArangoDBCollectionAPI::deleteDocument( const std::string& collname, const s
 
     std::string rqstr = "/_api/document/"+rid;
     auto request = createREQUEST(RestVerb::Delete, rqstr  );
-    request->header.meta.erase("accept");
+    //request->header.meta.erase("accept");
     auto result =  sendREQUEST(std::move(request));
 
     if( result->statusCode() >=  StatusBadRequest )
@@ -317,7 +337,7 @@ std::unique_ptr<HttpMessage> ArangoDBCollectionAPI::createByExampleRequest(
 
         auto request = createREQUEST(RestVerb::Put, std::string("/_api/simple/by-example"));
         request->addVPack(builder.slice());
-        request->header.meta.erase("accept");
+        //request->header.meta.erase("accept");
         return request;
     }
     catch (::arangodb::velocypack::Exception& error )
@@ -406,7 +426,7 @@ void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sr
     for( size_t ii=0; ii<numb; ii++ )
     {
         auto Id=sresult[ii].get("_id").copyString();
-        setfnc( sresult[ii].toJson(&dump_options), Id );
+        setfnc( sresult[ii].toJson(&dump_options), std::move(Id) );
     }
 }
 
@@ -452,13 +472,13 @@ void ArangoDBCollectionAPI::selectQuery( const std::string& collname,
                                          const ArangoDBQuery& query,  FetchingDocumentCallback setfnc )
 {
     std::unique_ptr<HttpMessage> request;
-    bool usejson = true;
+    //bool usejson = true;
 
     switch( query.type() )
     {
     case ArangoDBQuery::Template:
         request = createByExampleRequest( collname,  query.queryString()  );
-        usejson = true;
+        //usejson = true;
         break;
     case ArangoDBQuery::All:
         request = createSimpleAllRequest( collname );
@@ -490,8 +510,8 @@ void ArangoDBCollectionAPI::selectQuery( const std::string& collname,
     {
         std::string id=slice.get("id").copyString();
         request = createREQUEST(RestVerb::Put, std::string("/_api/cursor/")+id);
-        if( usejson )
-            request->header.meta.erase("accept");
+        //if( usejson )
+        //    request->header.meta.erase("accept");
         result = sendREQUEST(std::move(request));
         if( result->statusCode() >=  StatusBadRequest )
             return;  //need close cursor???
@@ -507,9 +527,9 @@ std::vector<std::string> ArangoDBCollectionAPI::selectQuery( const std::string& 
 {
     std::vector<std::string> resultData;
 
-    FetchingDocumentCallback setfnc = [&resultData]( const std::string& jsondata )
+    FetchingDocumentCallback setfnc = [&resultData]( std::string&& jsondata )
     {
-        resultData.push_back(jsondata);
+        resultData.emplace_back( std::forward<std::string>(jsondata));
     };
 
     selectQuery( collname, query, setfnc );
@@ -561,9 +581,9 @@ std::vector<std::string> ArangoDBCollectionAPI::selectAll( const std::string& co
 {
     std::vector<std::string> resultData;
 
-    FetchingDocumentIdCallback setfnc = [&resultData]( const std::string& jsondata, const std::string&  )
+    FetchingDocumentIdCallback setfnc = [&resultData]( std::string&& jsondata, std::string&&  )
     {
-        resultData.push_back(jsondata);
+        resultData.emplace_back( std::forward<std::string>(jsondata) );
     };
     selectAll( collname,  queryFields,  setfnc );
     return resultData;
@@ -600,9 +620,9 @@ std::vector<std::string> ArangoDBCollectionAPI::lookupByKeys( const std::string&
 {
     std::vector<std::string> resultData;
 
-    FetchingDocumentCallback setfnc = [&resultData]( const std::string& jsondata )
+    FetchingDocumentCallback setfnc = [&resultData]( std::string&& jsondata )
     {
-        resultData.push_back(jsondata);
+        resultData.emplace_back( std::forward<std::string>(jsondata) );
     };
 
     lookupByKeys( collname, keys, setfnc );
@@ -622,7 +642,7 @@ void ArangoDBCollectionAPI::collectQuery( const std::string& collname,
     aqlQuery += " RETURN DISTINCT doc.";
     aqlQuery += fpath;
 
-    FetchingDocumentCallback setfnc = [&]( const std::string& jsondata)
+    FetchingDocumentCallback setfnc = [&]( std::string&& jsondata)
     {
         if(jsondata != "null")
             values.push_back(jsondata);

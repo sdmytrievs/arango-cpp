@@ -11,23 +11,24 @@ namespace arangocpp {
 
 class RequestCurlObject {
 
-  public:
+public:
 
-    RequestCurlObject( const std::string& theURL, const std::string& theUser,
-                       const std::string& thePasswd,
-                       std::unique_ptr<HttpMessage> request );
+    RequestCurlObject();
 
     ~RequestCurlObject()
     {
-      if (_curlHeaders != nullptr)
-        curl_slist_free_all(_curlHeaders);
-      if (_curl != nullptr)
-        curl_easy_cleanup(_curl);
+        if (_curlHeaders != nullptr)
+            curl_slist_free_all(_curlHeaders);
+        if (_curl != nullptr)
+            curl_easy_cleanup(_curl);
     }
 
     static size_t bodyCallback(  char* pdatatr, size_t size, size_t nmemb, std::string* buffer);
     static size_t headerCallback( char* data, size_t size, size_t nitems, std::string* buffer);
 
+    int sendRequest( const std::string &theURL, std::unique_ptr<HttpMessage> request );
+
+    void setConnectData( const std::string &theUser, const std::string &thePasswd );
 
     std::unique_ptr<HttpMessage> getResponse();
 
@@ -36,16 +37,16 @@ class RequestCurlObject {
         std::string data;
         if (_responseBody.length())
         {
-              ::arangodb::velocypack::Buffer<uint8_t> buffer;
-              buffer.append(_responseBody);
-              ::arangodb::velocypack::Slice slice(buffer.data());
-              data = slice.toJson();
-       }
-       return data;
+            ::arangodb::velocypack::Buffer<uint8_t> buffer;
+            buffer.append(_responseBody);
+            ::arangodb::velocypack::Slice slice(buffer.data());
+            data = slice.toJson();
+        }
+        return data;
     }
 
 
-  protected:
+protected:
 
     std::string _URL;
     std::string _dbUser;

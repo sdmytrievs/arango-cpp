@@ -41,6 +41,10 @@ public:
 
     // Users API
 
+    /// Fetches data about the specified user. You can fetch information about yourself
+    /// or you need the Administrate server access level in order to execute this REST call.
+    bool existUser(const std::string &username);
+
     /// Create user.
     void createUser( const ArangoDBUser& userdata );
     /// Modify attributes of an existing user.
@@ -57,6 +61,7 @@ public:
 
     /// Fetches data about all users.
     std::set<std::string> userNames();
+
 
 protected:
 

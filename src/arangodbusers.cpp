@@ -1,6 +1,6 @@
 #include "jsonarango/arangodbusers.h"
 #include "jsonarango/arangoexception.h"
-#include "arangocurl.h"
+#include "jsonarango/arangocurl.h"
 
 
 namespace arangocpp {
@@ -11,8 +11,10 @@ std::unique_ptr<HttpMessage> ArangoDBUsersAPI::sendREQUEST(std::unique_ptr<HttpM
     //try{
     DEBUG_OUTPUT( "request", rq )
             auto url = connect_data.serverUrl+rq->header.path;
-    RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
-    auto result = mco.getResponse();
+    //RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
+    //auto result = mco.getResponse();
+    curl_object->sendRequest(url, std::move(rq));
+    auto result = curl_object->getResponse();
     DEBUG_OUTPUT( "result", result )
             if( !result->isContentTypeVPack() )
             ARANGO_THROW( "ArangoDBUsersAPI", 42, "Illegal content type" );
@@ -129,6 +131,16 @@ void ArangoDBUsersAPI::removeDatabase( const std::string& dbname )
         auto errmsg = result->slices().front().get("errorMessage").copyString();
         ARANGO_THROW( "ArangoDBUsersAPI", 44, std::string("Error when drop database: ")+errmsg );
     }
+}
+
+
+// Information of the user
+bool ArangoDBUsersAPI::existUser( const std::string& username )
+{
+    std::string qpath  = std::string("/_api/user/") + username;
+    auto request = createREQUEST(RestVerb::Get, qpath );
+    auto result = sendREQUEST(std::move(request));
+    return result->statusCode() == StatusOK;
 }
 
 void ArangoDBUsersAPI::createUser( const ArangoDBUser& userdata )

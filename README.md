@@ -11,10 +11,10 @@ This is a lightweight ArangoDB client C++ library, providing CRUD and query oper
 ### _ArangoDBUsersAPI_   
 * Use methods from this API for managing (creating or deleting) users and databases.
 
-For all methods and APIs, see header "arangocollection.h".
+For all methods and APIs, see headers "arangocollection.h", "arangograph.h" and "arangodbusers.h".
 
 jsonArango is written in _C++11_ using the open-source library Velocypack from ArangoDB.
-Version: currently 0.1.
+Version: currently 0.2.
 Will be distributed as is (no liability) under the terms of Lesser GPL v.3 license.
 
 ## How to install the jsonArango library
@@ -48,6 +48,16 @@ cd jsonarango
 ```
 
 After that, headers and the library can be found in /usr/local/include/jsonarango, /usr/local/lib/.
+
+* To test jsonArango execute:
+
+```sh
+mkdir build && \
+cd build && \
+cmake .. -DBULID_LOCAL_TESTS=ON -DBULID_REMOTE_TESTS=ON && \
+make &&\
+./tests/test_main
+```
 
 
 ### Install current version of ArangoDB server locally

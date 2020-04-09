@@ -3,6 +3,9 @@ CONFIG += thread console c++14
 CONFIG -= app_bundle
 CONFIG -= qt
 
+DEFINES += TestLocalServer
+DEFINES += TestRemoteServer
+
 !win32 {
   DEFINES += __unix
 }
@@ -47,7 +50,10 @@ include($$JSONARANGO_DIR/jsonarango.pri)
 HEADERS += \
         $$TESTS_DIR/init_tests.h \
         $$TESTS_DIR/tst_arango.h \
-        $$TESTS_DIR/tst_crud.h
+        $$TESTS_DIR/tst_collection_api.h \
+        $$TESTS_DIR/tst_query_api.h \
+        $$TESTS_DIR/tst_root_api.h \
+        $$TESTS_DIR/tst_graph_api.h
 
 SOURCES += \
         $$TESTS_DIR/main.cpp
