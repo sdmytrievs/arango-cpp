@@ -19,6 +19,11 @@ class ArangoDBAPIBase
 
 
 public:
+    /// Check the document-handle example in to contain only
+    /// characters officially allowed by ArangoDB.
+    /// \return  a document-handle that contain only only allowed characters.
+    static std::string sanitization( const std::string& documentHandle );
+
 
     ///  Constructor
     explicit ArangoDBAPIBase( const ArangoDBConnection& connectData );
@@ -39,7 +44,7 @@ public:
         return batch_size;
     }
 
-    /// Test connection.
+     /// Test connection.
     void testConnection();
 
 protected:

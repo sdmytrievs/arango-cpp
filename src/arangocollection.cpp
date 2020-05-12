@@ -36,6 +36,44 @@ void ArangoDBAPIBase::resetDBConnection( const ArangoDBConnection& connectData )
 
 }
 
+/*
+ * The key must be a string value.
+ * Numeric keys are not allowed, but any numeric value can be put into a string and
+ *  can then be used as document key.
+ * The key must be at least 1 byte and at most 254 bytes long.
+ * Empty keys are disallowed when specified (though it may be valid to completely
+ *  omit the _key attribute from a document)
+ * It must consist of the letters a-z (lower or upper case), the digits 0-9 or
+ *  any of the following punctuation characters: "_-:.@()+,=;$!*'%"
+ * Any other characters, especially multi-byte UTF-8 sequences,
+ * whitespace or punctuation characters cannot be used inside key values
+ */
+
+const std::string  KeyPunctuationCharacters = "_-:.@()+,=;$!*'";
+
+std::string ArangoDBAPIBase::sanitization(const std::string &documentHandle)
+{
+    std::string legal_key, input_key = documentHandle;
+    bool first = true;
+
+    detail::trim(input_key);
+    for( const auto c: input_key )
+    {
+        if( isalnum(c) || ( KeyPunctuationCharacters.find(c) != std::string::npos ) )
+        {
+            first = true;
+            legal_key +=c;
+        }
+        else
+        {
+          if( first )
+           legal_key +='_';
+          first = false;
+        }
+    }
+    return legal_key.substr(0, 254);
+}
+
 
 std::unique_ptr<HttpMessage> ArangoDBAPIBase::createREQUEST(
         RestVerb verb, std::string const& path, StringMap const& parameter )
