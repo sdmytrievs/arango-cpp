@@ -36,7 +36,8 @@ DEPENDPATH   += $$JSONARANGO_HEADERS_DIR
 INCLUDEPATH   += $$JSONARANGO_DIR
 INCLUDEPATH   += $$JSONARANGO_HEADERS_DIR
 
-LIBS +=  -lcurl  -lvelocypack -ljsonarango
+#LIBS +=  -lcurl  -lvelocypack -ljsonarango
+LIBS +=  -lcurl  -lvelocypack
 
 OBJECTS_DIR   = obj
 
