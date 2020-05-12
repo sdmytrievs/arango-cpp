@@ -5,6 +5,7 @@
 
 #include "jsonarango/arangoquery.h"
 #include "jsonarango/arangoconnect.h"
+#include "jsonarango/arangocollection.h"
 
 namespace arangocpp {
   ArangoDBConnection connectFromSettings( const std::string& jsonstr, bool rootdata );
@@ -96,4 +97,11 @@ TEST(JSONARANGO, connectFromSettings )
   EXPECT_EQ( root_conect.user.name, "root");
   EXPECT_EQ( root_conect.user.password, "rootpswd");
   EXPECT_EQ( root_conect.user.access, "rw");
+}
+
+TEST(JSONARANGO, ArangoSanitizingKey )
+{
+   std::string illegal_key = "   test ü цемент № 7 -:.@()+,=;$!*'";
+   auto sanitized = ArangoDBAPIBase::sanitization(illegal_key);
+   EXPECT_EQ( sanitized, "test_7_-:.@()+,=;$!*'");
 }

@@ -36,6 +36,7 @@ DEPENDPATH   += $$JSONARANGO_HEADERS_DIR
 INCLUDEPATH   += $$JSONARANGO_DIR
 INCLUDEPATH   += $$JSONARANGO_HEADERS_DIR
 
+#LIBS +=  -lcurl  -lvelocypack -ljsonarango
 LIBS +=  -lcurl  -lvelocypack
 
 OBJECTS_DIR   = obj
@@ -44,11 +45,11 @@ include($$JSONARANGO_DIR/jsonarango.pri)
 
 SOURCES += \
 #       main.cpp
-#       examples/exampleCRUD.cpp
+       examples/exampleCRUD.cpp
 #       examples/exampleOptions.cpp
 #       examples/exampleSelection.cpp
 #       examples/exampleQuery.cpp
-       examples/time_test.cpp
+#       examples/time_test.cpp
 #       examples/exampleCollections.cpp
 #       examples/exampleRoot.cpp
 #       examples/exampleGraphCRUD.cpp

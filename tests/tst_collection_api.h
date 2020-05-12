@@ -258,3 +258,21 @@ TEST_P( CollectionCRUDTestF, testLoadList )
     // Load by keys list
     connect->lookupByKeys( collectionName, recKeys, setfnc );
 }
+
+TEST_P( CollectionCRUDTestF, testSanitizedKey )
+{
+    std::string documentHandle = collectionName+"/test_7_-:.@()+,$!*'";
+    std::string documentData = "{ \"_key\" : \"test_7_-:.@()+,$!*'\", "
+                               "  \"task\" : \"exampleCRUD\" }";
+    auto   connect = GetParam();
+
+    auto rkey = connect->createDocument( collectionName, documentData );
+    EXPECT_EQ(rkey, documentHandle );
+    EXPECT_TRUE( connect->existsDocument( collectionName, documentHandle));
+
+    std::string readDocumentData;
+    EXPECT_NO_THROW( connect->readDocument( collectionName, documentHandle,  readDocumentData) );
+
+    EXPECT_NO_THROW( connect->deleteDocument( collectionName, documentHandle ) );
+    EXPECT_FALSE( connect->existsDocument( collectionName, documentHandle));
+}
