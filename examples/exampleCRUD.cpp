@@ -9,7 +9,7 @@ int main(int, char* [])
 {
     std::string settingsFileName = "examples-cfg.json";
     std::string collectionName = "test";
-    std::string documentHandle = "test/eCRUD";
+    std::string documentHandle = "test/test;10";//"test/eCRUD";
 
     try{
         std::cout << "Start " << std::endl;
@@ -18,14 +18,26 @@ int main(int, char* [])
         // Create database connection
         arangocpp::ArangoDBCollectionAPI connect{data};
 
+
         // If document collection collectionName not exist it would be created
         connect.createCollection(collectionName, "vertex");
 
-        std::cout << "Document : " << documentHandle <<
-                     " exist " << connect.existsDocument(collectionName, documentHandle) <<  std::endl;
+        std::string documentHandle2 = "test/test_-:.@()+,=;$!*'_0.5_9";
+        std::cout << "Document : <" << documentHandle2 <<
+                     "> exist " << connect.existsDocument(collectionName, documentHandle2) <<  std::endl;
+        // Read document from database
+        std::string readDocumentData2;
+        connect.readDocument( collectionName, documentHandle2,  readDocumentData2);
+        std::cout << "Readed document : " << documentHandle2 <<
+                     "\n" << readDocumentData2 <<  std::endl;
+
+
+        std::cout << "Document : <" << documentHandle <<
+                     "> exist " << connect.existsDocument(collectionName, documentHandle) <<  std::endl;
 
         // Set data to document
-        std::string documentData = "{ \"_key\" : \"eCRUD\", "
+        //std::string documentData = "{ \"_key\" : \"eCRUD\", "
+        std::string documentData = "{ \"_key\" : \"test;10\", "
                                    "  \"task\" : \"exampleCRUD\", "
                                    "  \"properties\" : { \"level\": \"insert record\" } "
                                    "}";
