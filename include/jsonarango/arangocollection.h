@@ -125,7 +125,7 @@ public:
     // These functions implement the API for manipulating documents (CRUD)
 
     /// Create new record from a JSON representation of a single document.
-    /// Return a document-handle.
+    /// Return the document-handle.
     std::string createDocument( const std::string& collname, const std::string& jsonrec );
     /// Read record by rid to JSON representation of a single document.
     bool readDocument( const std::string& collname, const std::string& documentHandle, std::string& jsonrec );
