@@ -279,9 +279,9 @@ TEST_P( CollectionCRUDTestF, testSanitizedKey )
 
 TEST_P( CollectionCRUDTestF, testSanitizedKey2 )
 {
-    std::string documentHandle = collectionName+"/test;10";
-    std::string documentData = "{ \"_key\" : \"test;10\", "
-                               "  \"task\" : \"exampleCRUD\" }";
+    std::string documentHandle = collectionName+"/test_-:.@()+,=;$!*'_0.5_9";
+    std::string documentData = "{ \"_key\" : \"test_-:.@()+,=;$!*'_0.5_9\", "
+                               "  \"task\" : \"test symbols\" }";
     auto   connect = GetParam();
 
     auto rkey = connect->createDocument( collectionName, documentData );
