@@ -1,6 +1,8 @@
 #pragma once
 
 #include <set>
+#include <mutex>
+
 #include "jsonarango/arangorequests.h"
 #include "jsonarango/arangoconnect.h"
 #include "jsonarango/arangoquery.h"
@@ -58,6 +60,8 @@ protected:
 
     /// Curl requests data
     std::shared_ptr<RequestCurlObject> curl_object;
+    std::mutex curl_object_mutex;
+
 
     virtual std::unique_ptr<HttpMessage> createREQUEST( RestVerb verb, std::string const& path,
                                                         StringMap const& parameter = StringMap() );

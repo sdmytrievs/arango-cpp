@@ -11,6 +11,8 @@ std::unique_ptr<HttpMessage> ArangoDBUsersAPI::sendREQUEST(std::unique_ptr<HttpM
     //try{
     DEBUG_OUTPUT( "request", rq )
             auto url = connect_data.serverUrl+rq->header.path;
+
+    std::lock_guard<std::mutex> lck (curl_object_mutex);
     //RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
     //auto result = mco.getResponse();
     curl_object->sendRequest(url, std::move(rq));
