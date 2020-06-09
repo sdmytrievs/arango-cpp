@@ -18,11 +18,12 @@ int main(int, char* [])
         // Create database connection
         arangocpp::ArangoDBCollectionAPI connect{data};
 
+
         // If document collection collectionName not exist it would be created
         connect.createCollection(collectionName, "vertex");
 
-        std::cout << "Document : " << documentHandle <<
-                     " exist " << connect.existsDocument(collectionName, documentHandle) <<  std::endl;
+        std::cout << "Document : <" << documentHandle <<
+                     "> exist " << connect.existsDocument(collectionName, documentHandle) <<  std::endl;
 
         // Set data to document
         std::string documentData = "{ \"_key\" : \"eCRUD\", "

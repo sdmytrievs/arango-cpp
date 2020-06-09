@@ -10,9 +10,11 @@ namespace arangocpp {
 
 ArangoDBAPIBase::ArangoDBAPIBase(const ArangoDBConnection &connectData)
 {
-    curl_object = std::make_shared<RequestCurlObject>();
-    curl_object->setConnectData( connect_data.user.name, connect_data.user.password );
-
+    {
+        std::lock_guard<std::mutex> lck (curl_object_mutex);
+        curl_object = std::make_shared<RequestCurlObject>();
+        curl_object->setConnectData( connect_data.user.name, connect_data.user.password );
+    }
     dump_options.unsupportedTypeBehavior = ::arangodb::velocypack::Options::NullifyUnsupportedType;
     parse_options.validateUtf8Strings = true;
     resetDBConnection(connectData);
@@ -24,15 +26,17 @@ void ArangoDBAPIBase::resetDBConnection( const ArangoDBConnection& connectData )
         return;
 
     connect_data = connectData;
-    curl_object->setConnectData( connect_data.user.name, connect_data.user.password );
-
+    {
+        std::lock_guard<std::mutex> lck (curl_object_mutex);
+        curl_object->setConnectData( connect_data.user.name, connect_data.user.password );
+    }
     try{
         testConnection();
     }
     catch(std::exception& e)
     {
         std::cout <<  "std::exception" << e.what();
-  }
+    }
 
 }
 
@@ -90,9 +94,12 @@ std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendREQUEST(std::unique_ptr<HttpMe
     //try{
     DEBUG_OUTPUT( "request", rq )
             auto url = connect_data.fullURL(rq->header.path);
+
+    std::lock_guard<std::mutex> lck (curl_object_mutex);
     //RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
     curl_object->sendRequest(url, std::move(rq));
     auto result = curl_object->getResponse();
+
     DEBUG_OUTPUT( "result", result )
     if( !result->isContentTypeVPack() )
             ARANGO_THROW( "ArangoDBAPIBase", 3, "Illegal content type" );
