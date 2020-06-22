@@ -17,6 +17,6 @@ if(BUILD_EXAMPLES)
 
     foreach (exampleName ${Examples})
         add_executable(${exampleName} ${exampleName}.cpp)
-        target_link_libraries(${exampleName} jsonarango velocypack curl )
+        target_link_libraries(${exampleName} jsonarango velocypack curl pthread )
     endforeach()
 endif()

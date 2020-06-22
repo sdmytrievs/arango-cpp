@@ -22,7 +22,7 @@ endif()
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/src)
 
 add_executable(test_main  main.cpp )
-target_link_libraries(test_main gtest jsonarango velocypack curl ${CMAKE_THREAD_LIBS_INIT} )
+target_link_libraries(test_main gtest jsonarango velocypack curl pthread ${CMAKE_THREAD_LIBS_INIT} )
 target_include_directories(test_main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src )
 
 add_test(NAME test_main COMMAND test_main)
