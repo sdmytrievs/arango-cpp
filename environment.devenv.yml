@@ -1,0 +1,20 @@
+name: jsonarango
+
+dependencies:
+  - gxx_linux-64=7.3.0  # [linux]
+  - cmake>=3.13
+  - ninja # [unix]
+  - make  # [win]
+  - git
+  - ccache  # [unix]
+  - curl
+  - nlohmann_json
+  - velocypack
+
+environment:
+
+  LD_LIBRARY_PATH:                                                   # [unix]
+    - {{ root }}/artifacts/lib                                       # [unix]
+
+  PATH:                                                              # [win]
+    - {{ root }}\artifacts\bin                                       # [win]

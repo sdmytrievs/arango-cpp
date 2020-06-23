@@ -1,37 +1,27 @@
 # Require a certain version of cmake
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.7)
 
 # Set the name of the project
 project(jsonarango)
 
-# Set the cmake module path of the project
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 #set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MACOSX_RPATH ON)
 
-# Ensure proper configuration if in a conda environment
-include(CondaAware)
-
-if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-find_library(CURL_LIB libcurl)
-else()
-find_library(CURL_LIB curl)
-endif()
-if(NOT CURL_LIB)
-  message(FATAL_ERROR "curl library not found")
-endif()
-
-find_library(VELOCYPACK_LIB velocypack)
-if(NOT VELOCYPACK_LIB)
-  message(FATAL_ERROR "velocypack library not found")
-endif()
 
 # Define variables with the GNU standard installation directories
 include(GNUInstallDirs)
 
+# Set the cmake module path of the project
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+
+# Use ccache to speed up repeated compilations
+include(CCache)
+
+# Ensure proper configuration if in a conda environment
+include(CondaAware)
 
 # Set the default build type to Release
 if(NOT CMAKE_BUILD_TYPE)
@@ -57,21 +47,21 @@ endif()
 # Set libraries to be compiled with position independent code mode (i.e., fPIC option in GNU compilers)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++14)
 
 # Set the list of compiler flags for GNU compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-    add_compile_options(-std=c++11 -Wall -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
+    add_compile_options(-std=c++14 -Wall -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
 endif()
 
 # Set the list of compiler flags for Clang compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    add_compile_options(-std=c++11 -Wall -Wno-ignored-attributes -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
+    add_compile_options(-std=c++14 -Wall -Wno-ignored-attributes -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
 endif()
 
 # Set the list of compiler flags for Intel compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Intel")
-    add_compile_options(-std=c++11 -Wall -Wno-variadic-macros -Wno-deprecated)
+    add_compile_options(-std=c++14 -Wall -Wno-variadic-macros -Wno-deprecated)
 endif()
 
 # Set the list of compiler flags for MSVC compiler
@@ -99,6 +89,9 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     include_directories("/usr/local/include")
     link_directories("/usr/local/lib")
 endif()
+
+# Find all GEMS3K dependencies
+include(JsonArangoFindDeps)
 
 # Build jsonio library
 add_subdirectory(src)

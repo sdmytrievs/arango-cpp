@@ -22,7 +22,12 @@ endif()
 LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/src)
 
 add_executable(test_main  main.cpp )
-target_link_libraries(test_main gtest jsonarango velocypack curl ${CMAKE_THREAD_LIBS_INIT} )
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+  target_link_libraries(test_main gtest jsonarango-static velocypack curl pthread ${CMAKE_THREAD_LIBS_INIT} )
+else()
+  target_link_libraries(test_main gtest jsonarango velocypack curl pthread ${CMAKE_THREAD_LIBS_INIT} )
+endif()
+
 target_include_directories(test_main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src )
 
 add_test(NAME test_main COMMAND test_main)
