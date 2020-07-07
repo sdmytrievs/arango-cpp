@@ -88,14 +88,14 @@ protected:
         return rkey;
     }
 
-    /// Copy constructor
-    ArangoDBAPIBase( const ArangoDBAPIBase& data) = default;
-    /// Move constructor
-    ArangoDBAPIBase( ArangoDBAPIBase&& data) = default;
-    /// Copy assignment
-    ArangoDBAPIBase &operator =( const ArangoDBAPIBase &other) = default;
-    /// Move assignment
-    ArangoDBAPIBase &operator =( ArangoDBAPIBase &&other)= default;
+//    /// Copy constructor
+//    ArangoDBAPIBase( const ArangoDBAPIBase& data) = default;
+//    /// Move constructor
+//    ArangoDBAPIBase( ArangoDBAPIBase&& data) = default;
+//    /// Copy assignment
+//    ArangoDBAPIBase &operator =( const ArangoDBAPIBase &other) = default;
+//    /// Move assignment
+//    ArangoDBAPIBase &operator =( ArangoDBAPIBase &&other)= default;
 
 };
 
