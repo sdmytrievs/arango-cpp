@@ -42,7 +42,7 @@ option(BULID_REMOTE_TESTS "Build test suite for remote ArangoDB" ON)
 # Currently is not setup to produce a dynamic library using MSVC, only static
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     set(BUILD_SHARED_LIBS OFF)
-    SET(gtest_force_shared_crt ON)
+    #SET(gtest_force_shared_crt ON)
     #set(BULID_LOCAL_TESTS  OFF)
     #set(BULID_REMOTE_TESTS  OFF)
 endif()
