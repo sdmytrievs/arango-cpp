@@ -23,7 +23,7 @@ LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/src)
 
 add_executable(test_main  main.cpp )
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-  target_link_libraries(test_main gtest-md jsonarango-static velocypack libcurl ${CMAKE_THREAD_LIBS_INIT} )
+  target_link_libraries(test_main gtest jsonarango-static velocypack libcurl ${CMAKE_THREAD_LIBS_INIT} )
 else()
   target_link_libraries(test_main gtest jsonarango velocypack curl pthread ${CMAKE_THREAD_LIBS_INIT} )
 endif()
