@@ -1,6 +1,11 @@
 message(STATUS "Build test suite for local ArangoDB: ${BULID_LOCAL_TESTS}")
 message(STATUS "Build test suite for remote ArangoDB: ${BULID_REMOTE_TESTS}")
 
+#https://stackoverflow.com/questions/12540970/how-to-make-gtest-build-mdd-instead-of-mtd-by-default-using-cmake
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+endif()
+
 include(CTest)
 enable_testing()
 find_package(Threads)
@@ -23,7 +28,7 @@ LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/src)
 
 add_executable(test_main  main.cpp )
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-  target_link_libraries(test_main gtest jsonarango-static velocypack libcurl ${CMAKE_THREAD_LIBS_INIT} )
+  target_link_libraries(test_main gtest_main jsonarango-static velocypack libcurl ${CMAKE_THREAD_LIBS_INIT} )
 else()
   target_link_libraries(test_main gtest jsonarango velocypack curl pthread ${CMAKE_THREAD_LIBS_INIT} )
 endif()
