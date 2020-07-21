@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += thread console c++14
+CONFIG += thread console
 CONFIG -= app_bundle
 CONFIG -= qt
 
@@ -15,9 +15,14 @@ macx-g++ {
 
 macx-clang {
   DEFINES += __APPLE__
+  CONFIG += c++17
   INCLUDEPATH   += "/usr/local/include"
   DEPENDPATH   += "/usr/local/include"
   LIBPATH += "/usr/local/lib/"
+}
+else
+{
+  CONFIG += c++14
 }
 
 win32 {

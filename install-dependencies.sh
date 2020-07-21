@@ -8,16 +8,19 @@ if [ "$(uname)" == "Darwin" ]; then
     brew upgrade
     brew install cmake
     #brew install arangodb
+    CXXSTANDARD=17
     
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 
     #Needs gcc v.5 or higher and ArangoDB server locally installed
     sudo apt-get update
     sudo apt-get install -y libcurl4-openssl-dev
+    CXXSTANDARD=11
+
 fi
 
 # Uncomment what is necessary to reinstall by force 
-#sudo rm -f /usr/local/lib/libvelocypack.a
+sudo rm -f /usr/local/lib/libvelocypack.a
 
 threads=3
 
@@ -32,7 +35,7 @@ test -f /usr/local/lib/libvelocypack.a || {
 		cd velocypack && \
 		mkdir -p build && \
 		cd build && \
-		cmake .. -DCMAKE_CXX_FLAGS=-fPIC -DBuildVelocyPackExamples=OFF && \
+                cmake .. -DCMAKE_CXX_FLAGS=-fPIC -DBuildVelocyPackExamples=OFF -DCMAKE_CXX_STANDARD=$CXXSTANDARD && \
 		make -j $threads && \
 		sudo make install
 
@@ -41,6 +44,6 @@ test -f /usr/local/lib/libvelocypack.a || {
 		 rm -rf ~/code
 }
 
-if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+if [ `uname -s` == Linux* ]; then
    sudo ldconfig
 fi
