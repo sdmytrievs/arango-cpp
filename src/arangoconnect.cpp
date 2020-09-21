@@ -100,11 +100,15 @@ ArangoDBConnection rootClientFromConfig( const std::string& cfgfile )
 
 // ArangoDBRootClient ------------------------------------------
 
-
 void ArangoDBRootClient::resetDBConnection( const ArangoDBConnection& aconnectData )
 {
     rootData = aconnectData;
     pusers.reset( new ArangoDBUsersAPI(rootData) ); /// here must be root data
+}
+
+bool ArangoDBRootClient::existDatabase(const std::string &dbname )
+{
+   return pusers->existDatabase( dbname );
 }
 
 std::set<std::string> ArangoDBRootClient::databaseNames()

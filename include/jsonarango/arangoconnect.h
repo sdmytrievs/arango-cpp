@@ -127,6 +127,9 @@ public:
     /// \param users: Login Names of the users to be accessed.
     void createDatabase( const std::string& dbname, const std::vector<ArangoDBUser>&  users = {} );
 
+    /// Test exist database
+    bool existDatabase( const std::string& dbname );
+
     // Users API
 
     /// Create user
