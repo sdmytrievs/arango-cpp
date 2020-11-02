@@ -485,7 +485,11 @@ ArangoDBQuery ArangoDBCollectionAPI::queryEdgesToFrom( ArangoDBQuery::QueryType 
     if( edgeCollections.empty() )
     {
         auto edgesexist = collectionNames( CollectionTypes::Edge );
-        auto edges = detail::getSubset( ArangoDBConnection::full_list_of_edges, edgesexist );
+        std::vector<std::string> edges;
+        if( ArangoDBConnection::full_list_of_edges.empty()  )
+            edges.insert(edges.begin(), edgesexist.begin(), edgesexist.end());
+        else
+            edges = detail::getSubset( ArangoDBConnection::full_list_of_edges, edgesexist );
         for( auto edgecoll: edges)
         {
             if( !edgeCollections.empty())
@@ -493,7 +497,6 @@ ArangoDBQuery ArangoDBCollectionAPI::queryEdgesToFrom( ArangoDBQuery::QueryType 
             edgeCollections += edgecoll;
         }
     }
-
     std::string AQLquery = "FOR v,e IN 1..1 ";
     switch( atype )
     {

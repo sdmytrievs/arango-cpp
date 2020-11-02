@@ -227,3 +227,55 @@ TEST_P(CollectionQueriesTestF, testQueryOptions )
       EXPECT_TRUE( data->slice().get("name").toString() == "a" );
     }
 }
+
+TEST_P(CollectionQueriesTestF, testSelectInOutEdges )
+{
+    auto   connect = GetParam();
+
+    std::string edge_name = "edge_query_API";
+    std::vector<std::string> edge_keys;
+    connect->createCollection(edge_name, "edge");
+    // Insert documents to database
+    for( size_t ii=0; ii<doc_keys.size()-1; ii++ )
+    {
+        ::arangodb::velocypack::Builder builder;
+        builder.openObject();
+        builder.add("_to" , ::arangodb::velocypack::Value(  doc_keys[ii] ) );
+        builder.add("_from" , ::arangodb::velocypack::Value(  doc_keys[ii+1] ) );
+        builder.add("property" , ::arangodb::velocypack::Value(  ii ) );
+        builder.close();
+
+        auto rkey = connect->createDocument( edge_name, builder.toJson() );
+        edge_keys.push_back(rkey);
+    }
+
+    std::string queryJson = "{ \"startVertex\": \""
+            + doc_keys[1]  + "\", \"edgeCollections\": \"\" }";
+
+    arangocpp::ArangoDBQuery    query_to( queryJson, arangocpp::ArangoDBQuery::EdgesTo );
+    auto edge_to_values = connect->selectQuery( edge_name, query_to );
+    EXPECT_EQ( edge_to_values.size(), 1 );
+    auto data = ::arangodb::velocypack::Parser::fromJson( edge_to_values[0] );
+    EXPECT_TRUE( data->slice().get("property").toString()  == "1" );
+
+    arangocpp::ArangoDBQuery    query_from( queryJson, arangocpp::ArangoDBQuery::EdgesFrom );
+    edge_to_values = connect->selectQuery( edge_name, query_from );
+    EXPECT_EQ( edge_to_values.size(), 1 );
+    data = ::arangodb::velocypack::Parser::fromJson( edge_to_values[0] );
+    EXPECT_TRUE( data->slice().get("property").toString()  == "0" );
+
+    arangocpp::ArangoDBQuery    query_all( queryJson, arangocpp::ArangoDBQuery::EdgesAll );
+    edge_to_values = connect->selectQuery( edge_name, query_all );
+    EXPECT_EQ( edge_to_values.size(), 2 );
+    data = ::arangodb::velocypack::Parser::fromJson( edge_to_values[0] );
+    EXPECT_TRUE( data->slice().get("property").toString()  == "0" ||
+                 data->slice().get("property").toString()  == "1" );
+
+
+    ArangoDBConnection::full_list_of_edges = {edge_name};
+    ArangoDBQuery qr_to = connect->queryEdgesToFrom( arangocpp::ArangoDBQuery::EdgesAll, doc_keys[1], "" );
+    EXPECT_EQ( qr_to.queryString(), "FOR v,e IN 1..1 ANY '"+doc_keys[1]+"' \nedge_query_API\nRETURN DISTINCT e " );
+
+    EXPECT_NO_THROW( connect->removeByKeys( edge_name, edge_keys ) );
+    connect->dropCollection(edge_name);
+}
