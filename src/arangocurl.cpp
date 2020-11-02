@@ -1,11 +1,28 @@
 #include <iostream>
 #include "jsonarango/arangoconnect.h"
 #include "jsonarango/arangoexception.h"
-#include "jsonarango/arangocurl.h"
+//#include "jsonarango/arangocurl.h"
 #include "arangodetail.h"
+#include "curlobjects_pool.h"
 
 namespace arangocpp {
 
+CurlPool& pool_connect()
+{
+    static  CurlPool data;
+    return  data;
+}
+
+CurlPool::CurlPool()
+{
+    curl_global_init(CURL_GLOBAL_ALL);
+}
+
+
+CurlPool::~CurlPool()
+{
+    curl_global_cleanup();
+}
 
 size_t RequestCurlObject::headerCallback(
         char* data, size_t size, size_t nitems, std::string *buffer)

@@ -11,9 +11,11 @@ namespace arangocpp {
 
 class RequestCurlObject {
 
+
 public:
 
     RequestCurlObject();
+
 
     ~RequestCurlObject()
     {

@@ -59,8 +59,8 @@ protected:
     ::arangodb::velocypack::Options parse_options;
 
     /// Curl requests data
-    std::shared_ptr<RequestCurlObject> curl_object;
-    std::mutex curl_object_mutex;
+    //std::shared_ptr<RequestCurlObject> curl_object;
+    //std::mutex curl_object_mutex;
 
 
     virtual std::unique_ptr<HttpMessage> createREQUEST( RestVerb verb, std::string const& path,

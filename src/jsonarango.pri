@@ -8,7 +8,8 @@ HEADERS += \
     $$JSONARANGO_HEADERS_DIR/jsonarango/arangocollection.h \
     $$JSONARANGO_HEADERS_DIR/jsonarango/arangodbusers.h \
     $$JSONARANGO_HEADERS_DIR/jsonarango/arangograph.h \
-    $$JSONARANGO_HEADERS_DIR/jsonarango/arangocurl.h
+    $$JSONARANGO_HEADERS_DIR/jsonarango/arangocurl.h \
+    $$PWD/curlobjects_pool.h
 
 HEADERS += \
     $$JSONARANGO_DIR/arangodetail.h
