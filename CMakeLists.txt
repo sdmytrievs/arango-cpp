@@ -6,7 +6,7 @@ project(jsonarango)
 
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_STANDARD 14)
+#set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MACOSX_RPATH ON)
 
@@ -56,7 +56,7 @@ endif()
 
 # Set the list of compiler flags for Clang compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    add_compile_options(-std=c++14 -Wall -Wno-ignored-attributes -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
+    add_compile_options(-std=c++1z -Wall -Wno-ignored-attributes -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
 endif()
 
 # Set the list of compiler flags for Intel compiler
@@ -86,6 +86,11 @@ set(JSONARANGO_HEADER_DIR ${CMAKE_SOURCE_DIR}/include)
 include_directories(${JSONARANGO_SOURCE_DIR})
 include_directories(${JSONARANGO_HEADER_DIR})
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+   set(gtest_SOURCE_DIR1 ${CMAKE_SOURCE_DIR}/tests/googletest/googletest)
+   set(gtest_build_include_dirs1
+  "${gtest_SOURCE_DIR1}/include"
+  "${gtest_SOURCE_DIR1}")
+   #include_directories(${gtest_build_include_dirs1})
     include_directories("/usr/local/include")
     link_directories("/usr/local/lib")
 endif()
