@@ -177,7 +177,6 @@ RequestCurlObject::RequestCurlObject():
     curl_easy_setopt(_curl, CURLOPT_HEADERFUNCTION, &RequestCurlObject::headerCallback);
     curl_easy_setopt(_curl, CURLOPT_HEADERDATA, &_responseHeaders);
 
-
 #ifndef __unix  // Windows
     //curl_easy_setopt(_curl, CURLOPT_VERBOSE, 1L);
     curl_easy_setopt(_curl, CURLOPT_SSL_VERIFYPEER,false);
