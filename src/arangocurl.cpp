@@ -1,7 +1,6 @@
 #include <iostream>
 #include "jsonarango/arangoconnect.h"
 #include "jsonarango/arangoexception.h"
-//#include "jsonarango/arangocurl.h"
 #include "arangodetail.h"
 #include "curlobjects_pool.h"
 
