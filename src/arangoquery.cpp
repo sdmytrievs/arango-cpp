@@ -42,7 +42,7 @@ std::string ArangoDBQuery::generateRETURN( bool isDistinct, const QueryFields& m
         {
             if( !fldslst.empty() )
                 fldslst += ", ";
-            fldslst += " \"" + fld.first + "\" : " + collvalue + "." + fld.second;
+            fldslst += " \"" + fld.second + "\" : " + collvalue + "." + fld.first;
         }
         retdata += fldslst+ " } ";
     }
