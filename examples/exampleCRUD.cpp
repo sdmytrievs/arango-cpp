@@ -4,7 +4,7 @@
 #include "jsonarango/arangocollection.h"
 #include "jsonarango/arangoexception.h"
 #include <velocypack/Collection.h>
-#include "jsonarango/arangocurl.h"
+#include "arangocurl.h"
 
 int main(int, char* [])
 {
