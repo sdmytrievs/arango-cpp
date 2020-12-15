@@ -1,8 +1,6 @@
 #pragma once
 
 #include <set>
-#include <mutex>
-
 #include "jsonarango/arangorequests.h"
 #include "jsonarango/arangoconnect.h"
 #include "jsonarango/arangoquery.h"
@@ -58,11 +56,6 @@ protected:
     ::arangodb::velocypack::Options dump_options;
     ::arangodb::velocypack::Options parse_options;
 
-    /// Curl requests data
-    std::shared_ptr<RequestCurlObject> curl_object;
-    std::mutex curl_object_mutex;
-
-
     virtual std::unique_ptr<HttpMessage> createREQUEST( RestVerb verb, std::string const& path,
                                                         StringMap const& parameter = StringMap() );
     virtual std::unique_ptr<HttpMessage> sendREQUEST( std::unique_ptr<HttpMessage> rq );
@@ -87,15 +80,6 @@ protected:
             rkey = rkey.substr( head.length() );
         return rkey;
     }
-
-//    /// Copy constructor
-//    ArangoDBAPIBase( const ArangoDBAPIBase& data) = default;
-//    /// Move constructor
-//    ArangoDBAPIBase( ArangoDBAPIBase&& data) = default;
-//    /// Copy assignment
-//    ArangoDBAPIBase &operator =( const ArangoDBAPIBase &other) = default;
-//    /// Move assignment
-//    ArangoDBAPIBase &operator =( ArangoDBAPIBase &&other)= default;
 
 };
 

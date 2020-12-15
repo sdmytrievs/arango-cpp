@@ -84,6 +84,15 @@ To Do
 >> more detail implement and test graph commands   https://www.arangodb.com/docs/stable/aql/graphs.html
 
 
-
-
 // https://stackoverflow.com/questions/87610/automated-integration-testing-a-c-app-with-a-database
+
+#### Some good examples in curl
+
+https://curl.haxx.se/libcurl/c/10-at-a-time.html
+https://pocoproject.org/download.html
+https://stackoverflow.com/questions/44885935/libcurl-use-1-connection-for-multiple-concurrent-requests
+https://curl.haxx.se/libcurl/c/http2-download.html
+https://curl.haxx.se/libcurl/c/http2-upload.html
+https://habr.com/ru/post/349818/
+
+

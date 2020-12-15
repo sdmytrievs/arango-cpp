@@ -20,13 +20,13 @@ TEST(JSONARANGO, TestGenerateRETURN)
     EXPECT_EQ( ArangoDBQuery::generateRETURN( false, {}, "u"), "\nRETURN u ");
 
     QueryFields qfields = {
-        { "one", "foo.baz[3].boo"},
-        { "two", "bar"},  };
+        { "foo.baz[3].boo", "one" },
+        { "bar", "two" },  };
 
     EXPECT_EQ( ArangoDBQuery::generateRETURN( true, qfields, "u"),
-               "\nRETURN DISTINCT  {  \"one\" : u.foo.baz[3].boo,  \"two\" : u.bar } ");
+               "\nRETURN DISTINCT  {  \"two\" : u.bar,  \"one\" : u.foo.baz[3].boo } ");
     EXPECT_EQ( ArangoDBQuery::generateRETURN( false, qfields, "u"),
-               "\nRETURN  {  \"one\" : u.foo.baz[3].boo,  \"two\" : u.bar } ");
+               "\nRETURN  {  \"two\" : u.bar,  \"one\" : u.foo.baz[3].boo } ");
 }
 
 TEST(JSONARANGO, TestGenerateFILTER)

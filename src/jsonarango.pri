@@ -7,11 +7,12 @@ HEADERS += \
     $$JSONARANGO_HEADERS_DIR/jsonarango/arangorequests.h \
     $$JSONARANGO_HEADERS_DIR/jsonarango/arangocollection.h \
     $$JSONARANGO_HEADERS_DIR/jsonarango/arangodbusers.h \
-    $$JSONARANGO_HEADERS_DIR/jsonarango/arangograph.h \
-    $$JSONARANGO_HEADERS_DIR/jsonarango/arangocurl.h
+    $$JSONARANGO_HEADERS_DIR/jsonarango/arangograph.h
 
 HEADERS += \
-    $$JSONARANGO_DIR/arangodetail.h
+    $$JSONARANGO_DIR/arangodetail.h \
+    $$JSONARANGO_DIR/arangocurl.h \
+    $$JSONARANGO_DIR/curlobjects_pool.h
 
 
 SOURCES += \

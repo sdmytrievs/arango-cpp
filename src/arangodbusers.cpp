@@ -1,7 +1,6 @@
 #include "jsonarango/arangodbusers.h"
 #include "jsonarango/arangoexception.h"
-#include "jsonarango/arangocurl.h"
-
+#include "curlobjects_pool.h"
 
 namespace arangocpp {
 
@@ -12,11 +11,12 @@ std::unique_ptr<HttpMessage> ArangoDBUsersAPI::sendREQUEST(std::unique_ptr<HttpM
     DEBUG_OUTPUT( "request", rq )
             auto url = connect_data.serverUrl+rq->header.path;
 
-    std::lock_guard<std::mutex> lck (curl_object_mutex);
-    //RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
-    //auto result = mco.getResponse();
-    curl_object->sendRequest(url, std::move(rq));
+    auto curl_object = pool_connect().get_resource();
+    curl_object->setConnectData( connect_data.user.name, connect_data.user.password );
+    curl_object->sendRequest( url, std::move(rq) );
     auto result = curl_object->getResponse();
+    pool_connect().return_resource( std::move(curl_object) );
+
     DEBUG_OUTPUT( "result", result )
             if( !result->isContentTypeVPack() )
             ARANGO_THROW( "ArangoDBUsersAPI", 42, "Illegal content type" );

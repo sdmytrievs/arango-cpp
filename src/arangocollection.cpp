@@ -1,8 +1,8 @@
 #include <iostream>
 #include "jsonarango/arangocollection.h"
 #include "jsonarango/arangoexception.h"
-#include "jsonarango/arangocurl.h"
 #include "arangodetail.h"
+#include "curlobjects_pool.h"
 
 
 namespace arangocpp {
@@ -10,11 +10,6 @@ namespace arangocpp {
 
 ArangoDBAPIBase::ArangoDBAPIBase(const ArangoDBConnection &connectData)
 {
-    {
-        std::lock_guard<std::mutex> lck (curl_object_mutex);
-        curl_object = std::make_shared<RequestCurlObject>();
-        curl_object->setConnectData( connect_data.user.name, connect_data.user.password );
-    }
     dump_options.unsupportedTypeBehavior = ::arangodb::velocypack::Options::NullifyUnsupportedType;
     parse_options.validateUtf8Strings = true;
     resetDBConnection(connectData);
@@ -26,10 +21,6 @@ void ArangoDBAPIBase::resetDBConnection( const ArangoDBConnection& connectData )
         return;
 
     connect_data = connectData;
-    {
-        std::lock_guard<std::mutex> lck (curl_object_mutex);
-        curl_object->setConnectData( connect_data.user.name, connect_data.user.password );
-    }
     try{
         testConnection();
     }
@@ -95,10 +86,11 @@ std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendREQUEST(std::unique_ptr<HttpMe
     DEBUG_OUTPUT( "request", rq )
             auto url = connect_data.fullURL(rq->header.path);
 
-    std::lock_guard<std::mutex> lck (curl_object_mutex);
-    //RequestCurlObject mco( url, connect_data.user.name, connect_data.user.password, std::move(rq) );
-    curl_object->sendRequest(url, std::move(rq));
+    auto curl_object = pool_connect().get_resource();
+    curl_object->setConnectData( connect_data.user.name, connect_data.user.password );
+    curl_object->sendRequest( url, std::move(rq) );
     auto result = curl_object->getResponse();
+    pool_connect().return_resource( std::move(curl_object) );
 
     DEBUG_OUTPUT( "result", result )
     if( !result->isContentTypeVPack() )

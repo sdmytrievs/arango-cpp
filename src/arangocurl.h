@@ -9,7 +9,9 @@
 
 namespace arangocpp {
 
-class RequestCurlObject {
+/// Streaming Requests with Libcurl in C++
+class RequestCurlObject
+{
 
 public:
 
