@@ -113,7 +113,7 @@ void ArangoDBAPIBase::testConnection()
     auto slice = result->slices().front();
     auto version = slice.get("version").copyString();
     auto server = slice.get("server").copyString();
-    std::cout << "You are connected to: " << server << " " << version << std::endl;
+    // std::cout << "You are connected to: " << server << " " << version << std::endl;
 }
 
 
