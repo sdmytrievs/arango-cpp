@@ -38,7 +38,7 @@ std::string ArangoDBQuery::generateRETURN( bool isDistinct, const QueryFields& m
     {
         retdata += " { ";
         std::string fldslst{""};
-        for( auto fld: mapFields )
+        for( const auto& fld: mapFields )
         {
             if( !fldslst.empty() )
                 fldslst += ", ";
@@ -58,7 +58,7 @@ std::string ArangoDBQuery::generateFILTER(const FieldValueMap &fldvalues, bool a
 
     if( asTemplate )
     {
-        for(auto& ent : fldvalues)
+        for( const auto& ent : fldvalues)
         {
             if( !generated.empty() )
                 generated += ", ";
@@ -67,7 +67,7 @@ std::string ArangoDBQuery::generateFILTER(const FieldValueMap &fldvalues, bool a
     }
     else
     {
-        for(auto& ent : fldvalues)
+        for( const auto& ent : fldvalues)
         {
             if( !generated.empty() )
                 generated += " && ";
