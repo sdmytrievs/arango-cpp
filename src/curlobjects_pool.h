@@ -33,7 +33,7 @@ public:
     {
         if( pool_.empty() )
         {
-            std::cout << "Add Streaming Requests object " << std::endl;
+      //      std::cout << "Add Streaming Requests object " << std::endl;
             pool_.push(std::make_unique<RequestCurlObject>());
         }
         ptr_type tmp(pool_.top().release());
