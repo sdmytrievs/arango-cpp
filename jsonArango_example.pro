@@ -26,6 +26,8 @@ else
 }
 
 win32 {
+  #CONFIG += staticlib
+  #QMAKE_CXXFLAGS_DEBUG += -MTd
   INCLUDEPATH   += "C:\usr\local\include"
   DEPENDPATH   += "C:\usr\local\include"
   LIBPATH += "C:\usr\local\lib"
@@ -41,8 +43,10 @@ DEPENDPATH   += $$JSONARANGO_HEADERS_DIR
 INCLUDEPATH   += $$JSONARANGO_DIR
 INCLUDEPATH   += $$JSONARANGO_HEADERS_DIR
 
-#LIBS +=  -lcurl  -lvelocypack -ljsonarango
-LIBS +=  -lcurl  -lvelocypack
+LIBS +=   -lvelocypack
+win32:LIBS +=   -llibcurl
+!win32:LIBS +=   -lcurl
+
 
 OBJECTS_DIR   = obj
 
@@ -62,3 +66,4 @@ SOURCES += \
 DISTFILES += \
     Resources/docs/ArangoDB.md \
     Resources/docs/source.md
+

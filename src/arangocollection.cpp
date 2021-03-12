@@ -1,4 +1,5 @@
 #include <iostream>
+#include <locale>
 #include "jsonarango/arangocollection.h"
 #include "jsonarango/arangoexception.h"
 #include "arangodetail.h"
@@ -54,7 +55,8 @@ std::string ArangoDBAPIBase::sanitization(const std::string &documentHandle)
     detail::trim(input_key);
     for( const auto c: input_key )
     {
-        if( isalnum(c) || ( KeyPunctuationCharacters.find(c) != std::string::npos ) )
+        if( std::isalnum(c, std::locale()) ||
+            ( KeyPunctuationCharacters.find(c) != std::string::npos ) )
         {
             first = true;
             legal_key +=c;

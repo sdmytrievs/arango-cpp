@@ -3,10 +3,10 @@ CONFIG += thread console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-DEFINES += TestLocalServer
 DEFINES += TestRemoteServer
 
 !win32 {
+  DEFINES += TestLocalServer
   DEFINES += __unix
 }
 
@@ -28,6 +28,8 @@ else
 
 
 win32 {
+  #CONFIG += staticlib
+  #QMAKE_CXXFLAGS_DEBUG += -MTd
   INCLUDEPATH   += "C:\usr\local\include"
   DEPENDPATH   += "C:\usr\local\include"
   LIBPATH += "C:\usr\local\lib"
@@ -46,7 +48,9 @@ INCLUDEPATH   += $$JSONARANGO_DIR
 INCLUDEPATH   += $$JSONARANGO_HEADERS_DIR
 INCLUDEPATH   += $$TESTS_DIR
 
-LIBS +=  -lcurl  -lvelocypack
+LIBS +=   -lvelocypack
+win32:LIBS +=   -llibcurl
+!win32:LIBS +=   -lcurl
 
 OBJECTS_DIR   = obj
 
