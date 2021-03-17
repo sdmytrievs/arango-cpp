@@ -9,7 +9,6 @@ endif()
 include(CTest)
 enable_testing()
 find_package(Threads)
-set(INSTALL_GTEST OFF)
 add_subdirectory(googletest REQUIRED)
 
 # -------------------------------------
