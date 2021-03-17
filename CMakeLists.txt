@@ -47,8 +47,6 @@ endif()
 # Set libraries to be compiled with position independent code mode (i.e., fPIC option in GNU compilers)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-add_compile_options(-std=c++14)
-
 # Set the list of compiler flags for GNU compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
     add_compile_options(-std=c++14 -Wall -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)

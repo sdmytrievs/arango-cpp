@@ -12,6 +12,7 @@ set VCVARSALLPATH="%PROGFILES%\Microsoft Visual Studio\2017\Community\VC\Auxilia
 if exist %MSVCDIR% (
   if exist %VCVARSALLPATH% (
    	set COMPILER_VER="2017"
+        set COMPILER_VER_NAME="Visual Studio 15 2017"
         echo Using Visual Studio 2017 Community
 	goto setup_env
   )
@@ -23,6 +24,7 @@ set VCVARSALLPATH="%PROGFILES%\Microsoft Visual Studio\2019\Community\VC\Auxilia
 if exist %MSVCDIR% (
   if exist %VCVARSALLPATH% (
    	set COMPILER_VER="2019"
+        set COMPILER_VER_NAME="Visual Studio 16 2019"
         echo Using Visual Studio 2019 Community
 	goto setup_env
   )
@@ -80,16 +82,18 @@ REM nmake /f Makefile.vc mode=dll VC=%VCVERSION% DEBUG=yes MACHINE=x64
 
 echo Compiling dll-release-x64 version...
 nmake /f Makefile.vc mode=dll VC=%VCVERSION% DEBUG=no GEN_PDB=yes MACHINE=x64
+echo Copy compiled .*lib files in lib-release folder to "%LOCALINSTALL% folder
+cd ..\builds\libcurl-vc-x64-release-dll-ipv6-sspi-winssl
+xcopy .  "%LOCALINSTALL%" /E
 
 REM echo Compiling static-debug-x64 version...
 REM nmake /f Makefile.vc mode=static VC=%VCVERSION% DEBUG=yes MACHINE=x64
 
 REM echo Compiling static-release-x64 version...
 REM nmake /f Makefile.vc mode=static VC=%VCVERSION% DEBUG=no MACHINE=x64
-
-echo Copy compiled .*lib files in lib-release folder to "%LOCALINSTALL% folder
-cd ..\builds\libcurl-vc-x64-release-dll-ipv6-sspi-winssl
-xcopy .  "%LOCALINSTALL%" /E
+REM echo Copy compiled .*lib files in lib-release folder to "%LOCALINSTALL% folder
+REM cd ..\builds\libcurl-vc-x64-release-static-ipv6-sspi-winssl
+REM xcopy .  "%LOCALINSTALL%" /E
 
 echo Cleanup temporary file/folders
 cd %ROOT_DIR%
@@ -112,7 +116,7 @@ cd velocypack
 
 echo "Configuring..."
 REM cmake -G"Visual Studio 16 2019" .. -DCMAKE_BUILD_TYPE=Release  -DBuildVelocyPackExamples=OFF -DCMAKE_INSTALL_PREFIX=%LOCALINSTALL% .. -A x64 -S . -B build
-cmake -G"Visual Studio 16 2019" -DCMAKE_BUILD_TYPE=Release -DBuildVelocyPackExamples=OFF -DCMAKE_INSTALL_PREFIX=%LOCALINSTALL% .. -S . -B build
+cmake -G%COMPILER_VER_NAME% -DCMAKE_BUILD_TYPE=Release -DBuildVelocyPackExamples=OFF -DCMAKE_INSTALL_PREFIX=%LOCALINSTALL% .. -S . -B build
 echo "Building..."
 cmake --build build  --target install
 cd ..\..
