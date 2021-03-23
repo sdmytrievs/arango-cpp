@@ -1,8 +1,8 @@
 #pragma once
 
-#include <velocypack/Parser.h>
 #include <string>
 #include <map>
+#include <velocypack/Parser.h>
 
 namespace arangocpp {
 

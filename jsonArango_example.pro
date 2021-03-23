@@ -22,7 +22,7 @@ macx-clang {
 }
 else
 {
-  CONFIG += c++14
+  CONFIG += c++17
 }
 
 win32 {

@@ -6,7 +6,7 @@ project(jsonarango)
 
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-#set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MACOSX_RPATH ON)
 
@@ -49,17 +49,17 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Set the list of compiler flags for GNU compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-    add_compile_options(-std=c++14 -Wall -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
+    add_compile_options(-Wall -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
 endif()
 
 # Set the list of compiler flags for Clang compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    add_compile_options(-std=c++1z -Wall -Wno-ignored-attributes -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
+    add_compile_options(-Wall -Wno-ignored-attributes -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
 endif()
 
 # Set the list of compiler flags for Intel compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Intel")
-    add_compile_options(-std=c++14 -Wall -Wno-variadic-macros -Wno-deprecated)
+    add_compile_options(-Wall -Wno-variadic-macros -Wno-deprecated)
 endif()
 
 # Set the list of compiler flags for MSVC compiler
