@@ -36,7 +36,7 @@ option(BUILD_SHARED_LIBS "Build shared libraries." ON)
 option(BUILD_STATIC_LIBS "Build static libraries." ON)
 
 option(BUILD_EXAMPLES "Build the python wrappers and python package thermofun." OFF)
-option(BULID_LOCAL_TESTS "Build test suite for local ArangoDB" ON)
+option(BULID_LOCAL_TESTS "Build test suite for local ArangoDB" OFF)
 option(BULID_REMOTE_TESTS "Build test suite for remote ArangoDB" OFF)
 
 # Currently is not setup to produce a dynamic library using MSVC, only static
