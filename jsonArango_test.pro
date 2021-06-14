@@ -2,11 +2,12 @@ TEMPLATE = app
 CONFIG += thread console
 CONFIG -= app_bundle
 CONFIG -= qt
+CONFIG += c++17
 
-DEFINES += TestLocalServer
 DEFINES += TestRemoteServer
 
 !win32 {
+  DEFINES += TestLocalServer
   DEFINES += __unix
 }
 
@@ -16,18 +17,14 @@ macx-g++ {
 
 macx-clang {
   DEFINES += __APPLE__
-  CONFIG += c++17
   INCLUDEPATH   += "/usr/local/include"
   DEPENDPATH   += "/usr/local/include"
   LIBPATH += "/usr/local/lib/"
 }
-else
-{
-  CONFIG += c++14
-}
-
 
 win32 {
+  #CONFIG += staticlib
+  #QMAKE_CXXFLAGS_DEBUG += -MTd
   INCLUDEPATH   += "C:\usr\local\include"
   DEPENDPATH   += "C:\usr\local\include"
   LIBPATH += "C:\usr\local\lib"
@@ -46,7 +43,9 @@ INCLUDEPATH   += $$JSONARANGO_DIR
 INCLUDEPATH   += $$JSONARANGO_HEADERS_DIR
 INCLUDEPATH   += $$TESTS_DIR
 
-LIBS +=  -lcurl  -lvelocypack
+LIBS +=   -lvelocypack
+win32:LIBS +=   -llibcurl
+!win32:LIBS +=   -lcurl
 
 OBJECTS_DIR   = obj
 

@@ -6,7 +6,7 @@ project(jsonarango)
 
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-#set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MACOSX_RPATH ON)
 
@@ -37,7 +37,7 @@ option(BUILD_STATIC_LIBS "Build static libraries." ON)
 
 option(BUILD_EXAMPLES "Build the python wrappers and python package thermofun." OFF)
 option(BULID_LOCAL_TESTS "Build test suite for local ArangoDB" OFF)
-option(BULID_REMOTE_TESTS "Build test suite for remote ArangoDB" ON)
+option(BULID_REMOTE_TESTS "Build test suite for remote ArangoDB" OFF)
 
 # Currently is not setup to produce a dynamic library using MSVC, only static
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
@@ -47,21 +47,19 @@ endif()
 # Set libraries to be compiled with position independent code mode (i.e., fPIC option in GNU compilers)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-add_compile_options(-std=c++14)
-
 # Set the list of compiler flags for GNU compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-    add_compile_options(-std=c++14 -Wall -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
+    add_compile_options(-Wall -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
 endif()
 
 # Set the list of compiler flags for Clang compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    add_compile_options(-std=c++1z -Wall -Wno-ignored-attributes -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
+    add_compile_options(-Wall -Wno-ignored-attributes -Wno-pedantic -Wno-variadic-macros -Wno-deprecated)
 endif()
 
 # Set the list of compiler flags for Intel compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Intel")
-    add_compile_options(-std=c++14 -Wall -Wno-variadic-macros -Wno-deprecated)
+    add_compile_options(-Wall -Wno-variadic-macros -Wno-deprecated)
 endif()
 
 # Set the list of compiler flags for MSVC compiler
@@ -93,6 +91,10 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
    #include_directories(${gtest_build_include_dirs1})
     include_directories("/usr/local/include")
     link_directories("/usr/local/lib")
+endif()
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+    include_directories("c:/usr/local/include")
+    link_directories("c:/usr/local/lib")
 endif()
 
 # Find all GEMS3K dependencies

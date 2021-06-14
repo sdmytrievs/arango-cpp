@@ -1,4 +1,5 @@
 #include <iostream>
+#include <locale>
 #include "jsonarango/arangocollection.h"
 #include "jsonarango/arangoexception.h"
 #include "arangodetail.h"
@@ -44,7 +45,7 @@ void ArangoDBAPIBase::resetDBConnection( const ArangoDBConnection& connectData )
  * whitespace or punctuation characters cannot be used inside key values
  */
 
-const std::string  KeyPunctuationCharacters = "_-:.@()+,=;$!*'";
+static const std::string  KeyPunctuationCharacters = "_-:.@()+,=;$!*'";
 
 std::string ArangoDBAPIBase::sanitization(const std::string &documentHandle)
 {
@@ -54,7 +55,8 @@ std::string ArangoDBAPIBase::sanitization(const std::string &documentHandle)
     detail::trim(input_key);
     for( const auto c: input_key )
     {
-        if( isalnum(c) || ( KeyPunctuationCharacters.find(c) != std::string::npos ) )
+        if( std::isalnum(c, std::locale()) ||
+            ( KeyPunctuationCharacters.find(c) != std::string::npos ) )
         {
             first = true;
             legal_key +=c;
@@ -482,7 +484,7 @@ ArangoDBQuery ArangoDBCollectionAPI::queryEdgesToFrom( ArangoDBQuery::QueryType 
             edges.insert(edges.begin(), edgesexist.begin(), edgesexist.end());
         else
             edges = detail::getSubset( ArangoDBConnection::full_list_of_edges, edgesexist );
-        for( auto edgecoll: edges)
+        for( const auto& edgecoll: edges)
         {
             if( !edgeCollections.empty())
                 edgeCollections += ", ";
@@ -637,7 +639,7 @@ void ArangoDBCollectionAPI::lookupByKeys( const std::string& collname,
     builder.openObject();
     builder.add("collection" , ::arangodb::velocypack::Value(collname) );
     builder.add("keys" ,  ::arangodb::velocypack::Value(::arangodb::velocypack::ValueType::Array) );
-    for( auto key: keys )
+    for( const auto& key: keys )
         builder.add( ::arangodb::velocypack::Value(key));
     builder.close();
     builder.close();
@@ -735,7 +737,7 @@ void ArangoDBCollectionAPI::removeEdges(const std::string& collname, const std::
 
     // get edges collections names
     auto edges = collectionNames( CollectionTypes::Edge );
-    for( auto edgecoll: edges)
+    for( const auto& edgecoll: edges)
     {
         removeByTemplate( edgecoll,  to_templ  );
         removeByTemplate( edgecoll,  from_templ  );
@@ -759,14 +761,14 @@ void ArangoDBCollectionAPI::removeByKeys( const std::string& collname,  const st
 {
     std::vector<std::string> keys;
     // ids to keys
-    for( auto idit: ids )
+    for( const auto& idit: ids )
         keys.push_back( getKey(  collname, idit ) );
 
     ::arangodb::velocypack::Builder builder;
     builder.openObject();
     builder.add("collection" , ::arangodb::velocypack::Value(collname) );
     builder.add("keys" ,  ::arangodb::velocypack::Value(::arangodb::velocypack::ValueType::Array) );
-    for( auto key: keys )
+    for( const auto& key: keys )
         builder.add( ::arangodb::velocypack::Value(key));
     builder.close();
     builder.close();
