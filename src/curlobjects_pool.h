@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <stack>
+#include <mutex>
 #include "arangocurl.h"
 
 
@@ -31,6 +32,7 @@ public:
 
     ptr_type get_resource()
     {
+        std::lock_guard<std::mutex> guard(pool_mutex);
         if( pool_.empty() )
         {
       //      std::cout << "Add Streaming Requests object " << std::endl;
@@ -43,12 +45,14 @@ public:
 
     void return_resource( ptr_type t)
     {
+        std::lock_guard<std::mutex> guard(pool_mutex);
         pool_.push(std::move(t));
     }
 
 
 private:
    std::stack<std::unique_ptr<RequestCurlObject>> pool_;
+   std::mutex pool_mutex;
 
 };
 
