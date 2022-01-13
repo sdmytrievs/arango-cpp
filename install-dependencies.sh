@@ -31,7 +31,7 @@ test -f /usr/local/lib/libvelocypack.a || {
 	# Building velocypack library
 	mkdir -p ~/code && \
 		cd ~/code && \
-		git clone https://github.com/arangodb/velocypack.git && \
+		git clone https://github.com/arangodb/velocypack.git -b v0.1.3 && \ # version has to be the same as used in conda
 		cd velocypack && \
 		mkdir -p build && \
 		cd build && \
