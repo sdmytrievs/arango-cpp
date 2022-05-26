@@ -13,8 +13,9 @@ int main(int, char* [])
     std::string documentHandle = "test/eCRUD";
 
     try{
+
         auto ar_logger = spdlog::get("jsonarango");
-        ar_logger->set_level(spdlog::level::debug);
+        ar_logger->set_level(spdlog::level::info);
 
         std::cout << "Start " << std::endl;
         // Get Arangodb connection data( load settings from "examples-cfg.json" config file )

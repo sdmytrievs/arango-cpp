@@ -9,13 +9,17 @@ std::unique_ptr<HttpMessage> ArangoDBUsersAPI::sendREQUEST(std::unique_ptr<HttpM
 {
     auto url = connect_data.serverUrl+rq->header.path;
 
-    arango_logger->debug("UsersAPI REQUEST: {}", to_string(*(rq)));
+    if(arango_logger->should_log(spdlog::level::debug)) {
+        arango_logger->debug("UsersAPI REQUEST: {}", to_string(*(rq)));
+    }
     auto curl_object = pool_connect().get_resource();
     curl_object->setConnectData( connect_data.user.name, connect_data.user.password );
     curl_object->sendRequest( url, std::move(rq) );
     auto result = curl_object->getResponse();
     pool_connect().return_resource( std::move(curl_object) );
-    arango_logger->debug("UsersAPI RESPONSE: {}", to_string(*(result)));
+    if( arango_logger->should_log(spdlog::level::debug)) {
+        arango_logger->debug("UsersAPI RESPONSE: {}", to_string(*(result)));
+    }
 
     if( !result->isContentTypeVPack() ) {
         ARANGO_THROW( "ArangoDBUsersAPI", 42, "Illegal content type" );

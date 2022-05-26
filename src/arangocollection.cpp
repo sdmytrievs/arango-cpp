@@ -80,13 +80,17 @@ std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendREQUEST(std::unique_ptr<HttpMe
 {
     auto url = connect_data.fullURL(rq->header.path);
 
-    arango_logger->debug("DBAPIBase REQUEST: {}", to_string(*(rq)));
+    if(arango_logger->should_log(spdlog::level::debug)) {
+        arango_logger->debug("DBAPIBase REQUEST: {}", to_string(*(rq)));
+    }
     auto curl_object = pool_connect().get_resource();
     curl_object->setConnectData( connect_data.user.name, connect_data.user.password );
     curl_object->sendRequest( url, std::move(rq) );
     auto result = curl_object->getResponse();
     pool_connect().return_resource( std::move(curl_object) );
-    arango_logger->debug("DBAPIBase RESPONSE: {}", to_string(*(result)));
+    if(arango_logger->should_log(spdlog::level::debug)) {
+        arango_logger->debug("DBAPIBase RESPONSE: {}", to_string(*(result)));
+    }
 
     if( !result->isContentTypeVPack() ) {
         ARANGO_THROW( "ArangoDBAPIBase", 3, "Illegal content type" );
@@ -740,7 +744,7 @@ void ArangoDBCollectionAPI::removeByKeys( const std::string& collname,  const st
         arango_logger->error("Error removeByKeys: {}", errmsg);
     }
     else {
-        arango_logger->info(" {} - deleted : {} \n - ignored : {}", collname,
+        arango_logger->info(" {} - deleted : {} - ignored : {}", collname,
                             slice1.get("removed").getInt(), slice1.get("ignored").getInt() );
     }
 }

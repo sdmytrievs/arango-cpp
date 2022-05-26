@@ -5,6 +5,8 @@
 
 namespace arangocpp {
 
+arangodb::velocypack::AttributeTranslator translator;
+
 std::string to_string(MessageType type);
 std::string to_string(const MessageHeader& header);
 
@@ -82,18 +84,19 @@ std::vector<::arangodb::velocypack::Slice>const & HttpMessage::slices()
 
 std::string HttpMessage::payloadAsString()
 {
+    if( payloadSize() <= 0 ) {
+        return "";
+    }
     if( isContentTypeVPack() ) {
+        ::arangodb::velocypack::Options::Defaults.attributeTranslator = &translator;
         ::arangodb::velocypack::Options options;
-        options.unsupportedTypeBehavior = ::arangodb::velocypack::Options::ConvertUnsupportedType;
+        options.unsupportedTypeBehavior = ::arangodb::velocypack::Options::NullifyUnsupportedType;
         options.buildUnindexedArrays = true;
-        if( payloadSize() <= 0 ) {
-            return "";
-        }
         auto jsonstr = slices().front().toJson(&options);
         return jsonstr;
     }
     else {
-        return std::string(payloadData(), payloadSize());
+        return std::string(payloadData());
     }
 }
 
