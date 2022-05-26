@@ -49,15 +49,13 @@ public:
         AQL = 6
     };
 
-
     /// Empty or All  query constructor.
-    ArangoDBQuery( QueryType atype = All  ):
+    ArangoDBQuery( QueryType atype = All ):
         query_type{atype}, find_condition{}, bind_vars{}, query_options{}, query_fields{}
     { }
 
     /// An AQL query text or json template constructor.
     ArangoDBQuery( const std::string& condition, QueryType atype );
-
 
     virtual ~ArangoDBQuery()
     {}
@@ -157,11 +155,9 @@ protected:
     /// FOR u IN users
     /// RETURN { "id": u.id, "name": u.name }
     QueryFields query_fields;
-
-
 };
-extern ArangoDBQuery emptyQuery;
 
+extern ArangoDBQuery emptyQuery;
 
 // https://www.arangodb.com/docs/stable/drivers/js-reference-collection.html
 

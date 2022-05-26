@@ -10,7 +10,6 @@ namespace arangocpp {
 class ArangoDBUsersAPI : public ArangoDBAPIBase
 {
 
-
 public:
 
     ///  Constructor
@@ -61,7 +60,6 @@ public:
 
     /// Fetches data about all users.
     std::set<std::string> userNames();
-
 
 protected:
 

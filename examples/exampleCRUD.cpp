@@ -13,6 +13,9 @@ int main(int, char* [])
     std::string documentHandle = "test/eCRUD";
 
     try{
+        auto ar_logger = spdlog::get("jsonarango");
+        ar_logger->set_level(spdlog::level::debug);
+
         std::cout << "Start " << std::endl;
         // Get Arangodb connection data( load settings from "examples-cfg.json" config file )
         arangocpp::ArangoDBConnection data = arangocpp::connectFromConfig( "examples-cfg.json" );
@@ -65,7 +68,7 @@ int main(int, char* [])
         connect.readDocument( collectionName, rkey,  readDocumentData);
 
         // Extract data from document
-        std::cout << "Updated document :\n" << readDocumentData <<  std::endl;
+        std::cout << "Updated document :\n" << readDocumentData << "\n" << rkey << std::endl;
 
         // Delete record
         connect.deleteDocument( collectionName, rkey );
@@ -73,11 +76,11 @@ int main(int, char* [])
     }
     catch(arangocpp::arango_exception& e)
     {
-        std::cout << "TDBJsonDocument API" << e.header() << e.what() <<  std::endl;
+        std::cout << "TDBJsonDocument API " << e.header() << e.what() <<  std::endl;
     }
     catch(std::exception& e)
     {
-        std::cout <<  "TDBJsonDocument API" << " std::exception" << e.what() <<  std::endl;
+        std::cout <<  "TDBJsonDocument API " << " std::exception " << e.what() <<  std::endl;
     }
     catch(...)
     {

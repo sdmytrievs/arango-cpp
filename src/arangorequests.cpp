@@ -18,8 +18,9 @@ std::string MessageHeader::contentTypeString() const
 // Get value for header metadata key, returns empty string if not found.
 std::string MessageHeader::metaByKey(std::string const& key) const
 {
-    if (meta.empty())
+    if (meta.empty()) {
         return "";
+    }
     auto found =  meta.find(key);
     return (found == meta.end()) ? "" : found->second;
 }
@@ -36,12 +37,12 @@ bool HttpMessage::isContentTypeJson() const
 
 void HttpMessage::setContentType()
 {
-
     //if( ioSettings().PutVelocypack() )
     header.addMeta(fu_content_type_key, fu_content_type_vpack);
 
-    if( ArangoDBConnection::use_velocypack_get )
+    if( ArangoDBConnection::use_velocypack_get ) {
         header.addMeta(fu_accept_key, fu_content_type_vpack);
+    }
 }
 
 void HttpMessage::addVPack(::arangodb::velocypack::Buffer<uint8_t>&& buffer)
@@ -63,15 +64,13 @@ void HttpMessage::addVPack(::arangodb::velocypack::Slice const& slice)
 
 std::vector<::arangodb::velocypack::Slice>const & HttpMessage::slices()
 {
-    if (_slices.empty())
-    {
+    if (_slices.empty()) {
         auto length = _payload.byteSize();
         auto cursor = _payload.data();
-        while (length)
-        {
+        while (length) {
             _slices.emplace_back(cursor);
             auto sliceSize = _slices.back().byteSize();
-            if (length < sliceSize){
+            if (length < sliceSize) {
                 ARANGO_THROW( "HttpMessage", 1, "Invalid buffer" );
             }
             cursor += sliceSize;
@@ -83,21 +82,21 @@ std::vector<::arangodb::velocypack::Slice>const & HttpMessage::slices()
 
 std::string HttpMessage::payloadAsString()
 {
-    if(  isContentTypeVPack() )
-    {
+    if( isContentTypeVPack() ) {
         ::arangodb::velocypack::Options options;
         options.unsupportedTypeBehavior = ::arangodb::velocypack::Options::ConvertUnsupportedType;
         options.buildUnindexedArrays = true;
-        if( payloadSize()  <= 0 )
+        if( payloadSize() <= 0 ) {
             return "";
+        }
         auto jsonstr = slices().front().toJson(&options);
         return jsonstr;
     }
-    else
-    {
+    else {
         return std::string(payloadData(), payloadSize());
     }
 }
+
 //-------------------------------------------------------------
 
 // Helper and Implementation
@@ -137,34 +136,25 @@ std::unique_ptr<HttpMessage> createResponse( )
     return createResponse(MessageHeader(), StringMap() );
 }
 
-
 //----------------------------------------------------------------------
 
 std::string to_string(RestVerb type)
 {
-    switch (type)
-    {
+    switch (type) {
     case RestVerb::Illegal:
         return "illegal";
-
     case RestVerb::Delete:
         return "delete";
-
     case RestVerb::Get:
         return "get";
-
     case RestVerb::Post:
         return "post";
-
     case RestVerb::Put:
         return "put";
-
     case RestVerb::Head:
         return "head";
-
     case RestVerb::Patch:
         return "patch";
-
     case RestVerb::Options:
         return "options";
     }
@@ -173,17 +163,13 @@ std::string to_string(RestVerb type)
 
 std::string to_string(MessageType type)
 {
-    switch (type)
-    {
+    switch (type) {
     case MessageType::Undefined:
         return "undefined";
-
     case MessageType::Request:
         return "request";
-
     case MessageType::Response:
         return "response";
-
     }
     return "undefined";
 }
@@ -192,27 +178,27 @@ std::string to_string(const MessageHeader& header)
 {
     std::stringstream ss;
 
-    ss << "version: " << header.version  << std::endl;
-    ss << "type: " << static_cast<int>(header.type ) << std::endl;
+    ss << "version: " << header.version << std::endl;
+    ss << "type: " << static_cast<int>(header.type) << std::endl;
     ss << "responseCode: " << header.responseCode  << std::endl;
-    ss << "restVerb: " << to_string(header.restVerb ) << std::endl;
+    ss << "restVerb: " << to_string(header.restVerb) << std::endl;
     ss << "path: " << header.path << std::endl;
 
-    if( !header.parameters.empty() )
-    {
+    if( !header.parameters.empty() ) {
         ss << "parameters: ";
-        for(auto const& item : header.parameters)
+        for(auto const& item : header.parameters) {
             ss << item.first <<  " -:- " << item.second << "\n";
+        }
         ss<< std::endl;
     }
 
     ss << "meta:\n";
-    for(auto const& item : header.meta)
+    for(auto const& item : header.meta) {
         ss << "\t" << item.first <<  " -:- " << item.second << "\n";
+    }
     ss<< std::endl;
 
     ss << "contentType: " << header.contentTypeString() << std::endl;
-
     return ss.str();
 }
 

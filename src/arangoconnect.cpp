@@ -48,25 +48,21 @@ ArangoDBConnection connectFromSettings( const std::string& jsonstr, bool rootdat
 
         auto slice = data->slice();
         auto slicedb = slice.get("arangodb");
-        if( slicedb.isObject() )
-        {
+        if( slicedb.isObject() ) {
             auto instance = slicedb.get( "UseArangoDBInstance" ).copyString();
             ArangoDBConnection::use_velocypack_put = slicedb.get( "UseVelocypackPut" ).getBool();
             ArangoDBConnection::use_velocypack_get = slicedb.get( "UseVelocypackGet" ).getBool();
             slicedb = slicedb.get(instance);
 
-            if( slicedb.isObject() )
-            {
-                if( rootdata)
-                {
+            if( slicedb.isObject() ) {
+                if( rootdata ) {
                     connect_data.serverUrl = slicedb.get( "DB_URL" ).copyString();
                     connect_data.databaseName = slicedb.get( "DBRootName" ).copyString();
                     connect_data.user.name = slicedb.get( "DBRootUser").copyString();
                     connect_data.user.password = slicedb.get( "DBRootPassword" ).copyString();
                     connect_data.user.access = "rw";
                 }
-                else
-                {
+                else {
                     connect_data.serverUrl = slicedb.get( "DB_URL" ).copyString();
                     connect_data.databaseName = slicedb.get( "DBName" ).copyString();
                     connect_data.user.name = slicedb.get( "DBUser" ).copyString();
@@ -76,14 +72,12 @@ ArangoDBConnection connectFromSettings( const std::string& jsonstr, bool rootdat
             }
         }
     }
-    catch (::arangodb::velocypack::Exception& error )
-    {
-        JSONIO_LOG << "Read configuration file error: " << error.what() << std::endl;
+    catch (::arangodb::velocypack::Exception& error )  {
+        arango_logger->warn("Read configuration data error: {}", jsonstr);
         ARANGO_THROW( "ArangoDBRootClient", 4, std::string("Read configuration file error: ")+error.what());
     }
     return connect_data;
 }
-
 
 ArangoDBConnection connectFromConfig( const std::string& cfgfile )
 {
@@ -96,7 +90,6 @@ ArangoDBConnection rootClientFromConfig( const std::string& cfgfile )
     auto jsonstr = detail::read_all_file( cfgfile );
     return connectFromSettings( jsonstr, true );
 }
-
 
 // ArangoDBRootClient ------------------------------------------
 

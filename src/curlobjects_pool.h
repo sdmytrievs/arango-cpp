@@ -30,25 +30,13 @@ public:
 
     virtual ~CurlPool();
 
-    ptr_type get_resource()
-    {
-        std::lock_guard<std::mutex> guard(pool_mutex);
-        if( pool_.empty() )
-        {
-      //      std::cout << "Add Streaming Requests object " << std::endl;
-            pool_.push(std::make_unique<RequestCurlObject>());
-        }
-        ptr_type tmp(pool_.top().release());
-        pool_.pop();
-        return tmp;
-    }
+    ptr_type get_resource();
 
     void return_resource( ptr_type t)
     {
         std::lock_guard<std::mutex> guard(pool_mutex);
         pool_.push(std::move(t));
     }
-
 
 private:
    std::stack<std::unique_ptr<RequestCurlObject>> pool_;

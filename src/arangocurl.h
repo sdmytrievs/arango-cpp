@@ -19,10 +19,12 @@ public:
 
     ~RequestCurlObject()
     {
-        if (_curlHeaders != nullptr)
+        if (_curlHeaders != nullptr) {
             curl_slist_free_all(_curlHeaders);
-        if (_curl != nullptr)
+        }
+        if (_curl != nullptr) {
             curl_easy_cleanup(_curl);
+        }
     }
 
     static size_t bodyCallback(  char* pdatatr, size_t size, size_t nmemb, std::string* buffer);
@@ -37,8 +39,7 @@ public:
     std::string jsonBody()
     {
         std::string data;
-        if (_responseBody.length())
-        {
+        if (_responseBody.length()) {
             ::arangodb::velocypack::Buffer<uint8_t> buffer;
             buffer.append(_responseBody);
             ::arangodb::velocypack::Slice slice(buffer.data());
@@ -46,7 +47,6 @@ public:
         }
         return data;
     }
-
 
 protected:
 
