@@ -10,7 +10,10 @@ dependencies:
   - curl
   - nlohmann_json
   - velocypack
-  - spdlog
+  - fmt
+  - spdlog>=1.10.0 # [win]
+  - spdlog # [unix]
+
 
 environment:
 
