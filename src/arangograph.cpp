@@ -18,7 +18,6 @@ bool ArangoDBGraphAPI::existGraph(const std::string& graphname )
     return result->statusCode() != StatusNotFound;
 }
 
-
 // Lists all graph names stored in this database.
 std::set<std::string> ArangoDBGraphAPI::graphNames()
 {
@@ -27,24 +26,23 @@ std::set<std::string> ArangoDBGraphAPI::graphNames()
     auto request = createREQUEST(RestVerb::Get, rqstr );
     auto result =  sendREQUEST(std::move(request));
 
-    if( result->statusCode() == StatusOK )
-    {
+    if( result->statusCode() == StatusOK ) {
         auto slice = result->slices().front();
         auto grlst = slice.get("graphs");
-        for( size_t ii=0; ii<grlst.length(); ii++ )
+        for( size_t ii=0; ii<grlst.length(); ii++ ) {
             graph_names.insert( grlst[ii].get("_key").copyString());
+        }
     }
     return graph_names;
 }
-
 
 // Create graph
 void ArangoDBGraphAPI::createGraph(const std::string& graphname, const std::string& edgeDefinitions)
 {
     // test exist
-    if( existGraph( graphname ) )
+    if( existGraph( graphname ) ) {
         return;
-
+    }
     try {
         auto data = ::arangodb::velocypack::Parser::fromJson(edgeDefinitions, &parse_options);
 
@@ -59,13 +57,14 @@ void ArangoDBGraphAPI::createGraph(const std::string& graphname, const std::stri
         //request1->header.meta.erase("accept");
         auto result1 = sendREQUEST(std::move(request1));
 
-        if( result1->statusCode() > StatusAccepted )
+        if( result1->statusCode() > StatusAccepted ) {
             ARANGO_THROW( "ArangoDBGraphAPI", 32, "This can occur either if a graph with this name is already stored,"
                                                   "or if there is one edge definition with a the same edge collection but a different "
                                                   "signature used in any other graph." );
-    } catch (::arangodb::velocypack::Exception& error )
+        }
+    }
+    catch (::arangodb::velocypack::Exception& error )
     {
-        JSONIO_LOG << "Velocypack error: " << error.what() << std::endl;
         ARANGO_THROW( "ArangoDBGraphAPI", 31,  std::string("Velocypack error: ")+error.what());
     }
 }
@@ -73,17 +72,17 @@ void ArangoDBGraphAPI::createGraph(const std::string& graphname, const std::stri
 
 void ArangoDBGraphAPI::removeGraph( const std::string& graphname, bool dropCollections )
 {
-    if( !existGraph( graphname ) )
+    if( !existGraph( graphname ) ) {
         return;
-
+    }
     std::string rqstr = "/_api/gharial/"+graphname;
-    if( dropCollections )
-       rqstr+="?dropCollections=true";
+    if( dropCollections ) {
+        rqstr+="?dropCollections=true";
+    }
     auto request = createREQUEST(RestVerb::Delete, rqstr );
     auto result = sendREQUEST(std::move(request));
 
-    if( result->statusCode() >  StatusAccepted )
-    {
+    if( result->statusCode() >  StatusAccepted ) {
         auto errmsg = result->slices().front().get("errorMessage").copyString();
         ARANGO_THROW( "ArangoDBGraphAPI", 39, std::string("Error when drop graph: ")+errmsg );
     }
@@ -99,16 +98,15 @@ std::set<std::string> ArangoDBGraphAPI::graphCollectionNames(
     //request->header.meta.erase("accept");
     auto result =  sendREQUEST(std::move(request));
 
-    if( result->statusCode() == StatusOK )
-    {
+    if( result->statusCode() == StatusOK ) {
         auto slice = result->slices().front();
         auto collst = slice.get("collections");
 
         auto numb = collst.length();
-        for( size_t ii=0; ii<numb; ii++ )
+        for( size_t ii=0; ii<numb; ii++ ) {
             collnames.insert(collst[ii].copyString());
+        }
     }
-
     return collnames;
 }
 
@@ -125,8 +123,9 @@ void ArangoDBGraphAPI::addVertexGraph(const std::string& graphname, const std::s
     //request1->header.meta.erase("accept");
     auto result1 = sendREQUEST(std::move(request1));
 
-    if( result1->statusCode() >=  StatusBadRequest )
+    if( result1->statusCode() >=  StatusBadRequest ) {
         ARANGO_THROW( "ArangoDBGraphAPI", 33, "Error when add collection" );
+    }
 }
 
 void ArangoDBGraphAPI::addEdgeGraph(const std::string& graphname, const std::string& edgeDefinition)
@@ -140,20 +139,17 @@ void ArangoDBGraphAPI::addEdgeGraph(const std::string& graphname, const std::str
         //request1->header.meta.erase("accept");
         auto result1 = sendREQUEST(std::move(request1));
 
-        if( result1->statusCode() >=  StatusBadRequest )
-        {
+        if( result1->statusCode() >=  StatusBadRequest ) {
             auto slice = result1->slices().front();
             auto errmsg = slice.get("errorMessage").copyString();
-            JSONIO_LOG << "Error :" << errmsg << std::endl;
             ARANGO_THROW( "ArangoDBGraphAPI", 34, "Error create edge: "+errmsg );
         }
-    } catch (::arangodb::velocypack::Exception& error )
+    }
+    catch (::arangodb::velocypack::Exception& error )
     {
-        JSONIO_LOG << "Velocypack error: " << error.what() << std::endl;
         ARANGO_THROW( "ArangoDBGraphAPI", 31, std::string("Velocypack error: ")+error.what());
     }
 }
-
 
 //----------------------------------------------------------------------------
 
@@ -170,27 +166,22 @@ bool ArangoDBGraphAPI::readRecord( const std::string& graphname, const std::stri
     auto result =  sendREQUEST(std::move(request));
     auto slice = result->slices().front();
 
-    if( result->statusCode() != StatusOK )
-    {
+    if( result->statusCode() != StatusOK ) {
         auto errmsg = slice.get("errorMessage").copyString();
-        JSONIO_LOG << "Error :" << errmsg << std::endl;
         ARANGO_THROW( "ArangoDBGraphAPI", 35, std::string("Error when try load record: ") + errmsg );
     }
-    else
-    {
+    else {
         jsonrec =  slice.get(colltype).toJson(&dump_options);
-        JSONIO_LOG << "readRecord :" << jsonrec << std::endl;
+        arango_logger->debug("Readed record:\n {}", jsonrec);
         return true;
     }
-    //return false;
+    return false;
 }
-
 
 std::string ArangoDBGraphAPI::createRecord( const std::string& graphname, const std::string& colltype,
                                             const std::string& collname, const std::string& jsonrec )
 {
     std::string newId = "";
-
     try{
         auto data = ::arangodb::velocypack::Parser::fromJson(jsonrec, &parse_options);
 
@@ -201,23 +192,18 @@ std::string ArangoDBGraphAPI::createRecord( const std::string& graphname, const 
         auto result =  sendREQUEST(std::move(request));
         auto slice1 = result->slices().front();
 
-        if( result->statusCode() >=  StatusBadRequest )
-        {
+        if( result->statusCode() >=  StatusBadRequest ) {
             auto errmsg = slice1.get("errorMessage").copyString();
-            JSONIO_LOG << "Error :" << errmsg << std::endl;
             ARANGO_THROW( "ArangoDBGraphAPI", 36, std::string("Error when try create record: ") + errmsg );
         }
-        else
-        {
+        else {
             newId= slice1.get(colltype).get("_id").copyString();
-            JSONIO_LOG << "createRecord :" << newId << std::endl;
+            arango_logger->debug("Created record: {}", newId);
         }
-    } catch (::arangodb::velocypack::Exception& error )
-    {
-        JSONIO_LOG << "Velocypack error: " << error.what() << std::endl;
+    }
+    catch (::arangodb::velocypack::Exception& error ) {
         ARANGO_THROW( "ArangoDBGraphAPI", 31, std::string("Velocypack error: ")+error.what());
     }
-
     return newId;
 }
 
@@ -237,20 +223,16 @@ std::string ArangoDBGraphAPI::updateRecord( const std::string& graphname, const 
         auto result =  sendREQUEST(std::move(request));
         auto slice1 = result->slices().front();
 
-        if( result->statusCode() >=  StatusBadRequest )
-        {
+        if( result->statusCode() >=  StatusBadRequest ) {
             auto errmsg = slice1.get("errorMessage").copyString();
-            JSONIO_LOG << "Error :" << errmsg << std::endl;
             ARANGO_THROW( "ArangoDBGraphAPI", 37, std::string("Error when try save record: ") + errmsg);
         }
-        else
-        {
+        else {
             newId=slice1.get(colltype).get("_id").copyString();
-            JSONIO_LOG << "updateRecord :" << newId << std::endl;
+            arango_logger->debug("Updated record: {}", newId);
         }
-    } catch (::arangodb::velocypack::Exception& error )
-    {
-        JSONIO_LOG << "Velocypack error: " << error.what() << std::endl;
+    }
+    catch (::arangodb::velocypack::Exception& error ) {
         ARANGO_THROW( "ArangoDBGraphAPI", 31, std::string("Velocypack error: ")+error.what());
     }
     return newId;
@@ -268,16 +250,12 @@ bool ArangoDBGraphAPI::deleteRecord( const std::string& graphname, const std::st
     //request->header.meta.erase("accept");
     auto result =  sendREQUEST(std::move(request));
 
-    if( result->statusCode() >=  StatusBadRequest )
-    {
+    if( result->statusCode() >=  StatusBadRequest ) {
         auto slice = result->slices().front();
         auto errmsg = slice.get("errorMessage").copyString();
-        JSONIO_LOG << "Error :" << errmsg << std::endl;
         ARANGO_THROW( "ArangoDBGraphAPI", 38, std::string("Error when try remove record: ") + errmsg );
-        //return false;
     }
     return true;
 }
-
 
 } // namespace arangocpp

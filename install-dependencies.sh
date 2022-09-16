@@ -7,6 +7,7 @@ if [ "$(uname)" == "Darwin" ]; then
     #Needs Xcode and ArangoDB server locally installed
     brew upgrade
     brew install cmake
+    brew install spdlog
     #brew install arangodb
     CXXSTANDARD=17
     
@@ -15,6 +16,7 @@ elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     #Needs gcc v.5 or higher and ArangoDB server locally installed
     sudo apt-get update
     sudo apt-get install -y libcurl4-openssl-dev
+    sudo apt install libspdlog-dev
     CXXSTANDARD=11
 
 fi

@@ -2,10 +2,12 @@
 
 #include <exception>
 #include <string>
-#include <utility>
+#include "spdlog/spdlog.h"
 
 namespace arangocpp {
 
+/// Default logger for jsonarango library
+extern std::shared_ptr<spdlog::logger> arango_logger;
 
 /// @brief General exception structure into project.
 class arango_exception: public std::exception
@@ -38,8 +40,6 @@ public:
         id(aid), excp_header(getheader(atitle, aid)), excp_message( std::forward<std::string>(amessage) )
     {}
 
-protected:
-
     static std::string getheader(const std::string& atitle, int aid)
     {
         return "arango:" + atitle + ":" + std::to_string(aid);
@@ -58,13 +58,17 @@ private:
 /// Throw  jarango_exception.
 [[ noreturn ]] inline void ARANGO_THROW( const std::string& title, int id, std::string&& message )
 {
+    arango_logger->error("{} {}", arango_exception::getheader(title, id), message);
     throw arango_exception{title, id, std::forward<std::string>(message)};
 }
 
 /// Throw by condition jsonio_exception.
 inline void ARANGO_THROW_IF(bool error, const std::string& title, int id, std::string&& message )
 {
-    if(error) throw arango_exception{title, id, std::forward<std::string>(message)};
+    if(error) {
+        arango_logger->error("{} {}", arango_exception::getheader(title, id), message);
+        throw arango_exception{title, id, std::forward<std::string>(message)};
+    }
 }
 
 } // namespace arangocpp

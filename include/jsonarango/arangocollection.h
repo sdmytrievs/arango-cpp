@@ -7,16 +7,10 @@
 
 namespace arangocpp {
 
-#define  DEBUG_OUTPUT( message, data ) if (0) { std::cout << message << to_string(*(data)) << std::endl; }
-//#define  DEBUG_OUTPUT( message, data )  { std::cout << message << to_string(*(data)) << std::endl; }
-#define JSONIO_LOG   if (0) std::cout
-//#define JSONIO_LOG    std::cout
-
 class RequestCurlObject;
 
 class ArangoDBAPIBase
 {
-
 
 public:
     /// Check the document-handle example in to contain only
@@ -24,13 +18,12 @@ public:
     /// \return  a document-handle that contain only only allowed characters.
     static std::string sanitization( const std::string& documentHandle );
 
-
     ///  Constructor
     explicit ArangoDBAPIBase( const ArangoDBConnection& connectData );
 
     ///  Destructor
     virtual ~ArangoDBAPIBase()
-    { }
+    {}
 
     /// Reset connections to ArangoDB server.
     void resetDBConnection( const ArangoDBConnection& connectData );
@@ -64,8 +57,9 @@ protected:
     std::string getId( const std::string& collname, const std::string& key )
     {
         std::string rid = key;
-        if( rid.find( collname+"/") == std::string::npos )
+        if( rid.find( collname+"/") == std::string::npos ) {
             rid = collname+"/"+key;
+        }
         return rid;
     }
 
@@ -76,8 +70,9 @@ protected:
         std::string rkey = id;
 
         auto pos  = rkey.find( head );
-        if( pos != std::string::npos )
+        if( pos != std::string::npos ) {
             rkey = rkey.substr( head.length() );
+        }
         return rkey;
     }
 
@@ -103,7 +98,7 @@ public:
     ///  Constructor
     explicit ArangoDBCollectionAPI( const ArangoDBConnection& connectData ):
         ArangoDBAPIBase(connectData)
-    { }
+    {}
 
     ~ArangoDBCollectionAPI();
 

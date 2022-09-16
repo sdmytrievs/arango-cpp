@@ -42,7 +42,6 @@ public:
     /// Adds an additional edge definition to the graph.
     void addEdgeGraph(const std::string& graphname, const std::string& edgeDefinition);
 
-
     // These functions implement the API for manipulating documents (CRUD)in an existing graph.
 
     /// Creates a new vertex/edge document with the given data in an existing graph.

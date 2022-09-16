@@ -60,7 +60,9 @@ struct ArangoDBConnection
     {}
 
     std::string fullHost() const
-    {  return serverUrl+"/_db/"+databaseName; }
+    {
+        return serverUrl+"/_db/"+databaseName;
+    }
 
     std::string fullURL( const std::string& localpath ) const
     {

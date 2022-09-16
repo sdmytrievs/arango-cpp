@@ -2,7 +2,6 @@
 
 namespace arangocpp {
 
-
 ArangoDBQuery emptyQuery(ArangoDBQuery::Undef);
 
 bool operator !=( const ArangoDBQuery& iEl,  const ArangoDBQuery& iEr)
@@ -13,8 +12,9 @@ bool operator !=( const ArangoDBQuery& iEl,  const ArangoDBQuery& iEr)
 ArangoDBQuery::ArangoDBQuery( const std::string &condition, ArangoDBQuery::QueryType atype):
     query_type{atype}, find_condition{condition}, bind_vars{}, query_options{}, query_fields{}
 {
-    if( find_condition.empty() )
+    if( find_condition.empty() ) {
         query_type = All;
+    }
     //else
     //    if( query_type == Template )
     //        find_condition = replace_all( find_condition, "\'", "\"");  // not all only
@@ -30,18 +30,19 @@ std::string ArangoDBQuery::generateRETURN( bool isDistinct, const std::string &c
 std::string ArangoDBQuery::generateRETURN( bool isDistinct, const QueryFields& mapFields, const std::string& collvalue )
 {
     std::string retdata{"\nRETURN "};
-    if( isDistinct )
+    if( isDistinct ) {
         retdata += "DISTINCT ";
-    if( mapFields.empty() )
+    }
+    if( mapFields.empty() ) {
         retdata += collvalue + " ";
-    else
-    {
+    }
+    else {
         retdata += " { ";
         std::string fldslst{""};
-        for( const auto& fld: mapFields )
-        {
-            if( !fldslst.empty() )
+        for( const auto& fld: mapFields ) {
+            if( !fldslst.empty() ) {
                 fldslst += ", ";
+            }
             fldslst += " \"" + fld.second + "\" : " + collvalue + "." + fld.first;
         }
         retdata += fldslst+ " } ";
@@ -53,24 +54,23 @@ std::string ArangoDBQuery::generateRETURN( bool isDistinct, const QueryFields& m
 std::string ArangoDBQuery::generateFILTER(const FieldValueMap &fldvalues, bool asTemplate, const std::string &collvalue)
 {
     std::string generated;
-    if( fldvalues.empty() )
+    if( fldvalues.empty() ) {
         return generated;
+    }
 
-    if( asTemplate )
-    {
-        for( const auto& ent : fldvalues)
-        {
-            if( !generated.empty() )
+    if( asTemplate ) {
+        for( const auto& ent : fldvalues) {
+            if( !generated.empty() ) {
                 generated += ", ";
+            }
             generated += " \"" + ent.first +"\" : " + ent.second+ " ";
         }
     }
-    else
-    {
-        for( const auto& ent : fldvalues)
-        {
-            if( !generated.empty() )
+    else {
+        for( const auto& ent : fldvalues) {
+            if( !generated.empty() ) {
                 generated += " && ";
+            }
             generated += collvalue + "." + ent.first + " == " + ent.second;
         }
         generated = "\nFILTER " + generated +" ";
