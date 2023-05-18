@@ -1,9 +1,9 @@
 /// Test example for ArangoDBCollectionAPI the API for manipulating collections and documents into.
 
 #include <iostream>
+#include <velocypack/Collection.h>
 #include "jsonarango/arangocollection.h"
 #include "jsonarango/arangoexception.h"
-#include <velocypack/Collection.h>
 #include "arangocurl.h"
 
 int main(int, char* [])
