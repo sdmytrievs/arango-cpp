@@ -1,3 +1,3 @@
-# ./build/test/tests
-#conda activate thermofun
+./build/tests/test_main
+#conda activate jsonarango
 #pytest -ra -vv .

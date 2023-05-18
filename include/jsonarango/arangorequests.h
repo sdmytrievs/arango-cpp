@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include <limits>
 #include <velocypack/Parser.h>
 
 namespace arangocpp {

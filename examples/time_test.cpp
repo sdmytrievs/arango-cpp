@@ -4,6 +4,7 @@
 /// Time test example for ArangoDBCollectionAPI the API for manipulating collections and documents into.
 
 #include <iostream>
+#include <limits>
 #include "jsonarango/arangocollection.h"
 #include "jsonarango/arangoexception.h"
 #include <velocypack/Collection.h>

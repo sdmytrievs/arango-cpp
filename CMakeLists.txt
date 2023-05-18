@@ -36,8 +36,15 @@ option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(BUILD_STATIC_LIBS "Build static libraries" ON)
 
 option(BUILD_EXAMPLES "Build the examples" ON)
-option(BULID_LOCAL_TESTS "Build test suite for local ArangoDB" ON)
+option(BULID_LOCAL_TESTS "Build test suite for local ArangoDB" OFF)
 option(BULID_REMOTE_TESTS "Build test suite for remote ArangoDB" ON)
+
+# Used into conda only
+if(DEFINED ENV{CONDA_PREFIX})
+   option(USE_SPDLOG_PRECOMPILED "Use spdlog in compiled version" ON)
+else()
+   option(USE_SPDLOG_PRECOMPILED "Use spdlog in compiled version" OFF)
+endif()
 
 # Currently is not setup to produce a dynamic library using MSVC, only static
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)

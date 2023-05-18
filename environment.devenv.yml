@@ -2,7 +2,7 @@ name: jsonarango
 
 dependencies:
   - gxx_linux-64>=9.4.0  # [linux]
-  - cmake>=3.7
+  - cmake>=3.13
   - ninja # [unix]
   - make  # [win]
   - git
@@ -10,7 +10,7 @@ dependencies:
   - curl
   - nlohmann_json
   - velocypack
-  - spdlog=1.10.0
+  - spdlog
   - spdlog # [unix]
 
 

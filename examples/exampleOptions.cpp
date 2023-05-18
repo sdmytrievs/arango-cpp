@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 #include "jsonarango/arangocollection.h"
 #include "jsonarango/arangoexception.h"
 #include <velocypack/Collection.h>
