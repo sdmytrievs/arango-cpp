@@ -9,7 +9,7 @@ dependencies:
   - ccache  # [unix]
   - curl
   - nlohmann_json
- # - velocypack
+  - velocypack
   - spdlog
 
 
