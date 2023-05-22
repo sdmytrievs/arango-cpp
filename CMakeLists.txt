@@ -2,8 +2,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 # Set the name of the project
-project(jsonarango)
-
+project(jsonarango VERSION 0.4.1 LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -23,14 +22,6 @@ include(CCache)
 # Ensure proper configuration if in a conda environment
 include(CondaAware)
 
-# Set the default build type to Release
-if(NOT CMAKE_BUILD_TYPE)
-    message(STATUS "Setting build type to 'Release' as none was specified.")
-    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
-endif()
-
-
 # Define which types of libraries to build
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(BUILD_STATIC_LIBS "Build static libraries" ON)
@@ -44,6 +35,13 @@ if(DEFINED ENV{CONDA_PREFIX})
    option(USE_SPDLOG_PRECOMPILED "Use spdlog in compiled version" ON)
 else()
    option(USE_SPDLOG_PRECOMPILED "Use spdlog in compiled version" OFF)
+endif()
+
+# Set the default build type to Release
+if(NOT CMAKE_BUILD_TYPE)
+    message(STATUS "Setting build type to 'Release' as none was specified.")
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
 # Currently is not setup to produce a dynamic library using MSVC, only static
@@ -81,33 +79,35 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     )
 endif()
 
+# test thread safe
+#set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=thread")
+#set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fsanitize=thread")
 
-# Set the jsonarango source directory path
-set(JSONARANGO_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
-set(JSONARANGO_HEADER_DIR ${CMAKE_SOURCE_DIR}/include)
-
-
-# Set the include directories
-include_directories(${JSONARANGO_SOURCE_DIR})
-include_directories(${JSONARANGO_HEADER_DIR})
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
    set(gtest_SOURCE_DIR1 ${CMAKE_SOURCE_DIR}/tests/googletest/googletest)
    set(gtest_build_include_dirs1
   "${gtest_SOURCE_DIR1}/include"
   "${gtest_SOURCE_DIR1}")
    #include_directories(${gtest_build_include_dirs1})
-    include_directories("/usr/local/include")
-    link_directories("/usr/local/lib")
+   include_directories("/usr/local/include")
+   link_directories("/usr/local/lib")
 endif()
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     include_directories("c:/usr/local/include")
     link_directories("c:/usr/local/lib")
 endif()
 
-# Find all GEMS3K dependencies
-include(JsonArangoFindDeps)
+# Set the jsonarango source directory path
+set(JSONARANGO_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+set(JSONARANGO_HEADER_DIR ${CMAKE_SOURCE_DIR}/include)
+# Set the include directories
+include_directories(${JSONARANGO_SOURCE_DIR})
+include_directories(${JSONARANGO_HEADER_DIR})
 
-# Build jsonio library
+# Find all jsonarango dependencies
+include(jsonarangoFindDeps)
+
+# Build jsonarango library
 add_subdirectory(src)
 
 # Build the examples
@@ -120,4 +120,5 @@ if(BULID_LOCAL_TESTS OR BULID_REMOTE_TESTS )
     add_subdirectory(tests)
 endif()
 
-include(CPack) #should be last command
+# Install the cmake config files that permit users to use find_package(ChemicalFun)
+include(jsonarangoInstallCMakeConfigFiles)
