@@ -7,7 +7,6 @@ project(jsonarango VERSION 0.4.1 LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 message(STATUS "Require C++${CMAKE_CXX_STANDARD}")
-message(STATUS "jsonarango install base directory: ${CMAKE_INSTALL_PREFIX}")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MACOSX_RPATH ON)
 

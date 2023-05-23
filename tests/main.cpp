@@ -7,8 +7,9 @@
 #include "tst_collection_api.h"
 #include "tst_query_api.h"
 #include "tst_graph_api.h"
-#include "tst_root_api.h"
-
+#ifdef TestLocalServer
+ #include "tst_root_api.h"
+#endif
 // https://doc.qt.io/qtcreator/creator-autotest.html
 // https://stackoverflow.com/questions/39574360/google-testing-framework-and-qt
 // https://stackoverflow.com/questions/49756620/including-google-tests-in-qt-project
