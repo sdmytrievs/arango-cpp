@@ -15,8 +15,8 @@ test -f ${CONDA_PREFIX}/lib/libvelocypack.a || {
                 cd velocypack && \
 		mkdir -p build && \
 		cd build && \
-                cmake .. -DCMAKE_CXX_FLAGS=-fPIC -DBuildVelocyPackExamples=OFF && \
-                #cmake .. -DCMAKE_CXX_FLAGS=-fPIC -DBuildVelocyPackExamples=OFF -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} && \
+                #cmake .. -DCMAKE_CXX_FLAGS=-fPIC -DBuildVelocyPackExamples=OFF && \
+                cmake .. -DCMAKE_CXX_FLAGS=-fPIC -DBuildVelocyPackExamples=OFF -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX} && \
                 make  && \
 		make install
 
