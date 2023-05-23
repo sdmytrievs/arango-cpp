@@ -8,21 +8,13 @@ file(GLOB_RECURSE HEADER_FILES  *.h )
 # Recursively collect all source files from the current directory
 file(GLOB_RECURSE SOURCE_FILES  *.cpp )
 
-# Create the shared library using the collected source files
-add_library(JSONARANGO_OBJECTS OBJECT ${HEADER_FILES_TOP} ${HEADER_FILES} ${SOURCE_FILES} )
-
-if(USE_SPDLOG_PRECOMPILED)
-   if(NOT TARGET spdlog::spdlog)
-       find_package(spdlog CONFIG REQUIRED)
-   endif()
-endif()
 
 # Check if a shared library is to be built
 if(BUILD_SHARED_LIBS)
     # Enable automatic creation of a module definition (.def) file for a SHARED library on Windows.
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
-    add_library(jsonarango SHARED $<TARGET_OBJECTS:JSONARANGO_OBJECTS>)
+    add_library(jsonarango SHARED ${HEADER_FILES_TOP} ${HEADER_FILES} ${SOURCE_FILES})
     add_library(jsonarango::jsonarango ALIAS jsonarango)
 
     if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
@@ -51,7 +43,7 @@ endif()
 
 # Check if a static library is to be built
 if(BUILD_STATIC_LIBS)
-    add_library(jsonarango-static STATIC $<TARGET_OBJECTS:JSONARANGO_OBJECTS>)
+    add_library(jsonarango-static STATIC ${HEADER_FILES_TOP} ${HEADER_FILES} ${SOURCE_FILES})
     add_library(jsonarango::jsonarango-static ALIAS jsonarango-static)
 
     if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)

@@ -5,7 +5,9 @@ cmake_minimum_required(VERSION 3.7)
 project(jsonarango VERSION 0.4.1 LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+message(STATUS "Require C++${CMAKE_CXX_STANDARD}")
+message(STATUS "jsonarango install base directory: ${CMAKE_INSTALL_PREFIX}")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MACOSX_RPATH ON)
 
@@ -51,6 +53,9 @@ endif()
 
 # Set libraries to be compiled with position independent code mode (i.e., fPIC option in GNU compilers)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+# Find all jsonarango dependencies
+include(jsonarangoFindDeps)
 
 # Set the list of compiler flags for GNU compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
@@ -104,9 +109,6 @@ set(JSONARANGO_HEADER_DIR ${CMAKE_SOURCE_DIR}/include)
 include_directories(${JSONARANGO_SOURCE_DIR})
 include_directories(${JSONARANGO_HEADER_DIR})
 
-# Find all jsonarango dependencies
-include(jsonarangoFindDeps)
-
 # Build jsonarango library
 add_subdirectory(src)
 
@@ -120,5 +122,5 @@ if(BULID_LOCAL_TESTS OR BULID_REMOTE_TESTS )
     add_subdirectory(tests)
 endif()
 
-# Install the cmake config files that permit users to use find_package(ChemicalFun)
+# Install the cmake config files that permit users to use find_package(jsonarango)
 include(jsonarangoInstallCMakeConfigFiles)

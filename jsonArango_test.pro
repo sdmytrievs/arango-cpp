@@ -2,7 +2,7 @@ TEMPLATE = app
 CONFIG += thread console
 CONFIG -= app_bundle
 CONFIG -= qt
-CONFIG += c++17
+CONFIG += c++2a
 
 DEFINES += TestRemoteServer
 
