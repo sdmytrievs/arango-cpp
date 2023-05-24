@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
         rootTestParams.back()->createDatabase("test_db_api");  // create if not exist
     }
 
+    arango_logger->set_level(spdlog::level::critical);
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
