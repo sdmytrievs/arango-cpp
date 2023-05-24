@@ -18,8 +18,8 @@ cd velocypack
 
 echo "Configuring..."
 cmake -G"Visual Studio 16 2019" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH="%CONDA_PREFIX%\Library" .. -A x64 -S . -B build
-echo "Building..."
-cmake --build build --config %CONFIGURATION% --target install
+echo "Building velocypack ..."
+cmake --build build --target install
 
 cd ..\..
 rd /s /q tmp_velo
