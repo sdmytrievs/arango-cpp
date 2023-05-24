@@ -10,7 +10,7 @@ trigger:
 jobs:
 - job: Linux
   pool:
-    vmImage: 'ubuntu-20.04'
+    vmImage: 'ubuntu-latest'
 
   steps:
   - task: Bash@3
@@ -22,7 +22,7 @@ jobs:
 
 - job: macOS
   pool:
-    vmImage: 'macOS-11'
+    vmImage: 'macOS-latest'
 
   steps:
   - task: Bash@3
