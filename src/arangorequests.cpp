@@ -1,9 +1,11 @@
 #include <sstream>
-#include "jsonarango/arangorequests.h"
+#include "arangorequests.h"
 #include "jsonarango/arangoexception.h"
-#include "jsonarango/arangoconnect.h"
 
 namespace arangocpp {
+
+::arangodb::velocypack::Options dump_options;
+::arangodb::velocypack::Options parse_options;
 
 arangodb::velocypack::AttributeTranslator translator;
 

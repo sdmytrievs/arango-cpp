@@ -8,28 +8,57 @@ file(GLOB_RECURSE HEADER_FILES  *.h )
 # Recursively collect all source files from the current directory
 file(GLOB_RECURSE SOURCE_FILES  *.cpp )
 
-# Create the shared library using the collected source files
-add_library(JSONARANGO_OBJECTS OBJECT ${HEADER_FILES} ${SOURCE_FILES} )
 
 # Check if a shared library is to be built
 if(BUILD_SHARED_LIBS)
-    add_library(JSONARANGO_SHARED SHARED $<TARGET_OBJECTS:JSONARANGO_OBJECTS>)
-if( ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    target_link_libraries(JSONARANGO_SHARED curl velocypack )
-endif()
-    set_target_properties(JSONARANGO_SHARED PROPERTIES OUTPUT_NAME jsonarango)
-    install(TARGETS JSONARANGO_SHARED DESTINATION lib)
+    # Enable automatic creation of a module definition (.def) file for a SHARED library on Windows.
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+
+    add_library(jsonarango SHARED ${HEADER_FILES_TOP} ${HEADER_FILES} ${SOURCE_FILES})
+    add_library(jsonarango::jsonarango ALIAS jsonarango)
+
+    if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+      target_link_libraries( jsonarango PRIVATE velocypack PRIVATE libcurl)
+    else()
+      target_link_libraries( jsonarango PRIVATE velocypack PRIVATE curl)
+    endif()
+
+    if(USE_SPDLOG_PRECOMPILED)
+       target_compile_definitions(jsonarango PUBLIC USE_SPDLOG_PRECOMPILED)
+       target_link_libraries(jsonarango PUBLIC spdlog::spdlog )
+    endif()
+
+    install( TARGETS jsonarango
+         EXPORT jsonarangoTargets DESTINATION "lib" COMPONENT libraries)
+
+    # Install debug symbols
+    if(MSVC)
+       install(
+             FILES $<TARGET_PDB_FILE:jsonarango>
+             DESTINATION ${CMAKE_INSTALL_BINDIR}
+             COMPONENT libraries
+             OPTIONAL)
+    endif()
 endif()
 
 # Check if a static library is to be built
 if(BUILD_STATIC_LIBS)
-    add_library(JSONARANGO_STATIC STATIC $<TARGET_OBJECTS:JSONARANGO_OBJECTS>)
-    set_target_properties(JSONARANGO_STATIC PROPERTIES OUTPUT_NAME jsonarango-static)
-    install(TARGETS JSONARANGO_STATIC DESTINATION lib)
+    add_library(jsonarango-static STATIC ${HEADER_FILES_TOP} ${HEADER_FILES} ${SOURCE_FILES})
+    add_library(jsonarango::jsonarango-static ALIAS jsonarango-static)
+
+    if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+         target_link_libraries( jsonarango-static PRIVATE velocypack PRIVATE libcurl)
+    else()
+         target_link_libraries( jsonarango-static PRIVATE velocypack PRIVATE curl)
+    endif()
+    if(USE_SPDLOG_PRECOMPILED)
+        target_compile_definitions(jsonarango-static PUBLIC USE_SPDLOG_PRECOMPILED)
+        target_link_libraries(jsonarango-static PUBLIC spdlog::spdlog )
+    endif()
+
+   install( TARGETS jsonarango-static
+            EXPORT jsonarangoTargets DESTINATION "lib" COMPONENT libraries)
 endif()
-
-
-
 
 install(
     DIRECTORY   "${JSONARANGO_HEADER_DIR}/jsonarango"

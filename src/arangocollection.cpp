@@ -3,10 +3,15 @@
 #include "jsonarango/arangoexception.h"
 #include "arangodetail.h"
 #include "curlobjects_pool.h"
-
+#include "arangorequests.h"
 
 namespace arangocpp {
 
+
+/// Execute user function to all records data
+static void extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentCallback setfnc );
+/// Execute user function to all records data
+static void extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentIdCallback setfnc );
 
 ArangoDBAPIBase::ArangoDBAPIBase(const ArangoDBConnection &connectData)
 {
@@ -422,7 +427,7 @@ std::unique_ptr<HttpMessage> ArangoDBCollectionAPI::createEdgeRequest(const std:
     return createAQLRequest( collname,  querytofrom  );
 }
 
-void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentCallback setfnc )
+void extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentCallback setfnc )
 {
     auto numb = sresult.length();
     for( size_t ii=0; ii<numb; ii++ ) {
@@ -430,7 +435,7 @@ void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sr
     }
 }
 
-void ArangoDBCollectionAPI::extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentIdCallback setfnc )
+void extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentIdCallback setfnc )
 {
     auto numb = sresult.length();
     for( size_t ii=0; ii<numb; ii++ ) {

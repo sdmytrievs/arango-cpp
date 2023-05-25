@@ -10,61 +10,32 @@ trigger:
 jobs:
 - job: Linux
   pool:
-    vmImage: 'ubuntu-20.04'
+    vmImage: 'ubuntu-latest'
 
   steps:
   - task: Bash@3
     inputs:
       filePath: 'ci/pipelines/install.sh'
 
+  - script: ./ci/pipelines/test.sh
+    displayName: Test
+
 - job: macOS
   pool:
-    vmImage: 'macOS-10.15'
+    vmImage: 'macOS-latest'
 
   steps:
   - task: Bash@3
     inputs:
       filePath: 'ci/pipelines/install/install-osx.sh'
 
-# - job: win64
-#   pool:
-#     vmImage: 'windows-2019'
-#   strategy:
-#     matrix:
-#       Python37:
-#         python.version: '3.7'
-
-#   steps:
-#   - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
-#     displayName: Add conda to PATH
-
-#   - script: |
-#       conda config --system --set always_yes yes --set changeps1 no
-#       conda config --system --append channels conda-forge
-#       conda install -n base conda-devenv
-#       conda update -q conda
-#       conda info -a
-#       conda devenv
-#       call activate jsonarango
-#     displayName: Create Anaconda environment
-
-#   - task: BatchScript@1
-#     inputs:
-#       filename: 'ci/pipelines/install.bat'
-
-#   - script: |
-#      call activate jsonarango
-#      conda list
-#      call python -c "import jsonarango"
-#     displayName: Test
+  - script: |
+        ./ci/pipelines/test.sh
+    displayName: Test
 
 - job: win64_VS
   pool:
     vmImage: 'windows-2019'
-  strategy:
-    matrix:
-      Python37:
-        python.version: '3.7'
 
   steps:
   - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
@@ -84,8 +55,4 @@ jobs:
     inputs:
       filename: 'ci/pipelines/installVS.bat'
 
-  - script: |
-     call activate jsonarango
-     conda list
-     call python -c "import jsonarango"
-    displayName: Test
+ 
