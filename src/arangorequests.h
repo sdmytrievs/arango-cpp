@@ -1,19 +1,19 @@
 #pragma once
 
-#include <string>
-#include <map>
 #include <limits>
 #include <iterator>
 #include <velocypack/Parser.h>
+#include "jsonarango/arangocollection.h"
 
 namespace arangocpp {
+
+extern ::arangodb::velocypack::Options dump_options;
+extern ::arangodb::velocypack::Options parse_options;
 
 const std::string fu_content_type_key("content-type");
 const std::string fu_accept_key("accept");
 const std::string fu_content_type_vpack("application/x-velocypack");
 const std::string fu_content_type_json("application/json");
-
-using StringMap = std::map<std::string, std::string>;
 
 /// Response status
 using StatusCode = uint32_t;
@@ -27,21 +27,6 @@ StatusCode const StatusForbidden = 403;
 StatusCode const StatusNotFound = 404;
 StatusCode const StatusMethodNotAllowed = 405;
 StatusCode const StatusConflict = 409;
-
-
-///  HTTP method ( CURLOPT_CUSTOMREQUEST)
-enum class RestVerb
-{
-    Illegal = -1,
-    Delete = 0,
-    Get = 1,
-    Post = 2,
-    Put = 3,
-    Head = 4,
-    Patch = 5,
-    Options = 6
-};
-
 
 enum class MessageType
 {

@@ -3,6 +3,7 @@
 #include "jsonarango/arangodbusers.h"
 #include "jsonarango/arangoexception.h"
 #include "arangodetail.h"
+#include "arangorequests.h"
 
 namespace arangocpp {
 

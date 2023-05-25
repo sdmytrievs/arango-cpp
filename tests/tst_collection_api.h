@@ -2,6 +2,9 @@
 
 #include <gtest/gtest.h>
 //#include <gmock/gmock-matchers.h>
+#include <limits>
+#include <iterator>
+#include <velocypack/Parser.h>
 
 #include "init_tests.h"
 #include "jsonarango/arangocollection.h"

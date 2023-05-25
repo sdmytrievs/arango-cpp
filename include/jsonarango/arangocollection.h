@@ -1,13 +1,26 @@
 #pragma once
 
-#include <set>
-#include "jsonarango/arangorequests.h"
 #include "jsonarango/arangoconnect.h"
 #include "jsonarango/arangoquery.h"
 
 namespace arangocpp {
 
 class RequestCurlObject;
+class HttpMessage;
+using StringMap = std::map<std::string, std::string>;
+
+///  HTTP method ( CURLOPT_CUSTOMREQUEST)
+enum class RestVerb
+{
+    Illegal = -1,
+    Delete = 0,
+    Get = 1,
+    Post = 2,
+    Put = 3,
+    Head = 4,
+    Patch = 5,
+    Options = 6
+};
 
 class ArangoDBAPIBase
 {
@@ -46,8 +59,6 @@ protected:
     ArangoDBConnection connect_data;
     /// Max number of records on transfer
     int batch_size = 500;
-    ::arangodb::velocypack::Options dump_options;
-    ::arangodb::velocypack::Options parse_options;
 
     virtual std::unique_ptr<HttpMessage> createREQUEST( RestVerb verb, std::string const& path,
                                                         StringMap const& parameter = StringMap() );
@@ -178,11 +189,6 @@ protected:
 
     /// Generate request to Edges query cursor
     std::unique_ptr<HttpMessage> createEdgeRequest( const std::string& collname,  const ArangoDBQuery& query  );
-
-    /// Execute user function to all records data
-    void extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentCallback setfnc );
-    /// Execute user function to all records data
-    void extractData( const ::arangodb::velocypack::Slice& sresult,  FetchingDocumentIdCallback setfnc );
 
 };
 
