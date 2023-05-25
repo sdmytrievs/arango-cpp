@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 # Set the name of the project
-project(jsonarango VERSION 0.4.1 LANGUAGES CXX)
+project(jsonarango VERSION 0.5.0 LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
