@@ -28,9 +28,9 @@ LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/src)
 
 add_executable(test_main  main.cpp )
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-  target_link_libraries(test_main gtest_main velocypack jsonarango::jsonarango-static Threads::Threads)
+  target_link_libraries(test_main gtest_main jsonarango::jsonarango-static Threads::Threads)
 else()
-  target_link_libraries(test_main gtest velocypack jsonarango::jsonarango Threads::Threads)
+  target_link_libraries(test_main gtest jsonarango::jsonarango Threads::Threads)
 endif()
 
 target_include_directories(test_main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src )

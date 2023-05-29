@@ -27,7 +27,7 @@ include(CondaAware)
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(BUILD_STATIC_LIBS "Build static libraries" ON)
 
-option(BUILD_EXAMPLES "Build the examples" ON)
+option(BUILD_EXAMPLES "Build the examples" OFF)
 option(BULID_LOCAL_TESTS "Build test suite for local ArangoDB" OFF)
 option(BULID_REMOTE_TESTS "Build test suite for remote ArangoDB" ON)
 
@@ -100,6 +100,17 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     include_directories("c:/usr/local/include")
     link_directories("c:/usr/local/lib")
 endif()
+
+#
+#Build velocypack
+include(PatchFile)
+set(VELOCYPACK_HEADER_DIR ${CMAKE_SOURCE_DIR}/velocypack/include)
+include_directories( ${VELOCYPACK_HEADER_DIR})
+option(BuildVelocyPackExamples "Build velocypack examples" OFF)
+add_subdirectory(velocypack)
+install( TARGETS velocypack EXPORT jsonarangoTargets
+         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} )
+
 
 # Set the jsonarango source directory path
 set(JSONARANGO_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)

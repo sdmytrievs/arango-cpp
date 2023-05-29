@@ -13,6 +13,8 @@ jobs:
     vmImage: 'ubuntu-latest'
 
   steps:
+  - checkout: self
+    submodules: recursive
   - task: Bash@3
     inputs:
       filePath: 'ci/pipelines/install.sh'
@@ -25,6 +27,8 @@ jobs:
     vmImage: 'macOS-latest'
 
   steps:
+  - checkout: self
+    submodules: recursive
   - task: Bash@3
     inputs:
       filePath: 'ci/pipelines/install/install-osx.sh'
@@ -38,6 +42,8 @@ jobs:
     vmImage: 'windows-2019'
 
   steps:
+  - checkout: self
+    submodules: recursive
   - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
     displayName: Add conda to PATH
 

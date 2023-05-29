@@ -18,7 +18,6 @@ conda update -q conda
 conda info -a
 conda devenv
 source activate jsonarango
-./conda-install-dependencies.sh
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
