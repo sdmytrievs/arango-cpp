@@ -12,16 +12,16 @@ if(BUILD_EXAMPLES)
         exampleQuery
         exampleSelection
         exampleGraphCRUD
-#        exampleOptions
+        exampleOptions
         time_test
     )
 
     foreach (exampleName ${Examples})
         add_executable(${exampleName} ${exampleName}.cpp)
         if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-          target_link_libraries( ${exampleName} velocypack jsonarango::jsonarango-static Threads::Threads )
+          target_link_libraries( ${exampleName} jsonarango::jsonarango-static Threads::Threads velocypack)
         else()
-          target_link_libraries(${exampleName} velocypack jsonarango::jsonarango Threads::Threads )
+          target_link_libraries(${exampleName} jsonarango::jsonarango Threads::Threads velocypack)
         endif()
     endforeach()
 endif()

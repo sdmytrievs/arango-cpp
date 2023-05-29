@@ -1,0 +1,11 @@
+--- CMakeLists.txt	2023-05-29 17:12:34.998387895 +0300
++++ CMakeLists_new.txt	2023-05-29 19:21:08.880308824 +0300
+@@ -111,7 +111,7 @@
+ target_include_directories(
+   velocypack
+   PRIVATE ${PROJECT_SOURCE_DIR}/src
+-  PUBLIC ${PROJECT_SOURCE_DIR}/include
++  PRIVATE ${PROJECT_SOURCE_DIR}/include
+ )
+  
+ if(IS_ARM)

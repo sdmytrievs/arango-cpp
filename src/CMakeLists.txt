@@ -8,6 +8,7 @@ file(GLOB_RECURSE HEADER_FILES  *.h )
 # Recursively collect all source files from the current directory
 file(GLOB_RECURSE SOURCE_FILES  *.cpp )
 
+link_directories(${CMAKE_BINARY_DIR}/velocypack)
 
 # Check if a shared library is to be built
 if(BUILD_SHARED_LIBS)
@@ -64,4 +65,6 @@ install(
     DIRECTORY   "${JSONARANGO_HEADER_DIR}/jsonarango"
     DESTINATION include
 )
-                  
+
+# Install the cmake config files that permit users to use find_package(jsonarango)
+#include(jsonarangoInstallCMakeConfigFiles)
