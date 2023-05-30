@@ -8,7 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 message(STATUS "Require C++${CMAKE_CXX_STANDARD}")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_MACOSX_RPATH ON)
+#set(CMAKE_MACOSX_RPATH ON)
 
 
 # Define variables with the GNU standard installation directories

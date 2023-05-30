@@ -6,7 +6,7 @@ dependencies:
   - ninja # [unix]
   - make  # [win]
   - git
-#  - ccache  # [unix]
+  - ccache  # [unix]
   - curl
   - nlohmann_json
 #  - velocypack
@@ -15,8 +15,8 @@ dependencies:
 
 environment:
 
-#  LD_LIBRARY_PATH:                                                   # [unix]
-#    - {{ root }}/artifacts/lib                                       # [unix]
+  LD_LIBRARY_PATH:                                                   # [unix]
+    - {{ root }}/artifacts/lib                                       # [unix]
 
   PATH:                                                              # [win]
     - {{ root }}\artifacts\bin                                       # [win]
