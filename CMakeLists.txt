@@ -2,13 +2,13 @@
 cmake_minimum_required(VERSION 3.7)
 
 # Set the name of the project
-project(jsonarango VERSION 0.5.0 LANGUAGES CXX)
+project(jsonarango VERSION 0.5.0 LANGUAGES CXX C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 message(STATUS "Require C++${CMAKE_CXX_STANDARD}")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_MACOSX_RPATH ON)
+set(CMAKE_MACOSX_RPATH ON)
 
 
 # Define variables with the GNU standard installation directories
@@ -88,11 +88,6 @@ endif()
 #set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fsanitize=thread")
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-   set(gtest_SOURCE_DIR1 ${CMAKE_SOURCE_DIR}/tests/googletest/googletest)
-   set(gtest_build_include_dirs1
-  "${gtest_SOURCE_DIR1}/include"
-  "${gtest_SOURCE_DIR1}")
-   #include_directories(${gtest_build_include_dirs1})
    include_directories("/usr/local/include")
    link_directories("/usr/local/lib")
 endif()
