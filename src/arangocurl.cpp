@@ -174,7 +174,7 @@ int RequestCurlObject::sendRequest( const std::string& theURL, std::unique_ptr<H
            curl_err += std::string(errbuf, 0, std::min<size_t>(len,CURL_ERROR_SIZE ));
         else
            curl_err += curl_easy_strerror(res);
-        arango_logger->warn("Curl finish with error: {}", curl_err);
+        arango_logger->error("Curl finish with error: {}", curl_err);
     }
     return res;
 }
