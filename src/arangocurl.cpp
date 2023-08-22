@@ -67,6 +67,7 @@ size_t RequestCurlObject::bodyCallback(
 
 int RequestCurlObject::sendRequest( const std::string& theURL, std::unique_ptr<HttpMessage> request )
 {
+    char errbuf[CURL_ERROR_SIZE];
     arango_logger->trace("Curl URL request {}", theURL);
     _URL = theURL;
     _request = (std::move(request));
@@ -96,6 +97,10 @@ int RequestCurlObject::sendRequest( const std::string& theURL, std::unique_ptr<H
     curl_easy_setopt(_curl, CURLOPT_HTTPHEADER, _curlHeaders);
     curl_easy_setopt(_curl, CURLOPT_HEADER, 0L);
     curl_easy_setopt(_curl, CURLOPT_URL, _URL.c_str());
+    // provide a buffer to store errors in
+    curl_easy_setopt(_curl, CURLOPT_ERRORBUFFER, errbuf);
+    // set the error buffer as empty before performing a request
+    errbuf[0] = 0;
 
     // clear last command
     curl_easy_setopt(_curl, CURLOPT_HTTPGET, 1L);
@@ -163,7 +168,13 @@ int RequestCurlObject::sendRequest( const std::string& theURL, std::unique_ptr<H
 
     auto res = curl_easy_perform(_curl);
     if( res != CURLE_OK ) {
-        arango_logger->warn("Curl finish with {}", res);
+        std::string curl_err = std::to_string(res)+" - ";
+        size_t len = strlen(errbuf);
+        if(len)
+           curl_err += std::string(errbuf, 0, std::min<size_t>(len,CURL_ERROR_SIZE ));
+        else
+           curl_err += curl_easy_strerror(res);
+        arango_logger->warn("Curl finish with error: {}", curl_err);
     }
     return res;
 }
