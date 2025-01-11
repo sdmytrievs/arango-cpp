@@ -1,6 +1,6 @@
 #include <sstream>
 #include "arangorequests.h"
-#include "jsonarango/arangoexception.h"
+#include "arango-cpp/arangoexception.h"
 
 namespace arangocpp {
 

@@ -1,5 +1,5 @@
-#include "jsonarango/arangograph.h"
-#include "jsonarango/arangoexception.h"
+#include "arango-cpp/arangograph.h"
+#include "arango-cpp/arangoexception.h"
 #include "arangorequests.h"
 
 namespace arangocpp {

@@ -4,4 +4,4 @@ conda install -n base conda-devenv
 conda update -q conda
 conda info -a
 conda devenv
-call activate jsonarango
+call activate arango-cpp

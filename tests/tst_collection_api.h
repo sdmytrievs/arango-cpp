@@ -7,7 +7,7 @@
 #include <velocypack/Parser.h>
 
 #include "init_tests.h"
-#include "jsonarango/arangocollection.h"
+#include "arango-cpp/arangocollection.h"
 
 using namespace testing;
 using namespace arangocpp;

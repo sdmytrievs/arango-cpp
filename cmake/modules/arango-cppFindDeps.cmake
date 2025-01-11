@@ -7,11 +7,6 @@ if(NOT CURL_LIB)
   message(FATAL_ERROR "curl library not found")
 endif()
 
-#find_library(VELOCYPACK_LIB velocypack)
-#if(NOT VELOCYPACK_LIB)
-#  message(FATAL_ERROR "velocypack library not found")
-#endif()
-
 if(USE_SPDLOG_PRECOMPILED)
    if(NOT TARGET spdlog::spdlog)
        find_package(spdlog CONFIG REQUIRED)

@@ -99,30 +99,5 @@ echo Cleanup temporary file/folders
 cd %ROOT_DIR%
 rd /s /q tmp_libcurl
 
-mkdir tmp_velo
-cd tmp_velo
-
-
-echo
-echo ******                		 ******
-echo ****** Compiling Velocypack ******
-echo ******                		 ******
-echo
-
-
-echo Get velocypack from git...
-git clone https://github.com/arangodb/velocypack.git
-cd velocypack
-
-echo "Configuring..."
-REM cmake -G"Visual Studio 16 2019" .. -DCMAKE_BUILD_TYPE=Release  -DBuildVelocyPackExamples=OFF -DCMAKE_INSTALL_PREFIX=%LOCALINSTALL% .. -A x64 -S . -B build
-cmake -G%COMPILER_VER_NAME% -DCMAKE_BUILD_TYPE=Release -DBuildVelocyPackExamples=OFF -DCMAKE_INSTALL_PREFIX=%LOCALINSTALL% .. -S . -B build
-echo "Building..."
-cmake --build build  --target install
-cd ..\..
-
-REM Housekeeping
-rd /s /q tmp_velo
-
 
 

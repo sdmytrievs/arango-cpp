@@ -3,8 +3,8 @@
 #include <iostream>
 #include <limits>
 #include <velocypack/Collection.h>
-#include "jsonarango/arangocollection.h"
-#include "jsonarango/arangoexception.h"
+#include "arango-cpp/arangocollection.h"
+#include "arango-cpp/arangoexception.h"
 #include "arangocurl.h"
 
 int main(int, char* [])
@@ -15,7 +15,7 @@ int main(int, char* [])
 
     try{
 
-        auto ar_logger = spdlog::get("jsonarango");
+        auto ar_logger = spdlog::get("arango-cpp");
         ar_logger->set_level(spdlog::level::info);
 
         std::cout << "Start " << std::endl;

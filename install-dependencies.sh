@@ -21,7 +21,7 @@ fi
 
 # Uncomment what is necessary to reinstall by force 
 #sudo rm -rf /usr/local/include/spdlog
-sudo rm -f /usr/local/lib/libvelocypack.a
+#sudo rm -f /usr/local/lib/libvelocypack.a
 
 threads=3
 
@@ -48,7 +48,6 @@ test -f /usr/local/lib/libvelocypack.a || {
 	# Building velocypack library
 	mkdir -p ~/code && \
 		cd ~/code && \
-                #git clone https://github.com/gdmiron/velocypack.git -b v0.1.3 && \ # version has to be the same as used in conda, use gdmiron fork
                 git clone https://github.com/arangodb/velocypack.git -b main
                 cd velocypack && \
 		mkdir -p build && \

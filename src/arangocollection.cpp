@@ -1,6 +1,6 @@
 #include <locale>
-#include "jsonarango/arangocollection.h"
-#include "jsonarango/arangoexception.h"
+#include "arango-cpp/arangocollection.h"
+#include "arango-cpp/arangoexception.h"
 #include "arangodetail.h"
 #include "curlobjects_pool.h"
 #include "arangorequests.h"

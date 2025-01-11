@@ -26,7 +26,6 @@ $ xcode-select -print-path
 
 ```
 
-* You need install  ::arangodb::velocypack and all dependent projects with  __c++17__
 
 * If you have problems with compile googletests execute:
 

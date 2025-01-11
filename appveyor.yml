@@ -23,7 +23,6 @@ init:
 install:
   - git submodule update --init --recursive
   - call ci\appveyor\install.bat
-#  - call ci\appveyor\install-dependencies.bat
 
 build_script:
   - call ci\appveyor\build.bat
