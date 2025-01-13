@@ -98,7 +98,7 @@ endif()
 
 #
 #Build velocypack
-#include(PatchFile)
+include(PatchFile)
 set(VELOCYPACK_HEADER_DIR ${CMAKE_SOURCE_DIR}/velocypack/include)
 include_directories( ${VELOCYPACK_HEADER_DIR})
 option(BuildVelocyPackExamples "Build velocypack examples" OFF)
