@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 # Set the name of the project
-project(jsonarango VERSION 0.5.0 LANGUAGES CXX C)
+project(arango-cpp VERSION 1.1.0 LANGUAGES CXX C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
@@ -53,8 +53,8 @@ endif()
 # Set libraries to be compiled with position independent code mode (i.e., fPIC option in GNU compilers)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Find all jsonarango dependencies
-include(jsonarangoFindDeps)
+# Find all arango-cpp dependencies
+include(arango-cppFindDeps)
 
 # Set the list of compiler flags for GNU compiler
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
@@ -103,18 +103,18 @@ set(VELOCYPACK_HEADER_DIR ${CMAKE_SOURCE_DIR}/velocypack/include)
 include_directories( ${VELOCYPACK_HEADER_DIR})
 option(BuildVelocyPackExamples "Build velocypack examples" OFF)
 add_subdirectory(velocypack)
-install( TARGETS velocypack EXPORT jsonarangoTargets
+install( TARGETS velocypack EXPORT arango-cppTargets
          PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} )
 
 
-# Set the jsonarango source directory path
-set(JSONARANGO_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
-set(JSONARANGO_HEADER_DIR ${CMAKE_SOURCE_DIR}/include)
+# Set the arango-cpp source directory path
+set(ARANGO_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+set(ARANGO_HEADER_DIR ${CMAKE_SOURCE_DIR}/include)
 # Set the include directories
-include_directories(${JSONARANGO_SOURCE_DIR})
-include_directories(${JSONARANGO_HEADER_DIR})
+include_directories(${ARANGO_SOURCE_DIR})
+include_directories(${ARANGO_HEADER_DIR})
 
-# Build jsonarango library
+# Build arango-cpp library
 add_subdirectory(src)
 
 # Build the examples
@@ -127,5 +127,5 @@ if(BULID_LOCAL_TESTS OR BULID_REMOTE_TESTS )
     add_subdirectory(tests)
 endif()
 
-# Install the cmake config files that permit users to use find_package(jsonarango)
-include(jsonarangoInstallCMakeConfigFiles)
+# Install the cmake config files that permit users to use find_package(arango-cpp)
+include(arango-cppInstallCMakeConfigFiles)

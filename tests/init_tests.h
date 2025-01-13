@@ -3,9 +3,9 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include "jsonarango/arangocollection.h"
-#include "jsonarango/arangograph.h"
-#include "jsonarango/arangoexception.h"
+#include "arango-cpp/arangocollection.h"
+#include "arango-cpp/arangograph.h"
+#include "arango-cpp/arangoexception.h"
 
 
 using arango_connect_t = std::shared_ptr<arangocpp::ArangoDBCollectionAPI>;

@@ -76,9 +76,8 @@ Version 0.2 Done:
 
 To Do
 
-4. Add the same test examples for pyArango and compare time execution
 
-5. Into ArangoDBCollectionAPI no example for queryEdgesToFrom and removeEdges
+4. Into ArangoDBCollectionAPI no example for queryEdgesToFrom and removeEdges
 
 
 >> more detail implement and test graph commands   https://www.arangodb.com/docs/stable/aql/graphs.html

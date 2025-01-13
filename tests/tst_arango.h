@@ -3,9 +3,9 @@
 #include <gtest/gtest.h>
 //#include <gmock/gmock-matchers.h>
 
-#include "jsonarango/arangoquery.h"
-#include "jsonarango/arangoconnect.h"
-#include "jsonarango/arangocollection.h"
+#include "arango-cpp/arangoquery.h"
+#include "arango-cpp/arangoconnect.h"
+#include "arango-cpp/arangocollection.h"
 
 namespace arangocpp {
   ArangoDBConnection connectFromSettings( const std::string& jsonstr, bool rootdata );

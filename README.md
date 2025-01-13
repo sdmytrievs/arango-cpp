@@ -1,8 +1,8 @@
-# jsonArango
+# arango-cpp
 
 This is a lightweight ArangoDB client C++ library, providing CRUD and query operations using several databases and many collections on local and/or remote ArangoDB instances at the same time.
 
-## What jsonArango can do?
+## What arango-cpp can do?
 
 ### _ArangoDBCollectionAPI_   
 * Use methods from this API for manipulating collections and documents within the database. The Collection API is valid for all Collection instances, regardless of their type (vertices or edges).
@@ -13,11 +13,11 @@ This is a lightweight ArangoDB client C++ library, providing CRUD and query oper
 
 For all methods and APIs, see headers "arangocollection.h", "arangograph.h" and "arangodbusers.h".
 
-jsonArango is written in _C++11_ using the open-source library Velocypack from ArangoDB.
-Version: currently 0.2.
+arango-cpp is written in _C++20_ using the open-source library Velocypack from ArangoDB.
+Version: currently 1.1.
 Will be distributed as is (no liability) under the terms of Lesser GPL v.3 license.
 
-## How to install the jsonArango library
+## How to install the arango-cpp library
 
 * Make sure you have g++, cmake and git installed. If not, install them (on Ubuntu Linux):
 
@@ -26,30 +26,30 @@ sudo apt-get install g++ cmake git libssl-dev
 ```
 For Mac OSX, make sure you have Xcode and Homebrew installed (see [Homebrew web site](http://brew.sh) ).
 
-* Download jsonArango source code using git clone command:
+* Download arango-cpp source code using git clone command:
 
 ```sh
-git clone https://bitbucket.org/gems4/jsonarango.git
+git clone --recurse-submodules https://github.com/sdmytrievs/arango-cpp.git
 ```
 
 * Install Dependencies
 
-In order to build the jsonArango library on Ubuntu Linux or MacOS, first execute the following (may ask your sudo password):
+In order to build the arango-cpp library on Ubuntu Linux or MacOS, first execute the following (may ask your sudo password):
 
 ```sh
-cd jsonarango
+cd arango-cpp
 ./install-dependencies.sh
 ```
 
-* Install the jsonArango library (will ask your sudo password)
+* Install the arango-cpp library (will ask your sudo password)
 
 ```sh
 ./install.sh
 ```
 
-After that, headers and the library can be found in /usr/local/include/jsonarango, /usr/local/lib/.
+After that, headers and the library can be found in /usr/local/include/arango-cpp, /usr/local/lib/.
 
-* To test jsonArango execute:
+* To test arango-cpp execute:
 
 ```sh
 mkdir build && \
@@ -89,13 +89,13 @@ brew update
 brew install arangodb
 ~~~
 
-### How to use jsonArango (use cases)
+### How to use arango-cpp (use cases)
 
 ```c++
 
 #include <iostream>
-#include "jsonarango/arangocollection.h"
-#include "jsonarango/arangoexception.h"
+#include "arango-cpp/arangocollection.h"
+#include "arango-cpp/arangoexception.h"
 
 int main(int, char* [])
 {

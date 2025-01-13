@@ -5,9 +5,9 @@
 list(APPEND CMAKE_PREFIX_PATH $ENV{CONDA_PREFIX})
 
 # Include the cmake targets of the project if they have not been yet.
-if(NOT TARGET jsonarango::jsonarango)
-    include("@PACKAGE_JSONARANGO_INSTALL_CONFIGDIR@/jsonarangoTargets.cmake")
+if(NOT TARGET arango-cpp::arango-cpp)
+    include("@PACKAGE_JSONARANGO_INSTALL_CONFIGDIR@/arango-cppTargets.cmake")
 endif()
 
 # Recommended check at the end of a cmake config file.
-check_required_components(jsonarango)
+check_required_components(arango-cpp)

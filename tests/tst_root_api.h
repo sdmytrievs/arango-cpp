@@ -4,8 +4,8 @@
 //#include <gmock/gmock-matchers.h>
 
 #include "init_tests.h"
-#include "jsonarango/arangodbusers.h"
-#include "jsonarango/arangoconnect.h"
+#include "arango-cpp/arangodbusers.h"
+#include "arango-cpp/arangoconnect.h"
 
 using namespace testing;
 using namespace arangocpp;

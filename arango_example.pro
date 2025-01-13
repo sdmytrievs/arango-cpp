@@ -3,7 +3,7 @@ CONFIG += thread console
 CONFIG -= app_bundle
 CONFIG -= qt
 CONFIG += c++2a
-CONFIG += sanitizer sanitize_thread
+#CONFIG += sanitizer sanitize_thread
 
 !win32 {
   DEFINES += __unix
@@ -31,14 +31,14 @@ win32 {
 }
 
 # Define the directory where jsonArango source code is located
-JSONARANGO_DIR =  $$PWD/src
-JSONARANGO_HEADERS_DIR =  $$JSONARANGO_DIR/../include
+ARANGO_DIR =  $$PWD/src
+ARANGO_HEADERS_DIR =  $$ARANGO_DIR/../include
 
-DEPENDPATH   += $$JSONARANGO_DIR
-DEPENDPATH   += $$JSONARANGO_HEADERS_DIR
+DEPENDPATH   += $$ARANGO_DIR
+DEPENDPATH   += $$ARANGO_HEADERS_DIR
 
-INCLUDEPATH   += $$JSONARANGO_DIR
-INCLUDEPATH   += $$JSONARANGO_HEADERS_DIR
+INCLUDEPATH   += $$ARANGO_DIR
+INCLUDEPATH   += $$ARANGO_HEADERS_DIR
 
 LIBS +=   -lvelocypack
 win32:LIBS +=   -llibcurl
@@ -47,7 +47,7 @@ win32:LIBS +=   -llibcurl
 
 OBJECTS_DIR   = obj
 
-include($$JSONARANGO_DIR/jsonarango.pri)
+include($$ARANGO_DIR/arango-cpp.pri)
 
 SOURCES += \
 #       main.cpp

@@ -1,5 +1,5 @@
-#include "jsonarango/arangodbusers.h"
-#include "jsonarango/arangoexception.h"
+#include "arango-cpp/arangodbusers.h"
+#include "arango-cpp/arangoexception.h"
 #include "curlobjects_pool.h"
 
 namespace arangocpp {

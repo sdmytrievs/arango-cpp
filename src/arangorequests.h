@@ -3,7 +3,7 @@
 #include <limits>
 #include <iterator>
 #include <velocypack/Parser.h>
-#include "jsonarango/arangocollection.h"
+#include "arango-cpp/arangocollection.h"
 
 namespace arangocpp {
 

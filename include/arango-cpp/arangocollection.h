@@ -1,7 +1,7 @@
 #pragma once
 
-#include "jsonarango/arangoconnect.h"
-#include "jsonarango/arangoquery.h"
+#include "arango-cpp/arangoconnect.h"
+#include "arango-cpp/arangoquery.h"
 
 namespace arangocpp {
 

@@ -16,7 +16,7 @@ conda install conda-devenv
 conda update -q conda
 conda info -a
 conda devenv
-source activate jsonarango
+source activate arango-cpp
 mkdir build
 cd build
 # Configure step

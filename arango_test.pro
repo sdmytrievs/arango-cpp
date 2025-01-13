@@ -30,17 +30,17 @@ win32 {
   LIBPATH += "C:\usr\local\lib"
 }
 
-# Define the directory where jsonio14 source code is located
-JSONARANGO_DIR =  $$PWD/src
-JSONARANGO_HEADERS_DIR =  $$JSONARANGO_DIR/../include
+# Define the directory where source code is located
+ARANGO_DIR =  $$PWD/src
+ARANGO_HEADERS_DIR =  $$ARANGO_DIR/../include
 TESTS_DIR =  $$PWD/tests
 
-DEPENDPATH   += $$JSONARANGO_DIR
-DEPENDPATH   += $$JSONARANGO_HEADERS_DIR
+DEPENDPATH   += $$ARANGO_DIR
+DEPENDPATH   += $$ARANGO_HEADERS_DIR
 DEPENDPATH   += $$TESTS_DIR
 
-INCLUDEPATH   += $$JSONARANGO_DIR
-INCLUDEPATH   += $$JSONARANGO_HEADERS_DIR
+INCLUDEPATH   += $$ARANGO_DIR
+INCLUDEPATH   += $$ARANGO_HEADERS_DIR
 INCLUDEPATH   += $$TESTS_DIR
 
 LIBS +=   -lvelocypack
@@ -50,7 +50,7 @@ win32:LIBS +=   -llibcurl
 OBJECTS_DIR   = obj
 
 include($$TESTS_DIR/gtest_dependency.pri)
-include($$JSONARANGO_DIR/jsonarango.pri)
+include($$ARANGO_DIR/arango-cpp.pri)
 
 HEADERS += \
         $$TESTS_DIR/init_tests.h \

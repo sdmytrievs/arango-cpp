@@ -1,6 +1,6 @@
 #include <iostream>
-#include "jsonarango/arangoconnect.h"
-#include "jsonarango/arangoexception.h"
+#include "arango-cpp/arangoconnect.h"
+#include "arango-cpp/arangoexception.h"
 #include "arangodetail.h"
 #include "curlobjects_pool.h"
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -8,7 +8,7 @@
 namespace arangocpp {
 
 // Thread-safe logger to stdout with colors
-std::shared_ptr<spdlog::logger> arango_logger = spdlog::stdout_color_mt("jsonarango");
+std::shared_ptr<spdlog::logger> arango_logger = spdlog::stdout_color_mt("arango-cpp");
 
 CurlPool::ptr_type CurlPool::get_resource()
 {

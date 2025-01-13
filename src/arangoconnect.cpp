@@ -1,7 +1,7 @@
 #include <fstream>
 #include <sstream>
-#include "jsonarango/arangodbusers.h"
-#include "jsonarango/arangoexception.h"
+#include "arango-cpp/arangodbusers.h"
+#include "arango-cpp/arangoexception.h"
 #include "arangodetail.h"
 #include "arangorequests.h"
 

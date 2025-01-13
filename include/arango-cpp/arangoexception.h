@@ -6,7 +6,7 @@
 
 namespace arangocpp {
 
-/// Default logger for jsonarango library
+/// Default logger for arango-cpp library
 extern std::shared_ptr<spdlog::logger> arango_logger;
 
 /// @brief General exception structure into project.

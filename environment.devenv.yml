@@ -1,4 +1,4 @@
-name: jsonarango
+name: arango-cpp
 
 dependencies:
   - gxx_linux-64>=9.4.0  # [linux]
