@@ -26,13 +26,7 @@ void ArangoDBAPIBase::resetDBConnection( const ArangoDBConnection& connectData )
         return;
     }
     connect_data = connectData;
-    try{
-        testConnection();
-    }
-    catch(std::exception& e)
-    {
-        arango_logger->warn("DB connection error: {}", e.what());
-    }
+    testConnection();
 }
 
 /*
@@ -81,8 +75,13 @@ std::unique_ptr<HttpMessage> ArangoDBAPIBase::createREQUEST(
 
 
 // Send a request to the server and wait into a response it received.
-std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendREQUEST(std::unique_ptr<HttpMessage> rq )
+std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendREQUEST(std::unique_ptr<HttpMessage> rq)
 {
+    // clear error
+    http_error=0;
+    arango_error=0;
+    last_error={};
+
     auto url = connect_data.fullURL(rq->header.path);
 
     if(arango_logger->should_log(spdlog::level::debug)) {
@@ -98,23 +97,52 @@ std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendREQUEST(std::unique_ptr<HttpMe
     }
 
     if( !result->isContentTypeVPack() ) {
-        ARANGO_THROW( "ArangoDBAPIBase", 3, "Illegal content type" );
+        last_error = "illegal content type";
+        ARANGO_THROW( "ArangoDBAPIBase", 3, last_error.c_str());
     }
     if( result->statusCode() == 0 ) {
-        ARANGO_THROW( "ArangoDBAPIBase", 2, "Server connections error" );
+        last_error = "connections error to " + url;
+        ARANGO_THROW( "ArangoDBAPIBase", 2, last_error.c_str());
+    }
+
+    // get error
+    if(result->statusCode() >= StatusBadRequest) {
+        auto slices = result->slices();
+        if(!slices.empty()) {
+            auto slice = slices.front();
+            if(slice.isObject() && slice.hasKey("error") && slice.get("error").getBool()) {
+                http_error = result->statusCode();
+                arango_error = slice.get("errorNum").getInt();
+                last_error = slice.get("errorMessage").copyString();
+            }
+        }
     }
     return result;
 }
 
-void ArangoDBAPIBase::testConnection()
+bool ArangoDBAPIBase::testConnection()
 {
-    auto request = createREQUEST(RestVerb::Get, "/_api/version");
-    auto result = sendREQUEST(std::move(request));
+    try {
+        auto request = createREQUEST(RestVerb::Get, "/_api/version");
+        auto result = sendREQUEST(std::move(request));
 
-    auto slice = result->slices().front();
-    auto version = slice.get("version").copyString();
-    auto server = slice.get("server").copyString();
-    arango_logger->info("You are connected to: {} {}", server, version);
+        if(last_error.empty()) {
+            arango_logger->info("http code: {}", result->statusCode());
+            auto slice = result->slices().front();
+            auto version = slice.get("version").copyString();
+            auto server = slice.get("server").copyString();
+            arango_logger->info("You are connected to: {} {}", server, version);
+            return true;
+        }
+        else {
+            ARANGO_THROW( "ArangoDBConnect", arango_error, last_error.c_str());
+        }
+    }
+    catch(std::exception& e)
+    {
+        arango_logger->warn("An error occurs in an operation of an ArangoDB server: {}", e.what());
+        return false;
+    }
 }
 
 //----------------------------------------------------------------------------------------
@@ -158,9 +186,7 @@ void ArangoDBCollectionAPI::createCollection(const std::string& collname, const 
     auto result1 = sendREQUEST(std::move(request1));
 
     if( result1->statusCode() != StatusOK ) {
-        auto slice = result1->slices().front();
-        auto errmsg = slice.get("errorMessage").copyString();
-        ARANGO_THROW( "ArangoDBCollectionAPI", 12, std::string("Error when create collection: ") + errmsg );
+        ARANGO_THROW( "ArangoDBCollectionAPI", arango_error, std::string("Error when create collection: ") + last_error );
     }
 }
 
@@ -176,9 +202,7 @@ void ArangoDBCollectionAPI::dropCollection(const std::string& collname )
     auto result = sendREQUEST(std::move(request));
 
     if( result->statusCode() != StatusOK ) {
-        auto slice = result->slices().front();
-        auto errmsg = slice.get("errorMessage").copyString();
-        ARANGO_THROW( "ArangoDBCollectionAPI", 13, std::string("Error when try drop collection: ") + errmsg );
+        ARANGO_THROW( "ArangoDBCollectionAPI", arango_error, std::string("Error when try drop collection: ") + last_error );
     }
 }
 
@@ -221,8 +245,7 @@ bool ArangoDBCollectionAPI::readDocument( const std::string& collname,
     auto slice = result->slices().front();
 
     if( result->statusCode() != StatusOK ) {
-        auto errmsg = slice.get("errorMessage").copyString();
-        ARANGO_THROW( "ArangoDBCollectionAPI", 14, std::string("Error when try load record: ") + errmsg);
+        ARANGO_THROW( "ArangoDBCollectionAPI", arango_error, std::string("Error when try load record: ") + last_error);
     }
     else {
         jsonrec =  slice.toJson(&dump_options);
@@ -246,8 +269,7 @@ std::string ArangoDBCollectionAPI::createDocument( const std::string& collname, 
         auto slice1 = result->slices().front();
 
         if( result->statusCode() >=  StatusBadRequest ) {
-            auto errmsg = slice1.get("errorMessage").copyString();
-            ARANGO_THROW( "ArangoDBCollectionAPI", 15, std::string("Error when try create record: ") + errmsg);
+            ARANGO_THROW( "ArangoDBCollectionAPI", arango_error, std::string("Error when try create record: ") + last_error);
         }
         else {
             newId=slice1.get("_id").copyString();
@@ -276,8 +298,7 @@ std::string ArangoDBCollectionAPI::updateDocument( const std::string& collname,
         auto slice1 = result->slices().front();
 
         if( result->statusCode() >=  StatusBadRequest ) {
-            auto errmsg = slice1.get("errorMessage").copyString();
-            ARANGO_THROW( "ArangoDBCollectionAPI", 16, std::string("Error when try save record: ") + errmsg);
+            ARANGO_THROW( "ArangoDBCollectionAPI", arango_error, std::string("Error when try save record: ") + last_error);
         }
         else {
             newId=slice1.get("_id").copyString();
@@ -300,9 +321,7 @@ bool ArangoDBCollectionAPI::deleteDocument( const std::string& collname, const s
     auto result =  sendREQUEST(std::move(request));
 
     if( result->statusCode() >=  StatusBadRequest ) {
-        auto slice = result->slices().front();
-        auto errmsg = slice.get("errorMessage").copyString();
-        ARANGO_THROW( "ArangoDBCollectionAPI", 17, std::string("Error when try remove record: ") + errmsg);
+        ARANGO_THROW( "ArangoDBCollectionAPI", arango_error, std::string("Error when try remove record: ") + last_error);
         //return false;
     }
     return true;
@@ -685,8 +704,7 @@ void ArangoDBCollectionAPI::removeByTemplate(const std::string &collname, const 
         auto slice1 = result->slices().front();
 
         if( result->statusCode() >=  StatusBadRequest ) {
-            auto errmsg = slice1.get("errorMessage").copyString();
-            arango_logger->error("Error removeByExampleRequest: {}", errmsg);
+            arango_logger->error("Error removeByExampleRequest: {}", last_error);
         }
         else {
             arango_logger->info(" {} - deleted : {}", collname, slice1.get("deleted").getInt());
@@ -745,8 +763,7 @@ void ArangoDBCollectionAPI::removeByKeys( const std::string& collname,  const st
     auto slice1 = result->slices().front();
 
     if( result->statusCode() >=  StatusBadRequest ) {
-        auto errmsg = slice1.get("errorMessage").copyString();
-        arango_logger->error("Error removeByKeys: {}", errmsg);
+        arango_logger->error("Error removeByKeys: {}", last_error);
     }
     else {
         arango_logger->info(" {} - deleted : {} - ignored : {}", collname,

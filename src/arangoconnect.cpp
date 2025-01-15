@@ -98,6 +98,7 @@ void ArangoDBRootClient::resetDBConnection( const ArangoDBConnection& aconnectDa
 {
     rootData = aconnectData;
     pusers.reset( new ArangoDBUsersAPI(rootData) ); /// here must be root data
+    /// posible check exist connection
 }
 
 bool ArangoDBRootClient::existDatabase(const std::string &dbname )
