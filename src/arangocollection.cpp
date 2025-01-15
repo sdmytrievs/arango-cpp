@@ -98,11 +98,11 @@ std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendREQUEST(std::unique_ptr<HttpMe
 
     if( !result->isContentTypeVPack() ) {
         last_error = "illegal content type";
-        ARANGO_THROW( "ArangoDBAPIBase", 3, last_error.c_str());
+        ARANGO_THROW("ArangoDBAPIBase", 3, last_error.c_str());
     }
     if( result->statusCode() == 0 ) {
         last_error = "connections error to " + url;
-        ARANGO_THROW( "ArangoDBAPIBase", 2, last_error.c_str());
+        ARANGO_THROW("ArangoDBAPIBase", 2, last_error.c_str());
     }
 
     // get error

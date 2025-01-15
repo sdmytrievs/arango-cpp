@@ -53,11 +53,11 @@ public:
     /// Test connection.
     bool testConnection();
 
-
+    /// The error number specific to ArangoDB
     std::string lastError() const {
         return last_error;
     }
-
+    /// A brief description of the last error
     int lastErrorNum() const {
         return arango_error;
     }
