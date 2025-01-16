@@ -7,11 +7,6 @@ namespace arangocpp {
 // Send a request to the server and wait into a response it received.
 std::unique_ptr<HttpMessage> ArangoDBUsersAPI::sendREQUEST(std::unique_ptr<HttpMessage> rq )
 {
-    // clear error
-    http_error=0;
-    arango_error=0;
-    last_error={};
-
     auto url = connect_data.serverUrl+rq->header.path;
 
     if(arango_logger->should_log(spdlog::level::debug)) {
@@ -27,26 +22,12 @@ std::unique_ptr<HttpMessage> ArangoDBUsersAPI::sendREQUEST(std::unique_ptr<HttpM
     }
 
     if( !result->isContentTypeVPack() ) {
-        last_error = "illegal content type";
-        ARANGO_THROW( "ArangoDBAPIBase", 3, last_error.c_str());
+        ARANGO_THROW( "ArangoDBAPIBase", 3, "Illegal content type");
     }
     if( result->statusCode() == 0 ) {
-        last_error = "connections error to " + url;
-        ARANGO_THROW( "ArangoDBAPIBase", 2, last_error.c_str());
+        ARANGO_THROW( "ArangoDBAPIBase", 2, "Connections error to " + url);
     }
 
-    // get error
-    if(result->statusCode() >= StatusBadRequest) {
-        auto slices = result->slices();
-        if(!slices.empty()) {
-            auto slice = slices.front();
-            if(slice.isObject() && slice.hasKey("error") && slice.get("error").getBool()) {
-                http_error = result->statusCode();
-                arango_error = slice.get("errorNum").getInt();
-                last_error = slice.get("errorMessage").copyString();
-            }
-        }
-    }
     return result;
 }
 
@@ -124,7 +105,7 @@ void ArangoDBUsersAPI::createDatabase( const std::string& dbname, const std::vec
         auto result = sendREQUEST(std::move(request));
 
         if( result->statusCode() != StatusCreated ) {
-            ARANGO_THROW( "ArangoDBUsersAPI", arango_error, std::string("Error when create database: ")+last_error);
+            ARANGO_ERROR_THROW(result->slices(), "Error when create database: ");
         }
     }
     catch (::arangodb::velocypack::Exception& error ) {
@@ -142,7 +123,7 @@ void ArangoDBUsersAPI::removeDatabase( const std::string& dbname )
     auto result = sendREQUEST(std::move(request));
 
     if( result->statusCode() != StatusOK ) {
-        ARANGO_THROW( "ArangoDBUsersAPI", arango_error, std::string("Error when drop database: ")+last_error);
+        ARANGO_ERROR_THROW(result->slices(), "Error when drop database: ");
     }
 }
 
@@ -174,7 +155,7 @@ void ArangoDBUsersAPI::createUser( const ArangoDBUser& userdata )
         auto result = sendREQUEST(std::move(request));
 
         if( result->statusCode() != StatusCreated ) {
-            ARANGO_THROW( "ArangoDBUsersAPI", arango_error, std::string("Error when create user: ")+last_error);
+            ARANGO_ERROR_THROW(result->slices(), "Error when create user: ");
         }
     }
     catch (::arangodb::velocypack::Exception& error ) {
@@ -200,7 +181,7 @@ void ArangoDBUsersAPI::updateUser( const ArangoDBUser& userdata )
         auto result = sendREQUEST(std::move(request));
 
         if( result->statusCode() != StatusOK ) {
-            ARANGO_THROW( "ArangoDBUsersAPI", arango_error, std::string("Error when update user data: ")+last_error);
+            ARANGO_ERROR_THROW(result->slices(), "Error when update user data: ");
         }
     }
     catch (::arangodb::velocypack::Exception& error ) {
@@ -215,7 +196,7 @@ void ArangoDBUsersAPI::removeUser( const std::string& username )
     auto result = sendREQUEST(std::move(request));
 
     if( result->statusCode() != StatusAccepted ) {
-        ARANGO_THROW( "ArangoDBUsersAPI", arango_error, std::string("Error when drop user: ")+last_error);
+        ARANGO_ERROR_THROW(result->slices(), "Error when drop user: ");
     }
 }
 
@@ -232,7 +213,7 @@ void ArangoDBUsersAPI::grantUserToDataBase(const std::string& dbname, const std:
     auto result = sendREQUEST(std::move(request));
 
     if( result->statusCode() != StatusOK ) {
-         ARANGO_THROW( "ArangoDBUsersAPI", arango_error, std::string("Error when grant user: ")+last_error);
+        ARANGO_ERROR_THROW(result->slices(), "Error when grant user: ");
     }
 }
 

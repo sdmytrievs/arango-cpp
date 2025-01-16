@@ -84,7 +84,7 @@ void ArangoDBGraphAPI::removeGraph( const std::string& graphname, bool dropColle
     auto result = sendREQUEST(std::move(request));
 
     if( result->statusCode() >  StatusAccepted ) {
-        ARANGO_THROW( "ArangoDBGraphAPI", arango_error, std::string("Error when drop graph: ")+last_error );
+        ARANGO_ERROR_THROW(result->slices(), "Error when drop graph: ");
     }
 }
 
@@ -124,7 +124,7 @@ void ArangoDBGraphAPI::addVertexGraph(const std::string& graphname, const std::s
     auto result1 = sendREQUEST(std::move(request1));
 
     if( result1->statusCode() >=  StatusBadRequest ) {
-        ARANGO_THROW( "ArangoDBGraphAPI", arango_error, "Error when add collection:" + last_error);
+        ARANGO_ERROR_THROW(result1->slices(), "Error when add collection: ");
     }
 }
 
@@ -140,7 +140,7 @@ void ArangoDBGraphAPI::addEdgeGraph(const std::string& graphname, const std::str
         auto result1 = sendREQUEST(std::move(request1));
 
         if( result1->statusCode() >=  StatusBadRequest ) {
-            ARANGO_THROW( "ArangoDBGraphAPI", arango_error, "Error create edge: "+last_error);
+            ARANGO_ERROR_THROW(result1->slices(), "Error create edge: ");
         }
     }
     catch (::arangodb::velocypack::Exception& error )
@@ -165,7 +165,7 @@ bool ArangoDBGraphAPI::readRecord( const std::string& graphname, const std::stri
     auto slice = result->slices().front();
 
     if( result->statusCode() != StatusOK ) {
-        ARANGO_THROW( "ArangoDBGraphAPI", arango_error, std::string("Error when try load record: ") + last_error);
+        ARANGO_ERROR_THROW(result->slices(), "Error when try load record: ");
     }
     else {
         jsonrec =  slice.get(colltype).toJson(&dump_options);
@@ -190,7 +190,7 @@ std::string ArangoDBGraphAPI::createRecord( const std::string& graphname, const 
         auto slice1 = result->slices().front();
 
         if( result->statusCode() >=  StatusBadRequest ) {
-            ARANGO_THROW( "ArangoDBGraphAPI", arango_error, std::string("Error when try create record: ") + last_error);
+            ARANGO_ERROR_THROW(result->slices(), "Error when try create record: ");
         }
         else {
             newId= slice1.get(colltype).get("_id").copyString();
@@ -220,7 +220,7 @@ std::string ArangoDBGraphAPI::updateRecord( const std::string& graphname, const 
         auto slice1 = result->slices().front();
 
         if( result->statusCode() >=  StatusBadRequest ) {
-            ARANGO_THROW( "ArangoDBGraphAPI", arango_error, std::string("Error when try save record: ") + last_error);
+            ARANGO_ERROR_THROW(result->slices(), "Error when try save record: ");
         }
         else {
             newId=slice1.get(colltype).get("_id").copyString();
@@ -246,7 +246,7 @@ bool ArangoDBGraphAPI::deleteRecord( const std::string& graphname, const std::st
     auto result =  sendREQUEST(std::move(request));
 
     if( result->statusCode() >=  StatusBadRequest ) {
-        ARANGO_THROW( "ArangoDBGraphAPI", arango_error, std::string("Error when try remove record: ") + last_error);
+        ARANGO_ERROR_THROW(result->slices(), "Error when try remove record: ");
     }
     return true;
 }

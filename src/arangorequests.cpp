@@ -221,4 +221,21 @@ std::string to_string(HttpMessage& message)
     return ss.str();
 }
 
+
+/// Throw  arangodb exception.
+[[ noreturn ]] void ARANGO_ERROR_THROW(std::vector<::arangodb::velocypack::Slice>const & slices, std::string&& message )
+{
+    int arango_error=0;
+    std::string last_error;
+
+    if(!slices.empty()) {
+        auto slice = slices.front();
+        if(slice.isObject() && slice.hasKey("error") && slice.get("error").getBool()) {
+            arango_error = slice.get("errorNum").getInt();
+            last_error = slice.get("errorMessage").copyString();
+        }
+    }
+    ARANGO_THROW("ArangoDB", arango_error, message + last_error);
+}
+
 } // namespace arangocpp

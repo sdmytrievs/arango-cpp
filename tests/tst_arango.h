@@ -111,32 +111,32 @@ TEST(JSONARANGO, ArangoSanitizingKey )
 
 TEST(JSONARANGO, ArangoConnectionErrorLocal )
 {
+   std::string err_message;
    ArangoDBConnection err_data("http://localhost:8529", "root", "", "test_db_api");
    arangocpp::ArangoDBCollectionAPI connect{err_data};
-   EXPECT_TRUE(connect.testConnection());
-   EXPECT_EQ(connect.lastError(), "");
-   EXPECT_EQ(connect.lastErrorNum(), 0);
+   EXPECT_EQ(connect.getConnectMessage(), "The client is connected to the arango server version 3.5.6");
+   EXPECT_TRUE(connect.testConnection(err_message));
+   EXPECT_EQ(err_message, "The client is connected to the arango server version 3.5.6");
 
    connect.resetDBConnection(ArangoDBConnection{"http://localhost:8529", "root", "", "error_db_name"});
-   EXPECT_FALSE(connect.testConnection());
-   EXPECT_EQ(connect.lastError(), "database not found");
-   EXPECT_EQ(connect.lastErrorNum(), 1228);
+   EXPECT_EQ(connect.getConnectMessage(), "An error occurs in ArangoDB server: database not found");
+   EXPECT_FALSE(connect.testConnection(err_message));
+   EXPECT_EQ(err_message, "An error occurs in ArangoDB server: database not found");
 
    connect.resetDBConnection(ArangoDBConnection{"http://localhost:8529", "error_root", "", "test_db_api"});
-   EXPECT_FALSE(connect.testConnection());
-   EXPECT_EQ(connect.lastError(), "not authorized to execute this request");
-   EXPECT_EQ(connect.lastErrorNum(), 11);
+   EXPECT_EQ(connect.getConnectMessage(), "An error occurs in ArangoDB server: not authorized to execute this request");
+   EXPECT_FALSE(connect.testConnection(err_message));
+   EXPECT_EQ(err_message, "An error occurs in ArangoDB server: not authorized to execute this request");
 
    connect.resetDBConnection(ArangoDBConnection{"http://localhost:8529", "root", "error_pswd", "test_db_api"});
-   EXPECT_FALSE(connect.testConnection());
-   EXPECT_EQ(connect.lastError(), "not authorized to execute this request");
-   EXPECT_EQ(connect.lastErrorNum(), 11);
+   EXPECT_EQ(connect.getConnectMessage(), "An error occurs in ArangoDB server: not authorized to execute this request");
+   EXPECT_FALSE(connect.testConnection(err_message));
+   EXPECT_EQ(err_message, "An error occurs in ArangoDB server: not authorized to execute this request");
 
    connect.resetDBConnection(ArangoDBConnection{"http://errorhost:8529", "root", "", "test_db_api"});
-   EXPECT_FALSE(connect.testConnection());
-   EXPECT_EQ(connect.lastError(), "connections error to http://errorhost:8529/_db/test_db_api/_api/version");
-   EXPECT_EQ(connect.lastErrorNum(), 0);
-
+   EXPECT_EQ(connect.getConnectMessage(), "Connections error to http://errorhost:8529/_db/test_db_api/_api/version");
+   EXPECT_FALSE(connect.testConnection(err_message));
+   EXPECT_EQ(err_message, "Connections error to http://errorhost:8529/_db/test_db_api/_api/version");
 }
 #endif
 
@@ -144,30 +144,31 @@ TEST(JSONARANGO, ArangoConnectionErrorLocal )
 
 TEST(JSONARANGO, ArangoConnectionErrorRemote )
 {
+   std::string err_message;
    ArangoDBConnection err_data("https://db.thermohub.net", "test_api_user", "TestApiUser@Remote-ThermoHub-Server", "test_db_api");
    arangocpp::ArangoDBCollectionAPI connect{err_data};
-   EXPECT_TRUE(connect.testConnection());
-   EXPECT_EQ(connect.lastError(), "");
-   EXPECT_EQ(connect.lastErrorNum(), 0);
+   EXPECT_EQ(connect.getConnectMessage(), "The client is connected to the arango server version 3.9.12");
+   EXPECT_TRUE(connect.testConnection(err_message));
+   EXPECT_EQ(err_message, "The client is connected to the arango server version 3.9.12");
 
    connect.resetDBConnection(ArangoDBConnection{"https://db.thermohub.net", "test_api_user", "TestApiUser@Remote-ThermoHub-Server", "error_db_name"});
-   EXPECT_FALSE(connect.testConnection());
-   EXPECT_EQ(connect.lastError(), "forbidden");
-   EXPECT_EQ(connect.lastErrorNum(), 11);
+   EXPECT_EQ(connect.getConnectMessage(), "An error occurs in ArangoDB server: forbidden");
+   EXPECT_FALSE(connect.testConnection(err_message));
+   EXPECT_EQ(err_message, "An error occurs in ArangoDB server: forbidden");
 
    connect.resetDBConnection(ArangoDBConnection{"https://db.thermohub.net", "error_user", "TestApiUser@Remote-ThermoHub-Server", "test_db_api"});
-   EXPECT_FALSE(connect.testConnection());
-   EXPECT_EQ(connect.lastError(), "not authorized to execute this request");
-   EXPECT_EQ(connect.lastErrorNum(), 11);
+   EXPECT_EQ(connect.getConnectMessage(), "An error occurs in ArangoDB server: not authorized to execute this request");
+   EXPECT_FALSE(connect.testConnection(err_message));
+   EXPECT_EQ(err_message, "An error occurs in ArangoDB server: not authorized to execute this request");
 
    connect.resetDBConnection(ArangoDBConnection{"https://db.thermohub.net", "test_api_user", "error_pswd", "test_db_api"});
-   EXPECT_FALSE(connect.testConnection());
-   EXPECT_EQ(connect.lastError(), "not authorized to execute this request");
-   EXPECT_EQ(connect.lastErrorNum(), 11);
+   EXPECT_EQ(connect.getConnectMessage(), "An error occurs in ArangoDB server: not authorized to execute this request");
+   EXPECT_FALSE(connect.testConnection(err_message));
+   EXPECT_EQ(err_message, "An error occurs in ArangoDB server: not authorized to execute this request");
 
    connect.resetDBConnection(ArangoDBConnection{"https://db.error.thermohub.net", "test_api_user", "TestApiUser@Remote-ThermoHub-Server", "test_db_api"});
-   EXPECT_FALSE(connect.testConnection());
-   EXPECT_EQ(connect.lastError(), "connections error to https://db.error.thermohub.net/_db/test_db_api/_api/version");
-   EXPECT_EQ(connect.lastErrorNum(), 0);
+   EXPECT_EQ(connect.getConnectMessage(), "Connections error to https://db.error.thermohub.net/_db/test_db_api/_api/version");
+   EXPECT_FALSE(connect.testConnection(err_message));
+   EXPECT_EQ(err_message, "Connections error to https://db.error.thermohub.net/_db/test_db_api/_api/version");
 }
 #endif

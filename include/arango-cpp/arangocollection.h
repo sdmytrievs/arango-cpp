@@ -51,15 +51,12 @@ public:
     }
 
     /// Test connection.
-    bool testConnection();
+    bool testConnection(std::string& error_message);
 
-    /// The error number specific to ArangoDB
-    std::string lastError() const {
-        return last_error;
-    }
-    /// A brief description of the last error
-    int lastErrorNum() const {
-        return arango_error;
+    /// Notification of the result of the test connection request
+    ///  when connecting to the ArangoDB server.
+    std::string getConnectMessage() const {
+      return connected_message;
     }
 
 protected:
@@ -68,13 +65,8 @@ protected:
     ArangoDBConnection connect_data;
     /// Max number of records on transfer
     int batch_size = 500;
-
-    /// The HTTP protocol error.
-    int http_error;
-    /// The error number specific to ArangoDB
-    int arango_error;
-    /// A brief description of the last error
-    std::string last_error;
+    /// Notification of the result of a test connection request
+    std::string connected_message;
 
     virtual std::unique_ptr<HttpMessage> createREQUEST( RestVerb verb, std::string const& path,
                                                         StringMap const& parameter = StringMap() );
