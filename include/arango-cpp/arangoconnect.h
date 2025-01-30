@@ -39,6 +39,7 @@ struct ArangoDBUser
 };
 
 bool operator!=(const ArangoDBUser& lhs, const ArangoDBUser& rhs);
+bool operator==(const ArangoDBUser& lhs, const ArangoDBUser& rhs);
 
 
 struct ArangoDBConnection
@@ -97,6 +98,7 @@ struct ArangoDBConnection
 };
 
 bool operator!=(const ArangoDBConnection& lhs, const ArangoDBConnection& rhs);
+bool operator==(const ArangoDBConnection& lhs, const ArangoDBConnection& rhs);
 
 
 /// Definition of ArangoDB root API Low Level C++ Driver for ArangoDB.

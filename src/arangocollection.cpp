@@ -100,6 +100,12 @@ std::unique_ptr<HttpMessage> ArangoDBAPIBase::sendREQUEST(std::unique_ptr<HttpMe
     return result;
 }
 
+
+// GET /_api/version and GET /_admin/version: These APIs return the server version number,
+//    but can also be used as a liveliness probe, to check if the instance is responding to incoming HTTP requests.
+// GET /_admin/status: This API returns information about the instance’s status,
+//    including the recovery progress and information about which server feature is currently starting.
+
 bool ArangoDBAPIBase::testConnection(std::string& error_message)
 {
     try {
