@@ -51,7 +51,13 @@ public:
     }
 
     /// Test connection.
-    void testConnection();
+    bool testConnection(std::string& error_message);
+
+    /// Notification of the result of the test connection request
+    ///  when connecting to the ArangoDB server.
+    std::string getConnectMessage() const {
+      return connected_message;
+    }
 
 protected:
 
@@ -59,6 +65,8 @@ protected:
     ArangoDBConnection connect_data;
     /// Max number of records on transfer
     int batch_size = 500;
+    /// Notification of the result of a test connection request
+    std::string connected_message;
 
     virtual std::unique_ptr<HttpMessage> createREQUEST( RestVerb verb, std::string const& path,
                                                         StringMap const& parameter = StringMap() );

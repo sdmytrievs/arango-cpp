@@ -130,6 +130,7 @@ std::unique_ptr<HttpMessage> createResponse( );
 
 std::string to_string(RestVerb type);
 std::string to_string(HttpMessage& message);
+[[ noreturn ]] void ARANGO_ERROR_THROW(std::vector<::arangodb::velocypack::Slice>const & slices, std::string&& message);
 
 } // namespace arangocpp
 

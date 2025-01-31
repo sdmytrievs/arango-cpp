@@ -28,16 +28,26 @@ const char* ArangoDBConnection::remote_server_password  = "__put_here_the_remote
 const char* ArangoDBConnection::remote_server_database  = "_system";
 
 
-bool operator!=(const ArangoDBUser& lhs, const ArangoDBUser& rhs)
+bool operator==(const ArangoDBUser& lhs, const ArangoDBUser& rhs)
 {
-    return  lhs.name != rhs.name || lhs.access != rhs.access;
+    return  lhs.name == rhs.name && lhs.access == rhs.access;
 }
 
+bool operator!=(const ArangoDBUser& lhs, const ArangoDBUser& rhs)
+{
+    return !(lhs==rhs);
+}
+
+bool operator==(const ArangoDBConnection& lhs, const ArangoDBConnection& rhs)
+{
+    return lhs.serverUrl == rhs.serverUrl && lhs.user == rhs.user &&
+            lhs.databaseName == rhs.databaseName;
+}
 bool operator!=(const ArangoDBConnection& lhs, const ArangoDBConnection& rhs)
 {
-    return lhs.serverUrl != rhs.serverUrl || lhs.user != rhs.user ||
-            lhs.databaseName != rhs.databaseName;
+    return !(lhs==rhs);
 }
+
 
 // Get settings data from json string
 ArangoDBConnection connectFromSettings( const std::string& jsonstr, bool rootdata )
@@ -98,6 +108,7 @@ void ArangoDBRootClient::resetDBConnection( const ArangoDBConnection& aconnectDa
 {
     rootData = aconnectData;
     pusers.reset( new ArangoDBUsersAPI(rootData) ); /// here must be root data
+    /// posible check exist connection
 }
 
 bool ArangoDBRootClient::existDatabase(const std::string &dbname )

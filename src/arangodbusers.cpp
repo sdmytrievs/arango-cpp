@@ -22,8 +22,12 @@ std::unique_ptr<HttpMessage> ArangoDBUsersAPI::sendREQUEST(std::unique_ptr<HttpM
     }
 
     if( !result->isContentTypeVPack() ) {
-        ARANGO_THROW( "ArangoDBUsersAPI", 42, "Illegal content type" );
+        ARANGO_THROW( "ArangoDBAPIBase", 3, "Illegal content type");
     }
+    if( result->statusCode() == 0 ) {
+        ARANGO_THROW( "ArangoDBAPIBase", 2, "Connections error to " + url);
+    }
+
     return result;
 }
 
@@ -101,8 +105,7 @@ void ArangoDBUsersAPI::createDatabase( const std::string& dbname, const std::vec
         auto result = sendREQUEST(std::move(request));
 
         if( result->statusCode() != StatusCreated ) {
-            auto errmsg = result->slices().front().get("errorMessage").copyString();
-            ARANGO_THROW( "ArangoDBUsersAPI", 43, std::string("Error when create database: ")+errmsg );
+            ARANGO_ERROR_THROW(result->slices(), "Error when create database: ");
         }
     }
     catch (::arangodb::velocypack::Exception& error ) {
@@ -120,8 +123,7 @@ void ArangoDBUsersAPI::removeDatabase( const std::string& dbname )
     auto result = sendREQUEST(std::move(request));
 
     if( result->statusCode() != StatusOK ) {
-        auto errmsg = result->slices().front().get("errorMessage").copyString();
-        ARANGO_THROW( "ArangoDBUsersAPI", 44, std::string("Error when drop database: ")+errmsg );
+        ARANGO_ERROR_THROW(result->slices(), "Error when drop database: ");
     }
 }
 
@@ -153,8 +155,7 @@ void ArangoDBUsersAPI::createUser( const ArangoDBUser& userdata )
         auto result = sendREQUEST(std::move(request));
 
         if( result->statusCode() != StatusCreated ) {
-            auto errmsg = result->slices().front().get("errorMessage").copyString();
-            ARANGO_THROW( "ArangoDBUsersAPI", 45, std::string("Error when create user: ")+errmsg );
+            ARANGO_ERROR_THROW(result->slices(), "Error when create user: ");
         }
     }
     catch (::arangodb::velocypack::Exception& error ) {
@@ -180,8 +181,7 @@ void ArangoDBUsersAPI::updateUser( const ArangoDBUser& userdata )
         auto result = sendREQUEST(std::move(request));
 
         if( result->statusCode() != StatusOK ) {
-            auto errmsg = result->slices().front().get("errorMessage").copyString();
-            ARANGO_THROW( "ArangoDBUsersAPI", 46, std::string("Error when update user data: ")+errmsg );
+            ARANGO_ERROR_THROW(result->slices(), "Error when update user data: ");
         }
     }
     catch (::arangodb::velocypack::Exception& error ) {
@@ -196,8 +196,7 @@ void ArangoDBUsersAPI::removeUser( const std::string& username )
     auto result = sendREQUEST(std::move(request));
 
     if( result->statusCode() != StatusAccepted ) {
-        auto errmsg = result->slices().front().get("errorMessage").copyString();
-        ARANGO_THROW( "ArangoDBUsersAPI", 47, std::string("Error when drop user: ")+errmsg );
+        ARANGO_ERROR_THROW(result->slices(), "Error when drop user: ");
     }
 }
 
@@ -214,8 +213,7 @@ void ArangoDBUsersAPI::grantUserToDataBase(const std::string& dbname, const std:
     auto result = sendREQUEST(std::move(request));
 
     if( result->statusCode() != StatusOK ) {
-        auto errmsg = result->slices().front().get("errorMessage").copyString();
-        ARANGO_THROW( "ArangoDBUsersAPI", 48, std::string("Error when grant user: ")+errmsg );
+        ARANGO_ERROR_THROW(result->slices(), "Error when grant user: ");
     }
 }
 
