@@ -1,5 +1,5 @@
 # Require a certain version of cmake
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.16)
 
 # Set the name of the project
 project(arango-cpp VERSION 1.1.0 LANGUAGES CXX C)

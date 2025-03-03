@@ -66,7 +66,10 @@ jobs:
         run: |
           call conda activate arango-cpp || goto :eof
           mkdir .build && cd .build || goto :eof
-          cmake -GNinja .. -DCMAKE_BUILD_TYPE=Release || goto :eof
+          echo "Configuring..." || goto :eof
+          cmake -DCMAKE_BUILD_TYPE=Release -DBULID_REMOTE_TESTS=OFF  .. -A x64 -S . -B build  || goto :eof
+          echo "Building..." || goto :eof
+          cmake --build build --target install || goto :eof
           ninja || goto :eof
           ninja install || goto :eof
 
