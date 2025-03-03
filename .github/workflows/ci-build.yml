@@ -52,7 +52,7 @@ jobs:
 
       - name: Building, Testing & Installing arango-cpp
         if: matrix.os != 'windows-latest'
-        shell: bash
+        shell: bash -l {0}
         run: |
           conda activate arango-cpp
           mkdir .build && cd .build
@@ -66,7 +66,7 @@ jobs:
         run: |
           call conda activate arango-cpp || goto :eof
           mkdir .build && cd .build || goto :eof
-          cmake -GNinja .. -DCMAKE_BUILD_TYPE=${{ matrix.config }} || goto :eof
+          cmake -GNinja .. -DCMAKE_BUILD_TYPE=Release || goto :eof
           ninja || goto :eof
           ninja install || goto :eof
 
