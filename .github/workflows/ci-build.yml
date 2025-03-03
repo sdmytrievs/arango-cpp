@@ -69,8 +69,6 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DBULID_REMOTE_TESTS=OFF  -A x64 -S . -B build  || goto :eof
           echo "Building..." || goto :eof
           cmake --build build --target install || goto :eof
-          ninja || goto :eof
-          ninja install || goto :eof
 
       - name: Check conda
         run: |
