@@ -1,22 +1,18 @@
 name: arango-cpp
 
+channels:
+  - conda-forge
+
 dependencies:
-  - gxx_linux-64>=9.4.0  # [linux]
-  - cmake>=3.13
-  - ninja # [unix]
-  - make  # [win]
+  - cmake
+  - make  # [unix]
+  - ninja
+  - doxygen =1.9.1  # [linux]
   - git
-  - ccache  # [unix]
+  - clangxx_osx-64  # [osx]
+  - gxx_linux-64  # [linux]
+  - vs2022_win-64  # [win]
   - curl
-  - nlohmann_json
-#  - velocypack
   - spdlog
 
 
-environment:
-
-  LD_LIBRARY_PATH:                                                   # [unix]
-    - {{ root }}/artifacts/lib                                       # [unix]
-
-  PATH:                                                              # [win]
-    - {{ root }}\artifacts\bin                                       # [win]
