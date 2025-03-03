@@ -9,10 +9,10 @@ dependencies:
   - ninja
   - doxygen =1.9.1  # [linux]
   - git
-  - clang_osx-arm64 # [osx]
+  #- clang_osx-arm64 # [osx]
   #- clangxx_osx-64  # [osx]
-  - gxx_linux-64  # [linux]
-  - vs2022_win-64  # [win]
+  #- gxx_linux-64  # [linux]
+  #- vs2022_win-64  # [win]
   - curl
   - spdlog
 
