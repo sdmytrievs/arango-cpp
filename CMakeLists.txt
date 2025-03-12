@@ -32,11 +32,11 @@ option(BULID_LOCAL_TESTS "Build test suite for local ArangoDB" OFF)
 option(BULID_REMOTE_TESTS "Build test suite for remote ArangoDB" ON)
 
 # Used into conda only
-if(DEFINED ENV{CONDA_PREFIX})
-   option(USE_SPDLOG_PRECOMPILED "Use spdlog in compiled version" ON)
-else()
-   option(USE_SPDLOG_PRECOMPILED "Use spdlog in compiled version" OFF)
-endif()
+#if(DEFINED ENV{CONDA_PREFIX})
+#   option(USE_SPDLOG_PRECOMPILED "Use spdlog in compiled version" ON)
+#else()
+#   option(USE_SPDLOG_PRECOMPILED "Use spdlog in compiled version" OFF)
+#endif()
 
 # Set the default build type to Release
 if(NOT CMAKE_BUILD_TYPE)
